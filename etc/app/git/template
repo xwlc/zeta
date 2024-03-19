@@ -1,0 +1,20 @@
+
+# ------------------------------------------------------------------------------
+# type(scope): short-description
+# HERE-SHOULD-BE-ONE-BLANK-LINE
+# optional-body
+# HERE-SHOULD-BE-ONE-BLANK-LINE
+# optional-footer
+# ------------------------------------------------------------------------------
+# PATCH 🟢 fix      make backward-compatible bug fixes or patches
+# MINOR 🔵 feat     add new functionality in backward-compatible manner
+# MAJOR 🔴          appends ! just after type/scope, but before the colon
+#
+# 👽 chore, docs, style, build/deps, test/ci, refactor, revert, perf
+#
+# 🔥 type! OR type(scope)! correlating with MAJOR
+# 🔥 BREAKING CHANGE: ⋯ description what/why/how ⋯
+# 🔥 Footers: BREAKING CHANGE: ⋯, KNOWN ISSUE: ⋯, CLOSE: ⋯
+# ------------------------------------------------------------------------------
+# https://www.conventionalcommits.org/en/v1.0.0/
+# ------------------------------------------------------------------------------

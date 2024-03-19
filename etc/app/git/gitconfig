@@ -1,0 +1,194 @@
+# NOTE https://git-scm.com/download/linux
+# The latest upstream stable git version Ubuntu PPA
+# => https://launchpad.net/~git-core/+archive/ubuntu/ppa
+# sudo add-apt-repository ppa:git-core/ppa; sudo apt update
+
+# 关于 Git 操作时需要的账户和密码
+# https://git-scm.com/docs/gitcredentials
+# -> 进行 GPG 签名操作时: commit, tag, push
+# -> 提交到远程仓库时: http:// 或 https:// 或 ssh:// 或 git@
+# NOTE Without any credential helpers defined, git will try following strategies
+# 默认优先级: $GIT_ASKPASS > core.askPass > $SSH_ASKPASS > prompt-on-terminal
+# NOTE Specify an external helper to be called when a credential is needed
+# -> Find a helper     `git help -a | grep credential-`
+# -> Read description  `git help credential-foo`
+# -> Tell git use it   `git config --global credential.helper foo`
+#
+# 主要平台可用的软件列表
+# -> https://git-scm.com/doc/credential-helpers
+# NOTE Ubuntu 推荐安装 KDE 的密钥管理器 KDE Wallet
+# -> https://wiki.archlinux.org/title/KDE_Wallet
+# -> https://docs.kde.org/stable5/en/kwalletmanager/kwallet5/index.html
+# NOTE Git Credential Manager(内置于 Windows 版 Git)
+# 在首次发送邮件时要求输入账户密码(加密保存在系统)
+# -> https://github.com/git-ecosystem/git-credential-manager
+# -> https://github.com/Microsoft/Git-Credential-Manager-for-Windows
+# WIN11: 控制面板->用户帐户->凭据管理器->Windows凭证->普通凭证 git:smtp://...
+
+[init]
+  # main, trunk, master, devel, development
+  defaultBranch = "trunk"
+
+[push]
+  # `git push` default action if no refspec is given, values can be one of:
+  # nothing  => do not push anything (error out) unless a refspec is given
+  # simple   => push current branch with same name on the remote, default
+  # current  => push current branch to update remote branch with the same name
+  # upstream => push current branch back to remote branch, for central workflow
+  # matching => push all branches having the same name on both ends
+  default = current
+
+# tag version sort order
+[tag] # newest first
+  sort = -version:refname
+[versionsort]
+  suffix = '-lts'
+  suffix = ''
+  suffix = '-rc'
+  suffix = '-pre'
+
+[core]
+  # working tree text files line ending to use: lf, lfcr, native
+  # - the default value is set to native
+  # - ignored if autocrlf is set to true or input
+  eol = native
+  # false => commit & checkout both no conversion
+  # true  => commit CRLF -> LF, checkout CRLF <- LF
+  # input => commit CRLF -> LF, checkout no conversion
+  autocrlf = input
+  # check if converting CRLF is reversible when autocrlf is active
+  # false => use of LF or CRLF in file is OK
+  # warn  => git warn if end-of-line not reversible
+  # true  => git reject if end-of-line not reversible
+  safecrlf = warn
+  # default message editor, also see variable GIT_EDITOR
+  # 优先级: GIT_EDITOR > core.editor > VISUAL > EDITOR > 默认值 vi
+  editor = nano
+  # true  => output paths of git cmd will quote unusual characters
+  #          NOTE This cause `git status` output chinese messy code
+  # false => bytes higher than 0x80 are not considered "unusual" any more
+  quotepath = false
+  # git 命令分页器，git 显示大段内容时进行分页展示
+  # core.pager 分页器全局设置, pager.<cmd> 分页器子命令设置
+  # 优先级: $GIT_PAGER > core.pager > $PAGER > 编译时指定值(less)
+  pager = less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+  # A comma separated list of common whitespace problems, prefix - to disable
+  # blank-at-eol          trail whitespaces at end of line as error, enabled by default
+  # blank-at-eof          treat blank lines at end of file as error, enabled by default
+  # trailing-space        short-hand to cover both `blank-at-eol` and `blank-at-eof`
+  # space-before-tab      space before tab in initial indent as error, enabled by default
+  # cr-at-eol             treats a CR at end of line as part of line terminator
+  # tab-in-indent         treat tab in initial indent part of line as an error
+  # indent-with-non-tab   treat indented with space instead of tabs as an error
+  # tabwidth=<n>          how many chars positions a tab occupies, default is 8
+  # core.whitespace = default configure values is OK
+
+# => The Color Attributes
+# bold, dim, ul, blink, reverse, italic, strike
+# NOTE Attributes may be turned off by prefixing them with `no` or `no-`
+#
+# => The Basic Colors
+# normal, black, red, green, yellow, blue, magenta, cyan, white, default
+# NOTE `normal` makes no change to the color, equivalent empty string
+# NOTE `default` explicitly resets the color to the terminal default
+# NOTE `reset` resets all colors and attributes before applying specified ones
+# NOTE except `normal` & `default`, others have bright variant, like 'brightred'
+# => Modern Terminal Colors
+# NOTE if terminal support 24-bit RGB(truecolor), html color codes is valid
+# NOTE if terminal support ANSI 256-color Mode, valid numbers between 0 and 255
+[color]
+  # The default value for variables such as color.diff and color.grep
+  # always      => not intended for machine consumption, all output use color
+  # false/never => prefer git cmds not to use color unless enabled explicitly
+  # true/auto   => prefer all to use color when written to terminal, default
+  ui = auto
+
+# The attributes can have as many as you want, separated by spaces
+# The first color(argument) is foreground, and second is background if has
+[color "status"]
+  added = green
+  changed = yellow
+  untracked = red
+
+[color "branch"]
+  local = red
+  remote = green
+  current = blue reverse
+
+[color "diff"]
+  old = red bold
+  new = green bold
+  meta = blue bold
+  frag = yellow bold
+  whitespace = magenta reverse
+
+[diff]
+  tool = xcompare
+
+[merge]
+  tool = xcompare
+
+[difftool "xcompare"]
+  # prompt before each invocation of the difftool
+  prompt = true
+  # $LOCAL    set to a temporary file, which is original, pre-image data
+  # $REMOTE   set to a temporary file, which is modified, pre-image data
+  cmd = bash "\"$XCOMPARE\" \"$LOCAL\" \"$REMOTE\""
+
+[mergetool "xcompare"]
+  # prompt before each invocation of the mergetool
+  prompt = true
+  # $LOCAL    set to a temporary file, which is the current branch file
+  # $REMOTE   set to a temporary file, which is file of branch being merged
+  # $BASE     set to a temporary file, common base of the files to be merged
+  # $MERGED   set to the file to which the merge tool should write the results
+  cmd = bash "\"$XCOMPARE\" \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\""
+
+[sendemail]
+  # Whether confirm before sending
+  # -> always   always confirm before sending
+  # -> never    never confirm before sending
+  # -> cc       confirm before sending when send-email has automatically
+  #             added addresses from the patch to the Cc list
+  # -> compose  confirm before sending the first message when using --compose
+  # -> auto     is equivalent to `cc` + `compose`
+  # The default value for --confirm=<mode>
+  confirm = auto
+
+  # Specify additional category of recipients to suppress the auto-cc
+  # -> author   avoid including the patch author
+  # -> self     avoid including the sender
+  # -> cc       avoid including anyone mentioned in Cc lines in
+  #             the patch header except for self, use `self` for that
+  # -> bodycc   avoid including anyone mentioned in Cc lines in the patch
+  #             body (commit message) except for self, use `self` for that
+  # -> sob      avoid including anyone mentioned in the Signed-off-by
+  #             trailers except for self, use `self` for that
+  # -> misc-by  avoid including anyone mentioned in Acked-by, Reviewed-by,
+  #             Tested-by and other "-by" lines in the patch body, except
+  #             Signed-off-by, use `sob` for that
+  # -> cccmd    avoid running the --cc-cmd
+  # -> body     is equivalent to `sob` + `bodycc` + `misc-by`
+  # -> all      will suppress all auto `cc` values
+  # The default value for --suppress-cc=<category>
+  suppresscc = self
+
+  # Specify in what way encrypting begins for the SMTP connection
+  # NOTE Valid values are `ssl` and `tls`, any other value reverts
+  # to plain (unencrypted) SMTP, which defaults to the port 25
+  # The default value for --smtp-encryption=<encryption>
+  smtpEncryption = tls
+
+  # Specifies a port different from the default port
+  # NOTE SMTP servers typically listen to smtp port 25, may
+  # also listen to port 587, or the common SSL smtp port 465
+  # The default value for --smtp-server-port=<port>
+  smtpServerPort = 587
+
+# NOTE https://git-scm.com/docs/git-log
+# if <format> omitted, then git use `medium` by default
+# built-in log formats for --pretty=<format> or --format=<format>
+# => oneline, short, medium, full, fuller, reference, email, raw
+[pretty]
+  # `git log --pretty=simple` equivalent to `git log "--pretty=format:* %H %s"`
+  simple = "format:* %C(red)%h %C(green)%as %C(dim white)%ae %C(reset)%s"

@@ -1,0 +1,385 @@
+# https://www.gitalias.com
+# http://git.github.io/git-reference
+# http://marklodato.github.io/visual-git-guide/index-en.html
+
+# NOTE Advanced Alias Template
+# git allows you to run shell cmd in alias, use !(bang) to escape to shell cmds.
+# This opens a new world of possibilities for your aliases. By forking a shell
+# process we are able to access a lot of things: Shell Expansions & Parameters
+# * use multiple git commands and all Unix command line toolkit as needed
+#
+# Here is the template for an advanced alias that requires parameters:
+#   MyAlias1 = "!f() { <Your Shell Commands ...> }; f"
+#
+#   MyAlias2 = "!f() { \
+#     # Your Shell Code Comes Here ... \
+#   }; f"
+#
+# NOTE Always use double quotes around variable expansions!
+# NOTE If too complex, recommend to make it as shell function!
+
+
+[alias]
+  a = add
+  b = branch
+  c = commit
+  d = diff
+# e
+  f = fetch
+  g = grep
+# h
+# i
+# j
+# k
+  l = log
+  m = merge
+# n
+  o = checkout # co
+  p = pull
+# q
+  r = remote # rr
+  s = status
+  t = tag
+# u
+# v
+  w = whatchanged
+# x
+# y
+# z
+
+#
+## add
+#
+# add all changes of current working tree
+aa = add --all
+# interactively choose hunks of patch between index and work tree
+ap = add --patch
+# add all tracked files in the working tree that are modified
+au = add --update
+# add modified & new files, but ignore deleted files
+aw = add .
+
+#
+## branch
+#
+# show all branches
+ba = branch --all
+# branch with edit description
+bed = branch --edit-description
+# list branches whose tips are reachable from specified commit, HEAD if not specified
+bm = branch --merged
+# list branches whose tips are not reachable from specified commit, HEAD if not specified
+bnm = branch --no-merged
+# show branch description
+bsd = "!f() { \
+  branch=\"${1:-$(git rev-parse --abbrev-ref HEAD 2>/dev/null)}\"; \
+  git config \"branch.$branch.description\"; \
+}; f"
+# when in list mode, show hash, commit subject line
+bv = branch --verbose            # identical to `git b -v`
+# when in list mode, show hash, commit subject line, upstream branch
+bvv = branch --verbose --verbose # identical to `git b -vv`
+
+#
+## commit
+#
+# amend the tip of the current branch rather than creating a new commit
+ca = commit --amend
+# amend tip of current branch, auto staging all changes in the working tree
+caa = commit --amend --all
+# amend the tip of the current branch, staging files, and edit the message
+caam = commit --amend --all --message
+# amend the tip of the current branch, staging files, and do not edit message
+caane = commit --amend --all --no-edit
+# amend the tip of the current branch, and edit the message
+cam = commit --amend --message
+# amend the tip of the current branch, and do not edit the message
+cane = commit --amend --no-edit
+# interactive commit
+ci = commit --interactive
+# interactive amend, rather than creating a new commit
+cia = commit --interactive --amend
+# interactive amend, and edit the message
+ciam = commit --interactive --amend --message
+# interactive commit with a message
+cim = commit --interactive --message
+# commit with a message
+cm = commit --message
+
+#
+## checkout
+#
+# update working tree to match a branch or paths
+co = checkout
+# create a new branch from the current working tree, and switch to it
+cobn = checkout -b
+# checkout with guessing
+cog = checkout --guess
+# checkout without guessing
+cong = checkout --no-guess
+
+#
+## cherry-pick
+#
+# apply changes introduced by existing commits, useful
+# for moving small chunks of code between branches
+cp = cherry-pick
+# abort the picking process
+cpa = cherry-pick --abort
+# continue the picking process
+cpc = cherry-pick --continue
+# cherry-pick with no commit a.k.a. without making a commit
+cpn = cherry-pick --no-commit
+# cherry-pick with no commit and with explanation, which is when recording
+# the commit, append a line that says "(cherry picked from commit ...)"
+cpnx = cherry-pick --no-commit -x
+
+#
+## diff
+#
+# show all differs by difftool
+da = "!for name in $(git diff --name-only \"$1\"); do git difftool \"$1\" \"$name\" & done"
+# NOTE --staged is a synonym of --cached
+# show staged(not commit) changes, which is cached for next commit
+dc = diff --cached
+# diff deep - show changes with our preferred options
+dd = diff --check --dirstat --find-copies --find-renames --histogram --color
+# show differs, but ignore white space changes
+disc = diff --ignore-space-change
+# show only names and status of changed files
+dns  = diff -r --name-status
+dnsc = diff -r --name-status --cached
+# show statistics info, recurse into sub-trees, ignore space changes
+ds  = diff -r --stat --ignore-space-change
+dsc = diff -r --stat --ignore-space-change --cached
+# show changes but by word, not by line
+dwd = diff --word-diff
+
+#
+## fetch
+#
+# fetch all remotes
+fa = fetch --all
+# fetch all remotes and use verbose output
+fav = fetch --all --verbose
+
+#
+## grep
+#
+# find text in any commit ever
+ga = "!f() { git rev-list --all | xargs git grep \"$@\"; }; f"
+# find text and group the output matches
+# - colored the matching words
+# - prefix line number to the matching lines
+# - empty line between different matched files
+# - filename above matches, not prefix to each matched line
+gg = grep --color --line-number --break --heading
+# find text with ack-like formatting, https://git-scm.com/docs/git
+# Color Attributes => bold, dim, ul, blink, reverse, italic, strike
+# Basic Colors => black, red, green, yellow, blue, magenta, cyan, white
+gx = -c color.grep.match='dim yellow' \
+     -c color.grep.filename='bold green' \
+     -c color.grep.linenumber='red' \
+     grep --break --heading --line-number
+
+#
+## log
+#
+# NOTE About the kind of date formats that git date parser accept
+# - https://github.com/mojombo/chronic
+#   Chronic, date parser in ruby language, quick reference
+# - https://git.kernel.org/pub/scm/git/git.git/tree/date.c
+#   check out the original source code of git, it's readable
+# NOTE --since,--after or --until,--before
+# => seconds, minutes, hours, days, weeks, months, years
+# => yesterday, noon, midnight, tea, PM, AM, never, now
+# => zero, one, two, three, ..., seven, eight, nine, ten
+# => January, February, March, April, May, June, July,
+#    August, September, November, October, December
+# => Sundays, Mondays, Tuesdays, Wednesdays, Thursdays, Fridays, Saturdays
+# => ISO8601, RFC2822, YYYY.MM.DD, MM/DD/YYYY, DD.MM.YYYY, ...
+
+# NOTE %G? is for commit's GPG signature status
+# N -> not found signature      E -> signature cannot be checked, missing key
+# B -> signature bad invalid    U -> good signature with unknown validity
+# G -> signature good valid     R -> good signature made by a revoked key
+# X -> signature good expired   Y -> good signature made by an expired key
+
+# NOTE git-describe.html, --abbrev-commit hexadecimal digits will vary
+# according to the number of objects in the repository, and 7 is default
+# NOTE commits are shown in reverse chronological order by default
+# NOTE --topo-order will make descendant commits shown before their parents
+
+# NOTE --graph      option for big repo, like kernel, make it very slow!
+# NOTE --topo-order option for big repo, like kernel, make it very slow!
+
+ll = log1-author-date-relative
+lll = log2-author-date
+llll = log3-both-date
+
+# log with one line per commit: <hash> <title>
+# --oneline shorthand for `--pretty=oneline --abbrev-commit`
+lo   = log --oneline # reverse chronological order, newest first, default
+lor  = log --oneline --reverse # chronological order, the oldest first
+
+log-simple = log --boundary \
+  --format=format:'%m %C(red)%h %C(green)%as %C(dim white)%ae %C(reset)%s%C(yellow)%d'
+
+# one(1) line log for per commit
+log1-author-date-relative = log --abbrev-commit --decorate --boundary \
+  --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %<(12,trunc)%C(green)%ar %<(12,mtrunc)%C(blue)%an %C(white)%s%C(yellow)%d'
+log1-author-date-short    = log --abbrev-commit --decorate --boundary \
+  --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(green)%as %<(12,mtrunc)%C(blue)%an %C(white)%s%C(yellow)%d'
+log1-author-date-iso8601  = log --abbrev-commit --decorate --boundary \
+  --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(green)%ai %<(12,mtrunc)%C(blue)%an %C(white)%s%C(yellow)%d'
+# one(1) line log for per commit
+log1-committer-date-relative = log --abbrev-commit --decorate --boundary \
+  --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %<(12,trunc)%C(green)%cr %<(12,mtrunc)%C(cyan)%cn %C(white)%s%C(yellow)%d'
+log1-committer-date-short    = log --abbrev-commit --decorate --boundary \
+  --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(green)%cs %<(12,mtrunc)%C(cyan)%cn %C(white)%s%C(yellow)%d'
+log1-committer-date-iso8601  = log --abbrev-commit --decorate --boundary \
+  --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(green)%ci %<(12,mtrunc)%C(cyan)%cn %C(white)%s%C(yellow)%d'
+# two(2) line log for per commit
+log2-author-date = log --abbrev-commit --decorate --boundary \
+  --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(cyan)%ai %C(white)- %C(green)%ar%C(yellow)%d%n  %C(blue)%an%C(reset) %s'
+log2-committer-date = log --abbrev-commit --decorate --boundary \
+  --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(cyan)%ci %C(white)- %C(green)%cr%C(yellow)%d%n  %C(blue)%cn%C(reset) %s'
+# three(3) line log for per commit
+log3-both-date = log --abbrev-commit --decorate --boundary \
+  --format=format:'%C(red)%G? %C(magenta)%h %C(red)%m %C(white)%s%C(yellow)%d%nA %C(cyan)%ai %C(green)%ar %C(blue)%an <%ae>%nC %C(dim white)%ci %C(green)%cr %C(cyan)%cn <%ce>'
+
+#
+## ls-files
+#
+# show info about files in index and working tree, like `ls` command
+ls = ls-files
+# list files with debug information
+lsd = ls-files --debug
+# list files with full name
+lsfn = ls-files --full-name
+# list files that git has ignored
+# -i, --ignored       Show only ignored files in the output …
+# -o, --others        Show other (i.e. untracked) files in output …
+# --exclude-standard  Add the standard Git exclusions …
+lsio = ls-files --ignored --others --exclude-standard
+
+#
+## merge
+#
+# abort the merging process
+ma = merge --abort
+# continue the merging process
+mc = merge --continue
+# merge without autocommit, and commit even if merge resolved as fast-forward
+mncnf = merge --no-commit --no-ff
+
+#
+## pull
+#
+# pull if a merge can be resolved as a fast-forward, otherwise fail
+pf = pull --ff-only
+# pull with rebase in order to provide a cleaner, linear, bisectable history
+pr = pull --rebase
+# pull with rebase preserve of merge commits
+prp = pull --rebase=preserve
+
+#
+## rebase
+#
+# forward-port local commits to the updated upstream head
+rb = rebase
+# abort the rebasing process
+rba = rebase --abort
+# continue rebasing process after resolving conflict manually and updating index with resolution
+rbc = rebase --continue
+# do rebase in interactive, which is do the rebase with prompts
+rbi = rebase --interactive
+# rebase interactive on unpushed commits
+rbiu = rebase --interactive @{upstream}
+# interactively rebase all the commits on the current branch
+rbicb = "!f() { git rebase --interactive $(git merge-base $(git default-branch)) HEAD); }; f"
+# restart the rebasing process by skipping the current patch
+rbs = rebase --skip
+
+#
+## reflog
+#
+# reflog is a reference log that manages when tips of branches are updated
+rl = reflog
+
+#
+## remote
+#
+# Also Known As `r`
+rr = remote
+# delete all stale remote-tracking branches under <name>
+rrp = remote prune
+# gives some information about the remote <name>
+rrs = remote show
+# fetch updates for a named set of remotes as defined by remotes
+rru = remote update
+
+#
+## revert
+#
+# undo the changes from some existing commits
+rv = revert
+# revert without autocommit, useful when reverting more than one commits' effect to your index in a row
+rvnc = revert --no-commit
+
+#
+## show-branch
+#
+# print a list of branches and their commits
+sb = show-branch
+
+#
+## submodule
+#
+# enables foreign repos to be embedded within a dedicated subdirectory of source tree
+sm = submodule
+# submodule add
+sma = submodule add
+# submodule init
+smi = submodule init
+# submodule sync
+sms = submodule sync
+# submodule update
+smu = submodule update
+# submodule update with initialize
+smui = submodule update --init
+# submodule update with initialize and recursive, to make a submodule up to date
+smuir = submodule update --init --recursive
+
+#
+## status
+#
+# status with short format instead of full details
+ss = status --short
+# status with short format and showing branch and tracking info
+ssb = status --short --branch
+
+#######################
+### Shorthand Utils ###
+#######################
+
+# show git aliases list in the terminal
+aliases = "!git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /'"
+
+# Initalize a repo and immediately add an empty rebaseable commit. This makes it
+# easier for later rebase, because it can go all the way back to the first commit.
+init-repo = "!f() { git init && git commit --allow-empty --message 'Init Commit'; }; f"
+
+# list all the branches, local & remote both included
+branches = branch --all
+# list the stash entries that you currently have
+stashes = stash list
+# show tags list with brief annotation message
+tags = tag --list -n1
+
+# show the newest or latest tag in all branches
+newest-tag = describe --tags --abbrev=0
+latest-tag = describe --tags --abbrev=0
+# show the newest or latest annotated tag in all branches
+newest-atag = '!git describe --tags "$(git rev-list --tags --max-count=1)"'
+latest-atag = '!git describe --tags "$(git rev-list --tags --max-count=1)"'
