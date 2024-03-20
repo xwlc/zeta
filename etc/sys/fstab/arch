@@ -1,0 +1,17 @@
+# /etc/fstab - Configuration for auto-mount partitions on boot.
+#
+# Read https://wiki.archlinux.org/title/Fstab for more details.
+# PARTUUID robust way for named device, fstab(5) for more details.
+
+#                                               MountPoint      Type    Options             dump    fsck
+# /dev/nvme0n1p2 -> Arch
+PARTUUID=0b024420-657e-5042-a521-24f5ae1979a3   /               ext4    errors=remount-ro   0       1
+# /dev/nvme0n1p1 -> LESP
+PARTUUID=c4efee92-fb3f-2c43-b654-d130f40a430f   /boot/efi       vfat    umask=0077          0       1
+# /dev/nvme1n1p6 ->
+PARTUUID=2468ef8c-dc94-af4d-9cc5-31ec70c46324   none            swap    sw                  0       0
+
+# /dev/nvme0n1p4 -> Ghost
+PARTUUID=93ef1edc-cb58-1844-83b6-efe7127f2597   /ghost          ext4    defaults            0       0
+# /dev/nvme0n1p5 -> Wong
+PARTUUID=ed2388c5-fe77-43b3-a71d-e8dd72a50b58   /me             ext4    defaults            0       0
