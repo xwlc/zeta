@@ -1,0 +1,46 @@
+## /etc/apt/sources.list - Configuration for APT data sources
+##
+## For more details see `man 5 sources.list`
+
+## https://cn.archive.ubuntu.com/ubuntu  https://hk.archive.ubuntu.com/ubuntu
+## https://mirrors.163.com/ubuntu        https://mirrors.cloud.tencent.com/ubuntu
+## https://mirrors.aliyun.com/ubuntu     https://mirrors.tuna.tsinghua.edu.cn/ubuntu
+
+## The major software repository supported by Ubuntu Team & Security Team.
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu         jammy main restricted
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu   jammy main restricted
+deb http://security.ubuntu.com/ubuntu          jammy-security main restricted
+# deb-src http://security.ubuntu.com/ubuntu    jammy-security main restricted
+deb http://security.ubuntu.com/ubuntu          jammy-security universe multiverse
+# deb-src http://security.ubuntu.com/ubuntu    jammy-security universe multiverse
+
+## Major bug fix updates after the distribution release.
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu         jammy-updates main restricted
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu   jammy-updates main restricted
+
+## Software from this repository is ENTIRELY UNSUPPORTED by the Ubuntu Team.
+## And WILL NOT receive any review or updates from the Ubuntu Security Team.
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu         jammy         universe
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu   jammy         universe
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu         jammy-updates universe
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu   jammy-updates universe
+
+## Software from this repository may not be under a free licence.
+## Software from this repository is ENTIRELY UNSUPPORTED by the Ubuntu Team.
+## And WILL NOT receive any review or updates from the Ubuntu Security Team.
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu         jammy         multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu   jammy         multiverse
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu         jammy-updates multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu   jammy-updates multiverse
+
+## Software from this repository may not have been well tested as contained in main,
+## although it may include new version of some app which may provide useful features.
+## And Software WILL NOT receive any review or updates from the Ubuntu Security Team.
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu         jammy-backports main restricted
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu   jammy-backports main restricted
+deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu         jammy-backports universe multiverse
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu   jammy-backports universe multiverse
+
+## Pre-release version of packages, NOT recommended
+# deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu       jammy-proposed main restricted
+# deb-src https://mirrors.tuna.tsinghua.edu.cn/ubuntu   jammy-proposed main restricted

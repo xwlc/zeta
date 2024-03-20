@@ -1,0 +1,2 @@
+# You may comment out this entry, but any other modifications may be lost.
+deb [arch=amd64] https://packages.microsoft.com/repos/edge/  stable  main
