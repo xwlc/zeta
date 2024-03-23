@@ -111,7 +111,7 @@
 
   # 设置 GnuPG 数据读取位置, 默认 ~/.gnupg
   gpg --homedir path/to/gnupg
-  export GNUPGHOME=="path/to/gnupg"
+  export GNUPGHOME="path/to/gnupg"
 
   # 显示密钥之间的签名状态
   gpg --check-sigs
