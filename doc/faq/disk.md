@@ -67,6 +67,24 @@ sudo sysctl vm.swappiness=10  # 临时修改, 仅本次有效
 sudo nano /etc/sysctl.conf
 ```
 
+## 磁盘布局: UEFI + 双硬盘 + 16GiB RAM + Arch & Ubuntu & Windows 11
+
+- 0 号硬盘 => Windows 11
+  * 512 MiB   的 ESP   分区
+  *  32 MiB   的 MSR   分区
+  * 150 GiB   的 OS    分区
+  * 130 GiB   的 APP   分区
+  * ...
+  *  10 GiB   的 swap  分区, Arch/Ubuntu 共享
+
+- 1 号硬盘 => Arch & Ubuntu
+  *  2 GiB    的 ESP    分区
+  * 55 GiB    的 Arch   分区, 挂载点 `/`
+  * 55 GiB    的 Ubuntu 分区, 挂载点 `/`
+  * 46 GiB    的 Ghoost 分区, 系统备份, 挂载点 `/ghost`, [timeshift]()
+  * ... GiB   的 MyData 分区, 挂载点 `/me`, 扮演 home 角色
+  * ...
+
 ## NVMe 固态磁盘
 
 - https://www.kingston.com.cn/cn/blog/pc-performance/overprovisioning
