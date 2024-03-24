@@ -20,6 +20,15 @@ sudo echo XYZ > /some/file
 # 解决方式二: echo XYZ | sudo tee /some/file
 # 解决方式三: sudo bash -c "echo XYZ > /some/file"
 
+# 系统恢复命令
+sudo timeshift --list
+sudo timeshift --list-devices
+sudo timeshift \
+  --restore \
+  --skip-grub \
+  --target /dev/nvme0n1p4 \
+  --snapshot '2024-02-22_08-20-50'
+
 # GBK 编码 => UTF-8 编码
 iconv -f GBK -t UTF-8 输入文件 -o 输出文件
 
