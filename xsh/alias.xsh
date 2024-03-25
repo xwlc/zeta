@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
 alias c=clear
 
 alias ls='command ls --color=auto --time-style="+%FT%T"'
