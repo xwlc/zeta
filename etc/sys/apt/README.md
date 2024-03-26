@@ -17,10 +17,19 @@
   multiverse            受法律和版权保护, 非开源软件
   ```
 
-- 关于 [Microsoft Edge](https://www.microsoft.com/en-us/edge/download?form=MA13FJ)
+- [Microsoft Edge](https://www.microsoft.com/en-us/edge/download?form=MA13FJ)
   * `/etc/apt/trusted.gpg.d/microsoft-edge.gpg`
   * `/etc/apt/sources.list.d/microsoft-edge.list`
 
-- 关于 [Latest Stable Git Version](https://git-scm.com/download/linux)
+- [Latest Stable Git Version](https://git-scm.com/download/linux)
   * `/etc/apt/trusted.gpg.d/git-core-ppa.gpg`
   * `/etc/apt/sources.list.d/git-core-ppa.list`
+
+- [Beyond Compare](https://www.scootersoftware.com/download)
+  * `/usr/share/keyrings/bcompare4.gpg`
+  * `/etc/apt/sources.list.d/bcompare4.list`
+
+- [XanMod](https://xanmod.org) Kernel
+  * `/usr/share/keyrings/xanmod-kernel.gpg`
+  * `/etc/apt/sources.list.d/xanmod-kernel.list`
+  * 显示包信息 `apt show linux-xanmod-lts-x64v3`
