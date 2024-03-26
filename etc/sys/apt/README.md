@@ -29,7 +29,17 @@
   * `/usr/share/keyrings/bcompare4.gpg`
   * `/etc/apt/sources.list.d/bcompare4.list`
 
-- [XanMod](https://xanmod.org) Kernel
+- [XanMod](https://xanmod.org) Kernel [仓库](https://gitlab.com/xanmod)
   * `/usr/share/keyrings/xanmod-kernel.gpg`
   * `/etc/apt/sources.list.d/xanmod-kernel.list`
   * 显示包信息 `apt show linux-xanmod-lts-x64v3`
+  * 安装 `sudo apt install linux-xanmod-lts-x64v3`
+
+    ```bash
+    # 安装 5 个软件包
+    # linux-xanmod-lts-x64v3
+    # zlib1g-dev
+    # libelf-dev
+    # linux-image-6.6.22-x64v3-xanmod1
+    # linux-headers-6.6.22-x64v3-xanmod1
+    ```
