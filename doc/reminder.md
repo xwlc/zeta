@@ -20,3 +20,6 @@
   * `apt show iotop` vs `apt show iotop-c`
   * [iotop](https://github.com/Tomas-M/iotop) 下载源码然后编译安装
   * `sudo apt install sysstat` contains `iostat`, `vmstat`, and `sar`
+
+- https://github.com/dylanaraps/neofetch
+  * `sudo apt install neofetch`

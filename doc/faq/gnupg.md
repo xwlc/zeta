@@ -123,6 +123,8 @@
   gpg --armor --output 私钥.asc --export-secret-keys 89ABCDEF01234567
 
   gpg --show-key path/to/key
+  gpg --dearmor path/to/key.asc > key.gpg
+
   gpg --import path/to/gnupg-key.asc
   gpg --import-ownertrust path/to/ot.asc
 

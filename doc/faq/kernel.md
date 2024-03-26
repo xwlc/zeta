@@ -1,11 +1,20 @@
 # Kernel
 
+- https://www.etallen.com/cpuid.html
+- https://wiki.archlinux.org/title/Microcode
+- https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files
+
+  * `apt show amd64-microcode`
+  * `apt show intel-microcode`
+  * `cat /proc/cpuinfo` or `lscpu`
+  * `journalctl -k | grep microcode`
+  * `sudo apt install intel-microcode iucode-tool`
+  * `lsinitramfs /boot/initrd.img-$(uname -r) | grep microcode`
+
 - https://wiki.archlinux.org/title/Kernel_parameters
 - https://docs.kernel.org/admin-guide/kernel-parameters.html
 
 ```bash
-# Grub 启动界面 => 按 e 临时启动参数
-
 # 当前内核启动参数
 cat  /proc/cmdline
 
