@@ -1,0 +1,54 @@
+## /etc/default/grub - Grub Configurations
+##
+## - Make modifications of this configuration file
+## - `sudo update-grub` to update /boot/grub/grub.cfg
+##
+## This file is valid POSIX shell syntax: `KEY=value`
+## See `info -f grub -n Configuration` for more details
+
+## The default boot menu entry, can hold one of following values
+##   - The title of generated menu entry, not recommended
+##   - The special string 'saved', also see `GRUB_SAVEDEFAULT`
+##   - N(zero-based-number) is the Nth entry in the generated menus
+GRUB_DEFAULT=0
+## When entry is selected, save it as a new default for future runs of GRUB
+# GRUB_SAVEDEFAULT=true
+
+## The timeout seconds before boot the default menu entry
+##   -1  waiting for user operation indefinitely
+##    0  boot immediately without displaying menu
+GRUB_TIMEOUT=10
+## hidden - GRUB_TIMEOUT is counted before menu is displayed
+GRUB_TIMEOUT_STYLE=hidden
+
+## It is used to generate more informative menu entry titles
+GRUB_DISTRIBUTOR=$(lsb_release -is 2> /dev/null || echo 'GNU/Linux')
+
+## Disable generation of recovery mode menu for each kernel
+# GRUB_DISABLE_RECOVERY=true
+
+## NOTE About Linux Kernel Command-line Parameters
+##   Show current running kernel parameters by `cat /proc/cmdline`
+##     参数顺序 ... GRUB_CMDLINE_LINUX GRUB_CMDLINE_LINUX_DEFAULT ...
+##   GRUB_CMDLINE_LINUX_DEFAULT will add only to the normal-boot entries
+## https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
+
+## quiet   kernel start-up parameter, disable most log messages
+## splash  causes boot screen to be shown, it's NOT kernel option
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
+## When GRUB_DISABLE_RECOVERY=false or not set, each kernel will generate
+## two menus: one entry for normal-boot and one entry for the recovery mode
+GRUB_CMDLINE_LINUX="nogpumanager"
+## gpu-manager - Ubuntu Hybrid Graphic Card Manager
+## https://github.com/canonical/ubuntu-drivers-common/tree/master/share/hybrid
+
+## Disable graphical terminal for grub-pc package only
+# GRUB_TERMINAL=console
+
+## Make GRUB do not pass "root=UUID=xxx" parameter to Kernel
+# GRUB_DISABLE_LINUX_UUID=true
+## Make GRUB do not pass "root=PARTUUID=xxx" parameter to Kernel
+# GRUB_DISABLE_LINUX_PARTUUID=true
+
+## Make speaker beep at grub start
+# GRUB_INIT_TUNE="480 440 1"
