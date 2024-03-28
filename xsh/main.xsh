@@ -38,3 +38,7 @@ source "${ZETA_DIR}/xsh/core/lazy.xsh"
 @zeta:lazy:register cursor-style
 @zeta:lazy:register ssh-add-keys
 @zeta:lazy:register xcmd $(command ls "${ZETA_DIR}/xsh/bin")
+
+if [[ -n "${BASH_VERSION:-}" ]]; then
+  @zeta:lazy:register repeat
+fi
