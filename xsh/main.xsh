@@ -32,7 +32,7 @@ fi
 source "${ZETA_DIR}/xsh/core/lazy.xsh"
 
 @zeta:lazy:register bd
-#@zeta:lazy:register goto
+@zeta:lazy:register goto
 @zeta:lazy:register replace
 @zeta:lazy:register color-pipe
 @zeta:lazy:register cursor-style

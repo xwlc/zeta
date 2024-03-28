@@ -1,0 +1,99 @@
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2023-10-28T17:18:49+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+# 快速切换工作目录
+declare -gA GotoMaps
+
+# 目录切换 -> goto nick
+# 别名注册 -> goto nick path/to/...
+function goto() {
+  local -a nicks
+  if [[ -n "${ZSH_VERSION}" ]]; then
+    nicks=( ${(ok)GotoMaps} )
+  else
+    local _nicks_="${!GotoMaps[@]}"
+    nicks=( $(echo "${_nicks_// /$'\n'}" | sort) )
+    unset -v _nicks_
+  fi
+
+  if [[ $# -eq 2 ]]; then
+    [[ -z "$1" ]] && {
+      builtin echo
+      builtin echo "$(@G9 goto) $(@Y9 nicks) $(B3 path/to/...) register new map."
+      builtin echo
+      return 1
+    } >&2
+
+    [[ ! -d "$2" ]] && {
+      builtin echo "Directory $(@R3 $2) does NOT exist, skip!"
+      return 2
+    } >&2
+
+    local key val
+    for key in ${nicks[@]}; do
+      val="${GotoMaps[${key}]:-}"
+      # Make sure nick & path maps one-to-one
+      [[ -n "${val}" && "${val}" == "$2" ]] && {
+        unset -v "GotoMaps[${key}]"
+        GotoMaps["$1"]="$2"
+        return
+      }
+      [[ "${key}" == "$1" ]] && {
+        [[ "${val}" == "$2" ]] && return
+        GotoMaps["$1"]="$2"
+        return
+      }
+    done
+
+    GotoMaps[$1]="$2"
+    return
+  fi
+
+  function goto±help() {
+    local key width=0 xkey
+    for key in ${nicks[@]}; do
+      # 计算别名字符串最大长度
+      (( ${#key} > ${width} )) && width=${#key}
+    done
+
+    builtin echo "$(@G9 goto) $(@R3 where)"
+    for key in ${nicks[@]}; do
+      builtin printf -v xkey "%${width}s" ${key}
+      builtin echo "  $(@Y9 "${xkey}") $(@D9 '->') $(@B3 "${GotoMaps[${key}]}")"
+    done
+
+    unset -f goto±help
+  }
+
+  [[ $# -eq 0 || $# -ne 1 || -z "$1" ]] && { goto±help; return; }
+
+  if [[ -z "${GotoMaps[$1]}" ]]; then
+    goto±help; builtin echo
+    builtin echo "Nickname $(@R3 $1) not set yet!"
+    builtin echo "Run $(@Y9 goto-register) $(@R3 $1) $(@C3 path/to/...) add new map."
+    builtin echo; return 1
+  fi
+
+  if [[ ! -d "${GotoMaps[$1]}" ]]; then
+    builtin echo
+    builtin echo "$(@Y9 "$1") $(@D9 '->') $(@R3 ${where}) directory is missing ..."
+    builtin echo; return 2
+  fi
+
+  builtin cd "${GotoMaps[$1]}"
+}
+
+if [[ -n "${ZSH_VERSION:-}" ]]; then
+  function @zeta:comp:goto() {
+    local -a nicks=( ${(k)GotoMaps} )
+    _describe 'command' nicks
+  }
+  compdef @zeta:comp:goto goto
+elif [[ -n "${BASH_VERSION:-}" ]]; then
+  function @zeta:comp:goto() {
+    COMPREPLY=( $(compgen -W "${!GotoMaps[*]}" -- "$2") )
+  }
+  complete -F @zeta:comp:goto goto
+fi
