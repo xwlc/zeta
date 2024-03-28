@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2023-11-29T20:13:29+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+# `script` with -c <cmd> option, capture <cmd> output data in raw,
+# and save it into a log file, including the terminal color codes
+# NOTE The shell alias is not working for <cmd>, use explictly options
+# https://superuser.com/questions/352697/preserve-colors-while-piping-to-tee
+function color-pipe() {
+  [[ $# -eq 0 ]] && {
+    echo "=> $(@G3 color-pipe) '$(@Y9 ls --color=auto)' | grep $(@D9 key)"
+    return
+  }
+
+  # just run cmds, colored pipe not support!
+  if ! command -v script > /dev/null; then
+    $@; return
+  fi
+
+  # -c, --command <cmd>   Run <cmd> rather than an interactive shell
+  # -O, --log-out <file>  Log <cmd> output to the <file>
+  # -e, --return          Return exit status of child process, which is <cmd>
+  # -f, --flush           Flush output after each write
+  # -q, --quiet           Be quiet, do not write 'start' and 'done' msg to stdout
+  #                       NOTE It's only for stdout, not works for the log <file>
+  # NOTE 生成的日志记录文件中仍然保持这连个信息, -efq
+  script --return --flush --quiet -O /dev/null -c "$@"
+}
