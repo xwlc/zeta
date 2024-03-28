@@ -35,6 +35,6 @@ source "${ZETA_DIR}/xsh/core/lazy.xsh"
 #@zeta:lazy:register goto
 #@zeta:lazy:register replace
 @zeta:lazy:register color-pipe
-#@zeta:lazy:register cursor-style
+@zeta:lazy:register cursor-style
 @zeta:lazy:register ssh-add-keys
 @zeta:lazy:register xcmd $(command ls "${ZETA_DIR}/xsh/bin")

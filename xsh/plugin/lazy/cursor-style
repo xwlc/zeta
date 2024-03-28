@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2023-12-22T21:04:48+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+# NOTE Search => DECSCUSR
+# https://invisible-island.net/xterm/ctlseqs/ctlseqs.html
+# How to Change the Cursor Shape, Color, Blink Rate
+# https://www.baeldung.com/linux/console-cursor-features
+function cursor-style() {
+  [[ $# -eq 0 ]] && {
+    echo
+    echo -e "=> $(@G3 cursor-style) $(@R3 0)  Reset to default"
+    echo -e "=> $(@G3 cursor-style) $(@R3 1)  Block blink"
+    echo -e "=> $(@G3 cursor-style) $(@R3 2)  Block steady"
+    echo -e "=> $(@G3 cursor-style) $(@R3 3)  Underline blink"
+    echo -e "=> $(@G3 cursor-style) $(@R3 4)  Underline steady"
+    echo -e "=> $(@G3 cursor-style) $(@R3 5)  IBeam blink"
+    echo -e "=> $(@G3 cursor-style) $(@R3 6)  IBeam steady"
+    echo
+    local blink blkfre
+    blink=$(gsettings get org.gnome.desktop.interface cursor-blink)
+    blkfre=$(gsettings get org.gnome.desktop.interface cursor-blink-time)
+    echo "$(@D9 'Default') blink=$(@R3 ${blink}) blink-time=$(@Y9 ${blkfre})ms"
+    return
+  }
+
+  # gsettings get org.gnome.desktop.interface cursor-blink           系统设置
+  # gsettings set org.gnome.desktop.interface cursor-blink true      修改设置
+  #
+  # gsettings get org.gnome.desktop.interface cursor-blink-time      闪烁频率(1.2s => 1200)
+  # gsettings set org.gnome.desktop.interface cursor-blink-time 1500 修改频率
+
+  case "$1" in
+    # NOTE one-space is required
+    0) printf '\e[0 q' ;; # 恢复[系统设置]
+    1) printf '\e[1 q' ;;
+    2) printf '\e[2 q' ;;
+    3) printf '\e[3 q' ;;
+    4) printf '\e[4 q' ;;
+    5) printf '\e[5 q' ;;
+    6) printf '\e[6 q' ;;
+    *) ;;
+  esac
+}
