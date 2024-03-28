@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2023-10-28T17:18:49+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+# <旧字符串> => <新字符串>, 当前目录及子目录下所有文件
+function replace() {
+  [[ $# != 2 ]] && {
+    echo "$(@G9 replace) $(@Y9 old) $(@C3 new)"
+    return
+  } >&2
+
+  # -i, --in-place               文件替换(无备份)
+  # -e 命令, --expression=命令   执行 sed 的命令
+  #
+  # -e "s#原字符串#新字符串#"    替换字符串, 仅替换第一次匹配项
+  # -e "s@原字符串@新字符串@g"   全部替换字符串, sed 命令分隔符号 # @ /
+  # -e "s/原字符串/新字符串/g"   全部替换字符串, s 表示替换, g 表示全部"
+
+  # TODO: pattern space & hold space
+  # 替换换行符 => sed ":a;N;s/\n//g;ta" path/to/file
+
+  local oldstr="$1" newstr="$2" xfile # sort -u 删除重复的内容
+  echo "$(@D9 REPLACE) $(@G9 ${oldstr}) $(@D9 '=>') $(@R3 ${newstr})"
+  if false; then
+    grep -nr -w "${oldstr}" \
+      | awk -F: '{ print $1 }' \
+      | sort -u \
+      | xargs sed -e "s/${oldstr}/${newstr}/g" -i
+  else
+    for xfile in $(grep -nr -w ${oldstr} | cut -d: -f1 | sort -u); do
+      echo "=> $(@Y9 ${xfile})"
+      sed -e "s@${oldstr}@${newstr}@g" --in-place "${xfile}"
+    done
+  fi
+}
