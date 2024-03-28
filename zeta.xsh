@@ -36,13 +36,13 @@ else
   export ZETA_DIR="$(dirname "${BASH_SOURCE[0]}")"
 fi
 
+ZETA_REPO="https://github.com/xwlc/zeta"
+if command -v git > /dev/null && [ -d "${ZETA_DIR}/.git" ]; then
+  ZETA_COMMIT="$(cd "${ZETA_DIR}" && git rev-parse HEAD 2> /dev/null)"
+fi
+
 source "${ZETA_DIR}/xsh/inits.xsh"
 source "${ZETA_DIR}/xsh/utils.xsh"
 source "${ZETA_DIR}/xsh/alias.xsh"
 source "${ZETA_DIR}/xsh/export.xsh"
-
-ZETA_REPO="https://github.com/xwlc/zeta"
-
-if @zeta:xsh:has-cmd git && [ -d "${ZETA_DIR}/.git" ]; then
-  ZETA_COMMIT="$(cd "${ZETA_DIR}" && git rev-parse HEAD 2> /dev/null)"
-fi
+source "${ZETA_DIR}/xsh/main.xsh"
