@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2019-07-25T10:35:43+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+# 重置 bcompare 的试用时间
+echo "Deleting ${HOME}/.config/bcompare/registry.dat"
+rm --force "${HOME}/.config/bcompare/registry.dat"
