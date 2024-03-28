@@ -104,9 +104,16 @@ sudo nvme id-ctrl --human-readable /dev/nvme0
 sudo apt install smartmontools
 # 检查 NVMe 健康状态 S.M.A.R.T. 信息
 sudo nvme smart-log /dev/nvme0
-sudo smartctl --all /dev/nvme0
+
 # 显示 S.M.A.R.T. 错误日志信息
 sudo smartctl -l error /dev/nvme0
+# 等同于 '-H -i -c -A -l error'
+sudo smartctl --all /dev/nvme0
+# -H Prints the health status of the device
+# -i 显示设备 model & serial 码及固件版本等
+# -c Prints only the generic SMART capabilities
+# -A Prints only the vendor specific SMART Attributes
+sudo smartctl -i /dev/nvme0
 
 # 检查 firmware 日志
 sudo nvme fw-log    /dev/nvme0

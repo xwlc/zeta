@@ -31,15 +31,4 @@ sudo timeshift \
 
 # GBK 编码 => UTF-8 编码
 iconv -f GBK -t UTF-8 输入文件 -o 输出文件
-
-# 重命名 Github 分支后
-# The default branch has been renamed! master is now named trunk, If you
-# have local clone, you can update it by running the following commands.
-git branch -m master trunk
-git fetch origin
-git branch -u origin/trunk trunk
-git remote set-head origin -a
-
-# 如何删除本地 git b -a 显示的
-remotes/origin/master
 ```
