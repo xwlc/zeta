@@ -1,0 +1,115 @@
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2023-10-27T04:51:45+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+#
+# 参考 https://github.com/Tarrasch/zsh-bd 和 https://github.com/vigneshwaranr/bd
+#
+function bd() {
+  local -i depth
+  local -a folders
+
+  # 0 => /, 1 => /home, 2 => /home/foo, ... 数组存储顺序
+  # depth=$(pwd | sed 's# #␟#g' | sed 's#/# #g' | wc -w)
+  local quoted="${PWD//[[:space:]]/␟}" # 保留可能存在的空格
+  if [[ -n "${ZSH_VERSION:-}" ]]; then
+    folders=( ${=quoted//\// } ) # 空格替换 /, force word-split
+    depth=${#folders[@]}
+  else
+    folders=( 'zero' ${quoted//\// } ) # 空格替换 /
+    depth=${#folders[@]}; (( depth-- ))
+  fi
+  # echo "=> cnt=${depth}, [${folders[@]}]"
+
+  local -i is_decimal=0  show_help=0
+  # nemberic argument checking
+  if [[ -n "$1" && -z "${1//[0-9]/}" ]]; then
+    is_decimal=1
+    (( $1 > ${depth} )) && show_help=1 # 超界...
+  fi
+  # echo "=> dec=[${is_decimal}], hlp=[${show_help}]"
+
+  local repo # 快速切换到仓库 root 目录(如果是仓库)
+  repo="$(git rev-parse --show-toplevel 2> /dev/null)"
+  [[ $? -ne 0 ]] && unset -v repo
+
+  function bd±help() {
+    local fdr idx width=1 conter zero_or_repo
+    (( depth >= 10 )) && width=2
+    # 以数组下标逆序依次显示路径内容
+    builtin echo "$(@Y3 ${depth}) $(@D9 '=>') $(@C3 /)"
+    for (( idx=1; idx <= ${depth}; idx++ )); do
+      (( conter = ${depth} - ${idx} ))
+      fdr="${fdr}/${folders[${idx}]//␟/ }"
+      if [[ -n "${repo:-}" && "${repo}" == "${fdr}" ]]; then
+        zero_or_repo=1; builtin printf -v conter "%${width}s" '+'
+      elif (( conter )); then
+        zero_or_repo=0; builtin printf -v conter "%${width}d" "${conter}"
+      else
+        zero_or_repo=1; builtin printf -v conter "%${width}s" ' '
+      fi
+      if (( zero_or_repo )); then
+        builtin echo "$(@R3 "${conter}") $(@R3 '=>') $(@C3 ${fdr})"
+      else
+        builtin echo "$(@Y3 "${conter}") $(@D9 '=>') $(@C3 ${fdr})"
+      fi
+    done
+    unset -f bd±help
+  }
+
+  if [[ $# -eq 0 || $# -ne 1 || ${show_help} -ne 0 ]]; then
+    echo; bd±help; echo; return
+  fi
+
+  local -i upcnt # 向上层级数
+  local idx  fdr  rdp='.' # 当前位置逐级向上
+  for (( idx=${depth}; idx >= 0; idx-- )); do
+    fdr="${folders[${idx}]//␟/ }"
+    (( upcnt = ${depth} - ${idx} ))
+    [[ ${idx} -ne ${depth} ]] && rdp="${rdp}/.."
+    # echo "=> [$1],rdp=[${rdp}], ${upcnt}->[${idx}], dir=[${fdr}]"
+    if (( is_decimal )); then
+      [[ $1 -eq ${upcnt} ]] && {
+        builtin cd "${rdp}"; unset -f bd±help; return
+      }
+    else # match the folder name firstly found in reverse order
+      [[ "$1" == "${fdr}" ]] && {
+        builtin cd "${rdp}"; unset -f bd±help; return
+      }
+    fi
+  done
+
+  if [[ "$1" == '+' && -n "${repo:-}" && "${repo}" != "${PWD}" ]]; then
+    builtin cd "${repo}"; unset -f bd±help; return
+  fi
+
+  builtin echo; builtin echo "NO Parent Folder Named $(@R3 "$1")"
+  builtin echo; bd±help; builtin echo
+}
+
+if [[ -n "${ZSH_VERSION:-}" ]]; then
+  function @zeta:comp:bd() {
+    if false; then
+      local IFS=$'␟' fdrs
+      fdrs=( $(echo "${PWD}" | cut -d/ -f2- | sed 's/ /\\ /g' | sed 's#/#␟#g') )
+    else
+      local IFS='/' quoted; printf -v quoted '%q' "${PWD}"
+      local -a fdrs=( "${(@)${=quoted}:#}" )
+    fi
+    _describe 'command' fdrs # TODO do NOT sort when display
+  }
+  compdef @zeta:comp:bd bd
+elif [[ -n "${BASH_VERSION:-}" ]]; then
+  function @zeta:comp:bd() {
+    if false; then
+      local fdrs="$(echo "${PWD}" | cut -d/ -f2- | sed 's/ /\\\\ /g')" IFS=$'␟\n'
+      COMPREPLY=( $(compgen -W "$(echo "${fdrs}" | sed 's#/#␟#g')" -- "$2") )
+    else
+      local IFS=$'/\n' quoted; printf -v quoted '%q' "${PWD}"
+      printf -v quoted '%q' "${quoted}" # we need do it twice
+      local -a fdrs=( ${quoted} ); unset 'fdrs[0]' # 删除空项
+      COMPREPLY=( $(compgen -W "${fdrs[*]}" -- "$2") )
+    fi
+  }
+  complete -o nosort -F @zeta:comp:bd bd
+fi

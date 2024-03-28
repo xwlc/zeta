@@ -31,7 +31,7 @@ fi
 # Lazy Loading Just for Simple Plugins
 source "${ZETA_DIR}/xsh/core/lazy.xsh"
 
-#@zeta:lazy:register bd
+@zeta:lazy:register bd
 #@zeta:lazy:register goto
 @zeta:lazy:register replace
 @zeta:lazy:register color-pipe
