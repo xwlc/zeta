@@ -1,0 +1,92 @@
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2017-04-14T20:35:03+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+# 测试连接 ssh -T git@github.com
+#
+# 修改密钥 ssh-keygen -p -f KEY
+# 生成密钥 ssh-keygen -t ed25519 -C charlie-wong@outlook.com
+# 生成密钥 ssh-keygen -t rsa -b 4096 -C charlie-wong@outlook.com
+#
+# ssh-agent -s 启动代理  ssh-add -D  删除所有私钥  ssh-add -d ID  删除指定私钥
+# ssh-agent -k 关闭代理  ssh-add KEY 添加指定私钥  ssh-add -l/-L  列出私钥/公钥
+
+# NOTE ssh-add ~/.ssh/id_rsa 命令添加的密钥仅对当前 session 有效
+# https://docs.github.com/zh/authentication/connecting-to-github-with-ssh
+
+@zeta:xsh:no-cmd ssh-agent && return
+
+# NOTE 我的电脑 -> 属性[管理] -> 服务和应用程序 -> 服务
+# WIN + R => services.msc 系统服务, regedit 注册表编辑器
+#
+# 设置系统默认 OpenSSH Auth 开机启动, 避免每次添加私钥都要输入密码, WIN 版
+# ssh-agent 将密钥保存于注册表: HKEY_CURRENT_USER\Software\OpenSSH\Agent\Keys
+# where does windows openssh ssh agent service secretly store private keys
+# - https://stackoverflow.com/questions/65629402
+# => contrib/win32/win32compat/ssh-agent/keyagent-request.c
+# => https://github.com/PowerShell/openssh-portable/releases/tag/v8.1.0.0
+
+# Windows 11 系统 OpenSSH 将 SSH 的私钥保存于系统注册表
+if @zeta:host:is-windows; then
+  wpath=$(echo ${PATH} | sed "s#/c/Windows/System32/OpenSSH:##g")
+  export PATH="/c/Windows/System32/OpenSSH:${wpath}"; unset -v wpath
+fi
+
+# Git for Windows
+# SSH_ASKPASS => /mingw64/bin/git-askpass.exe
+# https://github.com/git-ecosystem/git-credential-manager
+# https://github.com/Microsoft/Git-Credential-Manager-for-Windows
+#
+# https://invent.kde.org/plasma/ksshaskpass
+# https://wiki.archlinux.org/title/KDE_Wallet
+# Use the KDE Wallet to store SSH secret key passphrases
+if [[ -z "${SSH_ASKPASS}" ]] && @zeta:xsh:has-cmd ksshaskpass; then
+  # prefer to use the askpass program instead of the TTY
+  export SSH_ASKPASS_REQUIRE=prefer
+  export SSH_ASKPASS="$(command -v ksshaskpass)"
+fi
+
+# ps -U "${LOGNAME}" -o pid,ucomm | grep -q -- "${SSH_AGENT_PID:--1} ssh-agent"
+ssh-add -l > /dev/null 2>&1 # 代理状态 -> 0 有密钥, 1 无密钥, 2 未运行
+if [[ $? -eq 2 || -z "${SSH_AUTH_SOCK}" || ! -S "${SSH_AUTH_SOCK}" ]]; then
+  #echo "PID=[${SSH_AGENT_PID}] SOCK=[${SSH_AUTH_SOCK}]"
+  if [[ -f "${HOME}/.ssh/agent-env" ]]; then
+    source "${HOME}/.ssh/agent-env" 2> /dev/null
+  fi
+  if ! @zeta:host:is-windows; then # 启动 SSH 代理
+    ( umask 077; ssh-agent -s > "${HOME}/.ssh/agent-env" )
+  fi
+fi
+
+# NOTE SSH 的公钥/私钥位于 ${HOME}/.ssh 目录, 设置拥有者只读权限
+# - 为便于启动 shell 时自动导入并且避免重复加载, 密钥命名规则如下
+#   邮箱.public-算法 => nick-name@example.com.public-rsa4096
+#   邮箱.secret-算法 => nick-name@example.com.secret-rsa4096
+function ssh-add-keys() {
+  @zeta:host:is-windows && return
+
+  local _ukeys_  _xkeys_  _keyid_  _seckey_
+  _ukeys_="$(command ls "${HOME}/.ssh" | grep "secret")"
+  [[ $# -eq 0 || $? -ne 0 || -z "${_ukeys_}" ]] && return
+
+  local LoadSecKeys=$@
+  _xkeys_="$(command ssh-add -l 2>&1)"
+
+  for _keyid_ in ${LoadSecKeys}; do
+    echo "${_xkeys_}" | grep -q "${_keyid_}" && continue
+
+    # The SSH secret key do not load yet, prepare load it.
+    _seckey_="$(echo "${_ukeys_}" | grep "${_keyid_}")"
+    if [[ $? -eq 0 && -f "${HOME}/.ssh/${_seckey_}" ]]; then
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        # zsh/sched 模块, 延迟 1s, 加速 Zsh 加速启动
+        sched +1 command ssh-add -q "${HOME}/.ssh/${_seckey_}"
+      else
+        command ssh-add -q "${HOME}/.ssh/${_seckey_}"
+      fi
+    fi
+  done
+
+  unset -f ssh-add-keys
+}

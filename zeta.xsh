@@ -45,4 +45,9 @@ source "${ZETA_DIR}/xsh/inits.xsh"
 source "${ZETA_DIR}/xsh/utils.xsh"
 source "${ZETA_DIR}/xsh/alias.xsh"
 source "${ZETA_DIR}/xsh/export.xsh"
+source "${ZETA_DIR}/xsh/colors.xsh"
 source "${ZETA_DIR}/xsh/main.xsh"
+
+if [[ -f "/me/priv/${USER}/${USER}.xsh" ]]; then
+  source "/me/priv/${USER}/${USER}.xsh"
+fi

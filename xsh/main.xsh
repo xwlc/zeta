@@ -27,3 +27,14 @@ if [ -x /usr/bin/dircolors ]; then
     eval "$(dircolors -b)"
   fi
 fi
+
+# Lazy Loading Just for Simple Plugins
+source "${ZETA_DIR}/xsh/core/lazy.xsh"
+
+#@zeta:lazy:register bd
+#@zeta:lazy:register goto
+#@zeta:lazy:register replace
+#@zeta:lazy:register color-pipe
+#@zeta:lazy:register cursor-style
+@zeta:lazy:register ssh-add-keys
+#@zeta:lazy:register xcmd $(command ls "${ZETA_DIR}/xsh/bin")
