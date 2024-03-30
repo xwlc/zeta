@@ -14,9 +14,9 @@ if [ -d "/media/${USER}/Super/keysrepo/gnupg" ]; then
   export GNUPGHOME="/media/${USER}/Super/keysrepo/gnupg"
 fi
 
-if @zeta:xsh:has-cmd nvim; then
+if command -v nvim > /dev/null; then
   export VISUAL=nvim
-elif @zeta:xsh:has-cmd nano; then
+elif command -v nano > /dev/null; then
   export VISUAL=nano
 fi
 
@@ -47,3 +47,12 @@ export LANG=en_US.UTF-8
 #unset -v LANGUAGE            # NOTE 方式1: 禁止翻译[英文] -> [中文]
 #export LANGUAGE=en_US        # NOTE 方式2: 禁止翻译[英文] -> [中文]
 export LANGUAGE=en_US:C:zh_CN # NOTE 方式3: 禁止翻译[英文] -> [中文]
+
+if command -v ov > /dev/null; then
+  if [ -z "${PAGER}" ]; then
+    export PAGER="ov --quit-if-one-screen"
+  fi
+else
+  # 优先级: $GIT_PAGER > core.pager > $PAGER > 编译时指定值(less)
+  export GIT_PAGER="less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS"
+fi

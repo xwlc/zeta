@@ -68,20 +68,29 @@
   #          NOTE This cause `git status` output chinese messy code
   # false => bytes higher than 0x80 are not considered "unusual" any more
   quotepath = false
+
   # git 命令分页器，git 显示大段内容时进行分页展示
   # core.pager 分页器全局设置, pager.<cmd> 分页器子命令设置
   # 优先级: $GIT_PAGER > core.pager > $PAGER > 编译时指定值(less)
-  pager = less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+  pager = "ov --quit-if-one-screen"
+# pager = less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+
   # A comma separated list of common whitespace problems, prefix - to disable
-  # blank-at-eol          trail whitespaces at end of line as error, enabled by default
-  # blank-at-eof          treat blank lines at end of file as error, enabled by default
-  # trailing-space        short-hand to cover both `blank-at-eol` and `blank-at-eof`
-  # space-before-tab      space before tab in initial indent as error, enabled by default
-  # cr-at-eol             treats a CR at end of line as part of line terminator
-  # tab-in-indent         treat tab in initial indent part of line as an error
-  # indent-with-non-tab   treat indented with space instead of tabs as an error
-  # tabwidth=<n>          how many chars positions a tab occupies, default is 8
-  # core.whitespace = default configure values is OK
+  #   blank-at-eol          trail whitespaces at end of line as error, enabled by default
+  #   blank-at-eof          treat blank lines at end of file as error, enabled by default
+  #   trailing-space        short-hand to cover both `blank-at-eol` and `blank-at-eof`
+  #   space-before-tab      space before tab in initial indent as error, enabled by default
+  #   cr-at-eol             treats a CR at end of line as part of line terminator
+  #   tab-in-indent         treat tab in initial indent part of line as an error
+  #   indent-with-non-tab   treat indented with space instead of tabs as an error
+  #   tabwidth=<n>          how many chars positions a tab occupies, default is 8
+  # whitespace=             default configuration values are OK
+
+# NOTE GIT_PAGER 或 core.pager 覆盖 pager.<cmd> 配置
+[pager]
+  show = "ov -F --header 3"
+  diff = "ov -F --section-delimiter '^diff' --section-header"
+  log  = "ov -F --section-delimiter '^commit' --section-header-num 3"
 
 # => The Color Attributes
 # bold, dim, ul, blink, reverse, italic, strike

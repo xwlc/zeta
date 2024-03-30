@@ -1,0 +1,217 @@
+# Feature Rich Terminal Pager => https://github.com/noborus/ov
+# The configuration in descending order(first found one is valid)
+# => Linux                            => Windows
+# $XDG_CONFIG_HOME/ov/config.yaml     %USERPROFILE%/.config/ov/config.yaml
+# $HOME/.config/ov/config.yaml        %USERPROFILE%/.ov.yaml
+# $HOME/.ov.yaml
+# => 命令行执行按键绑定配置文件 $ ov --config ov.yaml ...
+
+# CaseSensitive: false
+# SmartCaseSensitive: false
+# RegexpSearch: false
+# Incsearch: true
+# BeforeWriteOriginal: 1000
+# AfterWriteOriginal: 0
+# MemoryLimit: 10000
+# Prompt:
+#   Normal:
+#     ShowFilename: true
+#     InvertColor: true
+
+General:
+  TabWidth: 4
+  Header: 0
+  AlternateRows: false
+  ColumnMode: false
+  LineNumMode: false
+  WrapMode: true
+  ColumnDelimiter: ","
+  MarkStyleWidth: 1
+
+# Color Name String: Foreground, Background
+# Boolean: Bold, Blink, Dim, Italic, Underline
+StyleAlternate:
+  Background: "gray"
+StyleHeader:
+  Bold: true
+StyleOverStrike:
+  Bold: true
+StyleOverLine:
+  Underline: true
+StyleLineNumber:
+  Bold: true
+StyleSearchHighlight:
+  Reverse: true
+StyleColumnHighlight:
+  Reverse: true
+StyleMarkLine:
+  Background: "darkgoldenrod"
+StyleSectionLine:
+  Background: "slateblue"
+StyleMultiColorHighlight:
+  - Foreground: "red"
+  - Foreground: "aqua"
+  - Foreground: "yellow"
+  - Foreground: "fuchsia"
+  - Foreground: "lime"
+  - Foreground: "blue"
+  - Foreground: "grey"
+StyleJumpTargetLine:
+  Underline: true
+
+# Special Key
+#   "F1...F64", "Delete", "Insert"
+#   "Up", "Down", "Left", "Right", "Home", "End"
+#   "Enter", "Backspace", "Tab", "Backtab", "Esc"
+# Modifier Key
+#   "ctrl", "alt", "meta", "shift"
+# 组合按键
+#   "ctrl+c"
+KeyBind:
+  exit:
+    - "q"
+    - "Escape"
+  cancel:
+    - "ctrl+c"
+  write_exit:
+    - "Q"
+  set_write_exit:
+    - "ctrl+q"
+  suspend:
+    - "ctrl+z"
+  sync:
+    - "ctrl+l"
+  reload:
+    - "F5"
+    - "ctrl+alt+l"
+  watch:
+    - "F4"
+    - "ctrl+alt+w"
+  watch_interval:
+    - "ctrl+w"
+  follow_mode:
+    - "ctrl+f"
+  follow_all:
+    - "ctrl+a"
+  follow_section:
+    -  "F2"
+  help:
+    - "h"
+    - "ctrl+f1"
+    - "ctrl+alt+c"
+  logdoc:
+    - "ctrl+f2"
+    - "ctrl+alt+e"
+  down:
+    - "j"
+    - "J"
+    - "Down"
+    - "Enter"
+    - "ctrl+n"
+  up:
+    - "k"
+    - "K"
+    - "Up"
+    - "ctrl+p"
+  top:
+    - "Home"
+  bottom:
+    - "End"
+  left:
+    - "left"
+  right:
+    - "right"
+  half_left:
+    - "ctrl+left"
+  half_right:
+    - "ctrl+right"
+  page_up:
+    - "PageUp"
+    - "ctrl+b"
+  page_down:
+    - "PageDown"
+    - "ctrl+v"
+  page_half_up:
+    - "ctrl+u"
+  page_half_down:
+    - "ctrl+d"
+  section_delimiter:
+    - "alt+d"
+  section_start:
+    - "ctrl+F3"
+    - "alt+s"
+  section_header_num:
+    - "F7"
+  next_section:
+    - "space"
+  last_section:
+    - "9"
+  previous_section:
+    - "^"
+  mark:
+    - "m"
+  remove_mark:
+    - "M"
+  remove_all_mark:
+    - "ctrl+delete"
+  next_mark:
+    - ">"
+  previous_mark:
+    - "<"
+  set_view_mode:
+    - "p"
+    - "P"
+  alter_rows_mode:
+    - "C"
+  line_number_mode:
+    - "G"
+  search:
+    - "/"
+  wrap_mode:
+    - "w"
+    - "W"
+  column_mode:
+    - "c"
+  backsearch:
+    - "?"
+  delimiter:
+    - "d"
+  header:
+    - "H"
+  skip_lines:
+    - "ctrl+s"
+  tabwidth:
+    - "t"
+  goto:
+    - "g"
+  next_search:
+    - "n"
+  next_backsearch:
+    - "N"
+  next_doc:
+    - "]"
+  previous_doc:
+    - "["
+  toggle_mouse:
+    - "ctrl+f3"
+    - "ctrl+alt+r"
+  multi_color:
+    - "."
+  jump_target:
+    - "j"
+
+Mode:
+  Psql:
+    Header: 2
+    AlternateRows: true
+    ColumnMode: true
+    LineNumMode: false
+    WrapMode: true
+    ColumnDelimiter: "|"
+  Mysql:
+    Header: 3
+    AlternateRows: true
+    ColumnMode: true
+    LineNumMode: false
+    WrapMode: true
+    ColumnDelimiter: "|"
