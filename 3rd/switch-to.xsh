@@ -9,11 +9,21 @@ path-head-add "${ZETA_DIR}/3rd/bin/jdk"  # -> OpenJDK/bin
 path-head-add "${ZETA_DIR}/3rd/bin/js"   # -> NodeJS/bin
 path-head-add "${ZETA_DIR}/3rd/bin"
 
-# GOROOT 表示 Go 的安装目录
 if command -v go > /dev/null; then
+  # GOROOT 表示 Go 的安装目录
   GOROOT="$(realpath "${ZETA_DIR}/3rd/bin/go")"
   export GOROOT="${GOROOT%/bin/go}"
+
+  # 第三方依赖模块下载保存位置
   export GOPATH="${GOROOT%/*}/xspace"
+
+  # 启用 module-aware 模式
+  export GO111MODULE=on
+
+  # Go 模块代理下载地址(国内加速镜像)
+# export GOPROXY="https://goproxy.io,direct" # 官方地址
+  export GOPROXY="https://goproxy.cn,direct" # 七牛 CDN
+# export GOPROXY="https://mirrors.aliyun.com/goproxy,direct" # 阿里云
 fi
 
 if command -v npm > /dev/null; then
