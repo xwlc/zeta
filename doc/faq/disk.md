@@ -69,21 +69,25 @@ sudo nano /etc/sysctl.conf
 
 ## 磁盘布局: UEFI + 双硬盘 + 16GiB RAM + Arch & Ubuntu & Windows 11
 
+- https://uapi-group.org/specifications/specs/boot_loader_specification
+
 - 0 号硬盘 => Windows 11
   * 512 MiB   的 ESP   分区
   *  32 MiB   的 MSR   分区
-  * 150 GiB   的 OS    分区
-  * 130 GiB   的 APP   分区
+  * 128 GiB   的 OS    分区, Windows 11 系统占用约 25%, 即 32 GiB
+  * 128 GiB   的 APP   分区
   * ...
   *  10 GiB   的 swap  分区, Arch/Ubuntu 共享
+  * SSD 磁盘的三级(用户级) OP 空间, 缩小可用 LBA 空间(新磁盘低级格式化 NS 调整)
 
 - 1 号硬盘 => Arch & Ubuntu
-  *  2 GiB    的 ESP    分区
-  * 55 GiB    的 Arch   分区, 挂载点 `/`
-  * 55 GiB    的 Ubuntu 分区, 挂载点 `/`
-  * 46 GiB    的 Ghoost 分区, 系统备份, 挂载点 `/ghost`, [timeshift]()
-  * ... GiB   的 MyData 分区, 挂载点 `/me`, 扮演 home 角色
-  * ...
+  * 512 MiB   的 ESP    分区, 挂载点 `/efi`
+  * 64 GiB    的 Arch   分区, 挂载点 `/`, KDE 桌面 Arch    占用约 25%, 即 16 GiB
+  * 64 GiB    的 Ubuntu 分区, 挂载点 `/`, KDE 桌面 UbuntuK 占用约 25%, 即 16 GiB
+  * 64 GiB    的 Home   分区, 挂载点 `/home`, 共享 `home/charlie` & `home/charles`
+  * .. GiB    的 Wong   分区, 挂载点 `/me`, Ubuntu & Arch 共享热数据/代码工作空间
+  * .. GiB    的 NTFS 格式的共享冷数据分区
+  * SSD 磁盘的三级(用户级) OP 空间, 缩小可用 LBA 空间(新磁盘低级格式化 NS 调整)
 
 ## NVMe 固态磁盘
 

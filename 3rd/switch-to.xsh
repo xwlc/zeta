@@ -9,6 +9,7 @@ path-head-add "${ZETA_DIR}/3rd/bin/jdk"  # -> OpenJDK/bin
 path-head-add "${ZETA_DIR}/3rd/bin/js"   # -> NodeJS/bin
 path-head-add "${ZETA_DIR}/3rd/bin"
 
+# `go env` 显示当前 Go 环境变量设置
 if command -v go > /dev/null; then
   # GOROOT 表示 Go 的安装目录
   GOROOT="$(realpath "${ZETA_DIR}/3rd/bin/go")"
