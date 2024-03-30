@@ -126,8 +126,8 @@ alias ls-x509='openssl x509 -noout -text -in'
 
 # - /dev/sdXY         driver `ide-scsi`  => SCSI/SATA/USB disks
 # - /dev/nvmeXnYpZ    driver `nvme`      => NVMe or SSD devices
-# 显示磁盘分区详细信息 => ls-partitions /dev/nvme0n1
-alias ls-partitions='lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID'
+# 显示磁盘分区详细信息 => ls-disk-layout /dev/nvme0n1
+alias ls-disk-layout='lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID'
 
 if @zeta:xsh:has-cmd dpkg; then
   alias dpkg-ls-rc='dpkg -l | grep "^rc"'
