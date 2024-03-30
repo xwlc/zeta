@@ -148,3 +148,13 @@ function timestap-iso-8601() {
            *) date --iso-8601=seconds ;;
   esac
 }
+
+alias to-upper1='@zeta:xsh:to-upper1'
+alias to-uppera='@zeta:xsh:to-uppera'
+alias to-lowera='@zeta:xsh:to-lowera'
+
+alias is-binnum='@zeta:util:is-binnum'
+alias is-octnum='@zeta:util:is-octnum'
+alias is-decnum='@zeta:util:is-decnum'
+alias is-hexnum='@zeta:util:is-hexnum'
+alias is-number='@zeta:util:is-number'

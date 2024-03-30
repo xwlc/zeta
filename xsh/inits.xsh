@@ -59,7 +59,7 @@ else
   fi
 fi
 
-function @zeta:which-work-shell() {
+function @zeta:xsh:which-workshell() {
   if @zeta:host:is-linux; then
     # 根据进程判断当前 Shell 类型, $$ 进程 PID
     basename "$(readlink /proc/$$/exe)"
@@ -75,15 +75,15 @@ function @zeta:which-work-shell() {
 if [[ -n "${ZSH_VERSION:-}" ]]; then
   # 启动参数包含 l 表示 login
   if [[ $- == *l* ]]; then
-    function @zeta:is-login-shell() { true; }
+    function @zeta:xsh:is-login() { true; }
   else
-    function @zeta:is-login-shell() { false; }
+    function @zeta:xsh:is-login() { false; }
   fi
 else
   if shopt -q login_shell; then
-    function @zeta:is-login-shell() { true; }
+    function @zeta:xsh:is-login() { true; }
   else
-    function @zeta:is-login-shell() { false; }
+    function @zeta:xsh:is-login() { false; }
   fi
 fi
 

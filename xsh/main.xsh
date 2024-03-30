@@ -28,6 +28,8 @@ if [ -x /usr/bin/dircolors ]; then
   fi
 fi
 
+source "${ZETA_DIR}/xsh/core/help.xsh"
+
 # Lazy Loading Just for Simple Plugins
 source "${ZETA_DIR}/xsh/core/lazy.xsh"
 
@@ -41,4 +43,7 @@ source "${ZETA_DIR}/xsh/core/lazy.xsh"
 
 if [[ -n "${BASH_VERSION:-}" ]]; then
   @zeta:lazy:register repeat
+  source "${ZETA_DIR}/xsh/core/bash/utils.sh"
+else
+  source "${ZETA_DIR}/xsh/core/zsh/utils.zsh"
 fi
