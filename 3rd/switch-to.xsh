@@ -9,6 +9,13 @@ path-head-add "${ZETA_DIR}/3rd/bin/jdk"  # -> OpenJDK/bin
 path-head-add "${ZETA_DIR}/3rd/bin/js"   # -> NodeJS/bin
 path-head-add "${ZETA_DIR}/3rd/bin"
 
+# GOROOT 表示 Go 的安装目录
+if command -v go > /dev/null; then
+  GOROOT="$(realpath "${ZETA_DIR}/3rd/bin/go")"
+  export GOROOT="${GOROOT%/bin/go}"
+  export GOPATH="${GOROOT%/*}/xspace"
+fi
+
 if command -v npm > /dev/null; then
   # npm config get prefix
   NODE_PATH="$(readlink "${ZETA_DIR}/3rd/bin/js")"
@@ -116,16 +123,25 @@ function switch-to() {
   }
 
   case "$1" in
-     java) @zeta:3rd:switch-to java   "$2" jdk ;; # java/$2/bin
-   nodejs) @zeta:3rd:switch-to nodejs "$2" js  ;; # nodejs/$2/bin
-       go) @zeta:3rd:switch-to go     "$2" go gofmt ;;
-    cmake) @zeta:3rd:switch-to cmake  "$2" cmake ccmake cpack ctest cmake-gui ;;
-    *) echo -e "=> no $(@R3 $1) application found"; return 2; ;;
+    go)
+      @zeta:3rd:switch-to go "$2" go gofmt
+      export GOROOT="${ZETA_DIR}/3rd/vendor/$1/$2"
+      ;;
+    cmake)
+      @zeta:3rd:switch-to cmake "$2" cmake ccmake cpack ctest cmake-gui
+      ;;
+    java)
+      @zeta:3rd:switch-to java "$2" jdk # java/$2/bin
+      ;;
+    nodejs)
+      @zeta:3rd:switch-to nodejs "$2" js # nodejs/$2/bin
+      export NODE_PATH="${ZETA_DIR}/3rd/vendor/$1/$2/lib/node_modules"
+      ;;
+    *)
+      echo -e "=> no $(@R3 $1) application found"
+      return 2
+      ;;
   esac
-
-  if [[ "$1" == "nodejs" ]]; then
-    export NODE_PATH="${ZETA_DIR}/3rd/vendor/$1/$2/lib/node_modules"
-  fi
 }
 
 if [[ -n "${ZSH_VERSION:-}" ]]; then
