@@ -92,6 +92,31 @@ sudo nano /etc/sysctl.conf
 - https://nvmexpress.org/open-source-nvme-management-utility-nvme-command-line-interface-nvme-cli
 - https://semiconductor.samsung.com/cn/consumer-storage/support/faqs/internalssd-product-information
 
+- 固态磁盘基本概念
+  * WL(Wear leveling) 磨损平衡
+  * __S.M.A.R.T.__ 全称 __Self-Monitoring Analysis & Reporting Technology__
+  * 计算单位
+    ```bash
+    # KiB, MiB, GiB, TiB, PiB, EiB    1GB = 10^9 = 1,000,000,000 B
+    # Kilo,Mega,Giga,Tera,Peta,Exa    1GiB= 2^30 = 1,073,741,824 B
+
+    # 1 GB 约等于 0.93 GiB    128 GB 约等于 119.2
+    # 16 GB 约等于 14.9 GiB    256 GB 约等于 238.4
+    # 32 GB 约等于 29.8 GiB    512 GB 约等于 476.8
+    # 64 GB 约等于 59.6 GiB   1024 GB 约等于 953.6
+    ```
+  * 固态硬盘 NAND Flash 闪存类型
+    ```bash
+    # 擦写次数寿命 SLC > MLC > TLC > QLC
+    # SLC/单层式存储/1bit, MLC/多层式存储/2bit
+    # TLC/三层式存储/3bit, QLC/四层式存储/4bit
+    ```
+  * 固态硬盘预留空间(OP)
+    ```bash
+    # OP 百分比 = (实际容量 - 用户容量)/用户容量
+    # 存储颗粒矩阵二进制, 标称容量十进制, 差额等于一级 OP 大小约 7.37%
+    ```
+
 ```bash
 # NVMe SSD 固态磁盘管理
 # https://github.com/linux-nvme/nvme-cli
