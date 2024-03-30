@@ -57,3 +57,32 @@ function @zeta:xsh:emsg() {
   [[ $# -eq 0 ]] && return # red
   { @zeta:xsh:_msg_ ERROR '\e[0;31m' "$@"; } 1>&2
 }
+
+function @zeta:util:is-binnum() { # binary
+  [[ $# -eq 0 ]] && return 1
+  [[ -n "$1" && -z "${1//[0-1]/}" ]]
+}
+
+function @zeta:util:is-octnum() { # octave
+  [[ $# -eq 0 ]] && return 1
+  [[ -n "$1" && -z "${1//[0-7]/}" ]]
+}
+
+function @zeta:util:is-decnum() { # decimal
+  [[ $# -eq 0 ]] && return 1
+  [[ -n "$1" && -z "${1//[0-9]/}" ]]
+  #[[ $(echo "$1" | wc -l) -gt 1 ]] && return 1
+  #[[ -n "$(echo "$1" | sed -n "/^[0-9]\+$/p")" ]]
+}
+
+function @zeta:util:is-hexnum() { # hexadecimal
+  [[ $# -eq 0 ]] && return 1
+  [[ -n "$1" && -z "${1//[0-9A-Fa-f]/}" ]]
+  #[[ $(echo "$1" | wc -l) -gt 1 ]] && return 1
+  #[[ -n "$(echo "$1" | sed -n "/^[0-9A-Fa-f]\+$/p")" ]]
+}
+
+function @zeta:util:is-number() {
+  [[ $# -eq 0 ]] && return 1
+  [[ -n "$1" && -z "${1//[0-9A-Fa-f]/}" ]]
+}

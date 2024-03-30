@@ -3,9 +3,8 @@
 # Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
-if [ -d "/me/zeta/3rd/bin" ]; then
-  export PATH="/me/zeta/3rd/bin:${PATH}"
-fi
+source "${ZETA_DIR}/xsh/core/path.xsh"
+source "${ZETA_DIR}/3rd/switch-to.xsh"
 
 # `gpg-agent` is a daemon to manage private keys for GnuPG
 export GPG_TTY=$(tty)
