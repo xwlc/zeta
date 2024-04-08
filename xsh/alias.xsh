@@ -121,10 +121,9 @@ function ls-dot-files() {
   fi
 }
 
-# 查看 X.509 证书信息 => ls-x509-key path/to/x509/key
-alias ls-x509-key='openssl x509 -noout -text -in'
-# 查看 X.509 注销证书 => ls-x509-crl path/to/x509/crl
-alias ls-x509-crl='openssl crl -noout -text -in'
+alias ls-x509-crt='openssl x509 -noout -text -in' # path/to/ca.crt 查看证书信息
+alias ls-x509-csr='openssl req  -noout -text -in' # path/to/ca.csr 查看签名请求
+alias ls-x509-crl='openssl crl  -noout -text -in' # path/to/ca.crl 查看注销列表
 
 # https://security.stackexchange.com/questions/128944
 # https://www.openssl.org/docs/manmaster/man5/x509v3_config.html
