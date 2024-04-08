@@ -125,6 +125,15 @@ alias ls-x509-crt='openssl x509 -noout -text -in' # path/to/ca.crt 查看证书�
 alias ls-x509-csr='openssl req  -noout -text -in' # path/to/ca.csr 查看签名请求
 alias ls-x509-crl='openssl crl  -noout -text -in' # path/to/ca.crl 查看注销列表
 
+# 显示网址/域名的 HTTPS 证书链
+function ls-x509-https-cert-chain() {
+  [[ $# -eq 0 ]] && {
+    echo "ls-x509-skid-rsa www.baidu.com"
+    return
+  }
+  openssl s_client -showcerts -connect $1:443
+}
+
 # https://security.stackexchange.com/questions/128944
 # https://www.openssl.org/docs/manmaster/man5/x509v3_config.html
 # 计算 SKID(Subject Key Identifier) 和 AKID(Authority Key Identifier)
@@ -134,14 +143,15 @@ alias ls-x509-crl='openssl crl  -noout -text -in' # path/to/ca.crl 查看注销�
 function ls-x509-skid-rsa() {
   [[ $# -eq 0 || ! -f "$1" ]] && {
     echo "ls-x509-skid-rsa path/to/RSA.crt"
-    exit
+    return
   }
   openssl x509 -noout -pubkey -in $1 | openssl asn1parse -strparse 19 -noout -out - | openssl dgst -c -sha1
 }
+
 function ls-x509-skid-ed25519() {
   [[ $# -eq 0 || ! -f "$1" ]] && {
-    echo "ls-x509-skid-rsa path/to/ED25519.crt"
-    exit
+    echo "ls-x509-skid-ed25519 path/to/ED25519.crt"
+    return
   }
   openssl x509 -noout -pubkey -in $1 | openssl asn1parse -strparse 9 -noout -out - | openssl dgst -c -sha1
 }
