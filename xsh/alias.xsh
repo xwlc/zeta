@@ -121,8 +121,31 @@ function ls-dot-files() {
   fi
 }
 
-# 显示 X509 证书信息 => ls-x509 path/to/x509/key.der
-alias ls-x509='openssl x509 -noout -text -in'
+# 查看 X.509 证书信息 => ls-x509-key path/to/x509/key
+alias ls-x509-key='openssl x509 -noout -text -in'
+# 查看 X.509 注销证书 => ls-x509-crl path/to/x509/crl
+alias ls-x509-crl='openssl crl -noout -text -in'
+
+# https://security.stackexchange.com/questions/128944
+# https://www.openssl.org/docs/manmaster/man5/x509v3_config.html
+# 计算 SKID(Subject Key Identifier) 和 AKID(Authority Key Identifier)
+# 显示证书导出公钥文件中的 BIT STRING 数据部分的偏移量
+# => RSA 算法类密钥公钥偏移 19字节, ED25519 算法则偏移 9 字节
+# openssl x509 -noout -in ca.crt -pubkey | openssl asn1parse
+function ls-x509-skid-rsa() {
+  [[ $# -eq 0 || ! -f "$1" ]] && {
+    echo "ls-x509-skid-rsa path/to/RSA.crt"
+    exit
+  }
+  openssl x509 -noout -pubkey -in $1 | openssl asn1parse -strparse 19 -noout -out - | openssl dgst -c -sha1
+}
+function ls-x509-skid-ed25519() {
+  [[ $# -eq 0 || ! -f "$1" ]] && {
+    echo "ls-x509-skid-rsa path/to/ED25519.crt"
+    exit
+  }
+  openssl x509 -noout -pubkey -in $1 | openssl asn1parse -strparse 9 -noout -out - | openssl dgst -c -sha1
+}
 
 # - /dev/sdXY         driver `ide-scsi`  => SCSI/SATA/USB disks
 # - /dev/nvmeXnYpZ    driver `nvme`      => NVMe or SSD devices
