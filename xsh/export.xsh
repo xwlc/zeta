@@ -13,6 +13,7 @@ if [ -d "/media/${USER}/Super/keysrepo/gnupg" ]; then
   export GNUPGHOME="/media/${USER}/Super/keysrepo/gnupg"
 fi
 
+# 优先级: GIT_EDITOR > core.editor > VISUAL > EDITOR > Git 编译时指定默认值 vi
 if command -v nvim > /dev/null; then
   export VISUAL=nvim
 elif command -v nano > /dev/null; then
@@ -21,8 +22,6 @@ fi
 
 if [ -n "${VISUAL}" ]; then
   export EDITOR="${VISUAL:-}"
-
-  # Git 编辑器优先级 GIT_EDITOR > core.editor > VISUAL > EDITOR > 默认值 vi
   export GIT_EDITOR="${VISUAL:-}"
 fi
 
@@ -47,11 +46,11 @@ export LANG=en_US.UTF-8
 #export LANGUAGE=en_US        # NOTE 方式2: 禁止翻译[英文] -> [中文]
 export LANGUAGE=en_US:C:zh_CN # NOTE 方式3: 禁止翻译[英文] -> [中文]
 
+# 优先级: GIT_PAGER > core.pager > PAGER > Git 编译时指定默认值 less
 if command -v ov > /dev/null; then
-  if [ -z "${PAGER}" ]; then
-    export PAGER="ov --quit-if-one-screen"
-  fi
+  [ -z "${PAGER}" ] && export PAGER="ov --quit-if-one-screen"
+  [ -z "${GIT_PAGER}" ] && export GIT_PAGER="ov --quit-if-one-screen"
 else
-  # 优先级: $GIT_PAGER > core.pager > $PAGER > 编译时指定值(less)
-  export GIT_PAGER="less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS"
+  [ -z "${PAGER}" ] && export PAGER="less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS"
+  [ -z "${GIT_PAGER}" ] && export GIT_PAGER="less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS"
 fi
