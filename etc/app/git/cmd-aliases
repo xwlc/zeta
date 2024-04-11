@@ -365,9 +365,17 @@ ssb = status --short --branch
 # show git aliases list in the terminal
 aliases = "!git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /'"
 
-# Initalize a repo and immediately add an empty rebaseable commit. This makes it
-# easier for later rebase, because it can go all the way back to the first commit.
-init-repo = "!f() { git init && git commit --allow-empty --message 'Init Commit'; }; f"
+# Initalize a repo and immediately add an empty rebaseable commit. This makes
+# later rebase easier, because it can go all the way back to the first commit.
+init-repo1 = "!f() { \
+    git init --object-format=sha1; \
+    git commit --allow-empty --message 'Init Commit'; \
+  }; f"
+
+init-repo2 = "!f() { \
+    git init --object-format=sha256; \
+    git commit --allow-empty --message 'Init Commit'; \
+  }; f"
 
 # list all the branches, local & remote both included
 branches = branch --all
