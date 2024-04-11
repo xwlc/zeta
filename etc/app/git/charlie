@@ -19,34 +19,20 @@
   from = Charlie WONG <charlie-wong@outlook.com>
   # NOTE smtpPass => credential.helper
 
-# whether should be GPG signed or not
 [user]
   # gpg.program and gpg.format
   signingkey = 9A0B1E11A434FE86
-[tag]
-  gpgSign = true
-[commit]
-  gpgSign = true
-[push]
-  # A boolean value, or the string `if-asked`
-  # true     => causes all pushes to be GPG signed
-  # if-asked => sign pushes if remote server supports
-  # https://people.kernel.org/monsieuricon/signed-git-pushes
-  gpgSign = if-asked
-
-[commit]
-  template = /me/zeta/etc/app/git/template
 
 # https://git-scm.com/docs/git-config#_includes
 [include]
-  # => ~/... 等于 $HOME/...
+  # => ~/... 等于 $HOME/... 注意仅能 ~/... 识别形式
   # => ./foo.inc 表示加载当前文件所在目录的 foo.inc 文件
   # => 非 ~/ 或 ./ 或 / 开头, 则添加 **/ 前缀, 例如 foo/bar 添
   #    加前缀后变成 **/foo/bar, 其将会匹配 /any/path/to/foo/bar
   # => 如果以 / 结尾, 则 ** 会追加到其结尾, 例如 foo/ 添加后缀后
   #    变成 foo/**, 其将会匹配 foo 目录及其包含的所有文件(递归形式)
-  path = /me/zeta/etc/app/git/gitalias
-  path = /me/zeta/etc/app/git/gitconfig
+  path = ~/.config/git/main-config
+  path = ~/.config/git/cmd-aliases
 
 # https://git-scm.com/docs/git-config#_example
 # includeIf hasconfig:remote.*.url: was added in git version 2.36.0

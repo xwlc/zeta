@@ -18,7 +18,6 @@
 # NOTE Always use double quotes around variable expansions!
 # NOTE If too complex, recommend to make it as shell function!
 
-
 [alias]
   a = add
   b = branch

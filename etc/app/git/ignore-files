@@ -1,0 +1,22 @@
+dist/
+
+out/
+build/
+
+wip/
+todo/
+
+*.log
+
+*.zip
+*.tar.*
+
+# backup files
+*~
+*.old
+
+# Node JS
+node_modules/
+
+# The C compile out files
+*.[oa]
