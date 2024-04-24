@@ -181,6 +181,12 @@ function timestap-iso-8601() {
   esac
 }
 
+# systemctl status systemd-journald   查看后台日志服务守护进程的状态
+# journalctl --vacuum-size=8M         仅保留最新的 8 MiB 压缩后的日志
+# journalctl --disk-usage             显示日志文件占用空间大小
+# journalctl --verify                 检测日志功能及日志文件完整性
+alias me-journalctl-rm-all-logs='sudo journalctl --rotate --vacuum-time=1s'
+
 alias to-upper1='@zeta:xsh:to-upper1'
 alias to-uppera='@zeta:xsh:to-uppera'
 alias to-lowera='@zeta:xsh:to-lowera'
