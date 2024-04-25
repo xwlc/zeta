@@ -2,6 +2,6 @@
 
 # Zeta
 
-Personal dotfiles, configurations and well-maintained FAQs.
+All about dotfiles and configurations.
 
 </div>
