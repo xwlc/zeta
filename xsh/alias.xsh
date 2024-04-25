@@ -17,12 +17,6 @@ alias rm='rm -i'  ;   alias  ...='cd ../../'
 # 当前 shell 会话目录栈列表, 左起第一项(0)表示当前目录, 往后依次类推
 alias d='dirs -v'
 
-# `env | grep PATH`
-# `sudo env | grep PATH`
-# 二者运行时的 PATH 设置不同，用户独有的命令 sudo 无法执行
-# 添加 Shell 别名，临时修改执行 sudo 时的环境变量 PATH 的值
-alias sudo='sudo env PATH=$PATH'
-
 # Show report message if two files are identical
 alias diff='diff --color=auto --report-identical-files'
 
