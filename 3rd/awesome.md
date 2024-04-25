@@ -20,6 +20,9 @@ EOF
 iconv -f GBK -t UTF-8 输入文件 -o 输出文件
 ```
 
+- The Ubuntu live CD installer
+  * `apt show ubiquity`
+
 - https://invisible-island.net/ncurses
   * `sudo apt install libncurses-dev`
 

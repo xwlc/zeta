@@ -28,6 +28,7 @@ if [ -x /usr/bin/dircolors ]; then
   fi
 fi
 
+# Shell 查询帮助快捷工具函数
 source "${ZETA_DIR}/xsh/core/help.xsh"
 
 # Lazy Loading Just for Simple Plugins
@@ -47,3 +48,6 @@ if [[ -n "${BASH_VERSION:-}" ]]; then
 else
   source "${ZETA_DIR}/xsh/core/zsh/utils.zsh"
 fi
+
+# 需 ROOT 权限的系统管理快捷工具函数
+source "${ZETA_DIR}/xsh/core/admin.xsh"
