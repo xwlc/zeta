@@ -3,6 +3,7 @@
 # Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
+# FAQs ^_^ https://www.redhat.com/sysadmin/suid-sgid-sticky-bit
 # By default, most Linux Distro set it to 002, focus on sharing
 # 002 -> new file with 664, and new folder with 775 permissions
 # 022 -> new file with 644, and new folder with 755 permissions

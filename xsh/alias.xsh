@@ -73,13 +73,13 @@ alias ls='command ls --color=auto --time-style="+%FT%T"'
 # -l   use long listing format   -d   only folders, not their contents
 # -s   allocated blocks size     -S   sort by file size, largest first
 
-alias  l='ls -hl'       # 按名称排序(字母表), 显示 mtime
+alias  l='ls -hl'       # 按名称排序(字母表), 显示 mtime(inode modify time)
 alias ll='ls -hlS'      # 按文件大小排序,  largest first
 
-alias la='ls -hlu'      # 按名称排序(字母表), 显示 atime
+alias la='ls -hlu'      # 按名称排序(字母表), 显示 atime(inode access time)
 alias las='ls -hlut'    # 按 atime 排序 the newest first
 
-alias lc='ls -hlc'      # 按名称排序(字母表), 显示 ctime
+alias lc='ls -hlc'      # 按名称排序(字母表), 显示 ctime(inode change time)
 alias lcs='ls -hlct'    # 按 ctime 排序 the newest first
 
 alias lm='ls -hl'       # 按名称排序(字母表), 显示 mtime
