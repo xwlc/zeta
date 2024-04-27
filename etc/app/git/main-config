@@ -86,9 +86,9 @@
 
   # git 命令分页器，git 显示大段内容时进行分页展示
   # core.pager 分页器全局设置, pager.<cmd> 分页器子命令设置
-  # 优先级: $GIT_PAGER > core.pager > $PAGER > 编译时指定值(less)
-  pager = "ov --quit-if-one-screen"
-# pager = less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+  # 优先级: GIT_PAGER > core.pager > PAGER > 默认值 less
+  pager = less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+# pager = "ov --quit-if-one-screen"
 
   # A comma separated list of common whitespace problems, prefix - to disable
   #   blank-at-eol          trail whitespaces at end of line as error, enabled by default
@@ -101,7 +101,7 @@
   #   tabwidth=<n>          how many chars positions a tab occupies, default is 8
   # whitespace=             default configuration values are OK
 
-# NOTE GIT_PAGER 或 core.pager 覆盖 pager.<cmd> 配置
+# NOTE GIT_PAGER 覆盖 pager.<cmd> 配置
 [pager]
   show = "ov -F --header 3"
   diff = "ov -F --section-delimiter '^diff' --section-header"

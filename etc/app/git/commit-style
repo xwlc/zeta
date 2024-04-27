@@ -10,7 +10,7 @@
 # MINOR 🔵 feat     add new functionality in backward-compatible manner
 # MAJOR 🔴          appends ! just after type/scope, but before the colon
 #
-# 👽 chore, docs, style, build/deps, test/ci, refactor, revert, perf
+# 👽 init, docs, test/ci, perf, style, build/deps, refactor, revert, misc/chore
 #
 # 🔥 type! OR type(scope)! correlating with MAJOR
 # 🔥 BREAKING CHANGE: ⋯ description what/why/how ⋯

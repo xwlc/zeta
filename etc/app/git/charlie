@@ -8,15 +8,16 @@
   email = charlie-wong@outlook.com
 
 [sendemail]
-  # Foxmail SMTP Email Server
-  smtpServer = smtp.qq.com
-  smtpUser = charlie-wong@foxmail.com
-  from = Charlie WONG <charlie-wong@foxmail.com>
-
   # Outlook SMTP Email Server
   smtpServer = smtp.office365.com
   smtpUser = charlie-wong@outlook.com
-  from = Charlie WONG <charlie-wong@outlook.com>
+  from = Charles Wong <charlie-wong@outlook.com>
+
+  # Foxmail SMTP Email Server
+  smtpServer = smtp.qq.com
+  smtpUser = charlie-wong@foxmail.com
+  from = Charles Wong <charlie-wong@foxmail.com>
+
   # NOTE smtpPass => credential.helper
 
 [user]

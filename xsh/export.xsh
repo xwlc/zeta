@@ -9,10 +9,6 @@ source "${ZETA_DIR}/3rd/switch-to.xsh"
 # `gpg-agent` is a daemon to manage private keys for GnuPG
 export GPG_TTY=$(tty)
 
-if [ -d "/media/${USER}/Super/keysrepo/gnupg" ]; then
-  export GNUPGHOME="/media/${USER}/Super/keysrepo/gnupg"
-fi
-
 # 优先级: GIT_EDITOR > core.editor > VISUAL > EDITOR > Git 编译时指定默认值 vi
 if command -v nvim > /dev/null; then
   export VISUAL=nvim
