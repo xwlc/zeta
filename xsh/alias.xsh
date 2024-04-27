@@ -17,6 +17,9 @@ alias rm='rm -i'  ;   alias  ...='cd ../../'
 # 当前 shell 会话目录栈列表, 左起第一项(0)表示当前目录, 往后依次类推
 alias d='dirs -v'
 
+# Delete garbage objects(unreachable commits) & do objects compress
+alias git-xgc='git gc --prune=now'
+
 # Show report message if two files are identical
 alias diff='diff --color=auto --report-identical-files'
 
