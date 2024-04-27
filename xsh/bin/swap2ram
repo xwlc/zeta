@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# Run this script to make SWAP manually back into RAM
+
+RAMs_FreeBytes=$(LC_ALL=C free | awk '/Mem:/  {print $4}')
+SWAP_UsedBytes=$(LC_ALL=C free | awk '/Swap:/ {print $3}')
+
+if [ ${RAMs_FreeBytes} -lt ${SWAP_UsedBytes} ]; then
+  echo "ERROR: not enough RAM to write SWAP back, nothing done." >&2
+  exit 1
+fi
+
+swapoff -a &&
+swapon -a
