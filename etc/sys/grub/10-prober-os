@@ -1,33 +1,33 @@
-#! /bin/sh
+#!/bin/sh
+#
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-04-30T09:39:38+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+# Copy to /etc/grub.d/10-prober-windows
 set -e
-
-# grub-mkconfig helper script.
-# Copyright (C) 2006,2007,2008,2009  Free Software Foundation, Inc.
-#
-# GRUB is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# GRUB is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
 
 prefix="/usr"
 exec_prefix="/usr"
 datarootdir="/usr/share"
+
 quick_boot="1"
+found_other_os=
 
 export TEXTDOMAIN=grub
 export TEXTDOMAINDIR="${datarootdir}/locale"
 
-. "$pkgdatadir/grub-mkconfig_lib"
-
-found_other_os=
+# => ${pkgdatadir}/grub-mkconfig_lib
+# The helper library for grub-mkconfig
+if [ -f /usr/lib/grub/grub-mkconfig_lib ]; then
+  source /usr/lib/grub/grub-mkconfig_lib
+elif [ -f /usr/share/grub/grub-mkconfig_lib ]; then
+  source /usr/share/grub/grub-mkconfig_lib
+else
+  # no grub file, so we notify and exit gracefully
+  echo "ERROR: Can not find grub-mkconfig helper library file, exiting." >&2
+  exit 0
+fi
 
 adjust_timeout () {
   if [ "$quick_boot" = 1 ] && [ "x${found_other_os}" != "x" ]; then

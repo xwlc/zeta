@@ -1,0 +1,63 @@
+#!/bin/sh
+#
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-04-30T09:39:38+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+# Copy to /etc/grub.d/20-uefi-firmware
+set -e
+
+prefix="/usr"
+exec_prefix="/usr"
+datarootdir="/usr/share"
+
+export TEXTDOMAIN=grub
+export TEXTDOMAINDIR="${datarootdir}/locale"
+
+# The helper library for grub-mkconfig
+# => ${pkgdatadir}/grub-mkconfig_lib
+if [ -f /usr/lib/grub/grub-mkconfig_lib ]; then
+  source /usr/lib/grub/grub-mkconfig_lib
+elif [ -f /usr/share/grub/grub-mkconfig_lib ]; then
+  source /usr/share/grub/grub-mkconfig_lib
+else
+  # no grub file, so we notify and exit gracefully
+  echo "ERROR: Can not find grub-mkconfig helper library file, exiting." >&2
+  exit 0
+fi
+
+# https://www.gnu.org/software/grub/manual/grub/grub.html#bli
+# GRUB Modules BLI(Boot Loader Interface), specifies a set of EFI variables
+# that are used to communicate boot-time information between the bootloader
+# and the operating system.
+
+echo "Adding boot entry for BIOS/UEFI Firmware Setup ..." >&2
+cat << EOF
+if [ "\$grub_platform" = "efi" ]; then
+  insmod bli
+
+  fwsetup --is-supported
+  if [ "\$?" = 0 ]; then
+    menuentry 'BIOS/UEFI Firmware Setup' \$menuentry_id_option 'uefi-firmware-setup' {
+      fwsetup
+    }
+  fi
+fi
+EOF
+
+if [ -f /var/lib/fwupd/uefi_capsule.conf ] && ls /sys/firmware/efi/efivars/fwupd-*-0abba7dc-e516-4167-bbf5-4d9d1c739416 1>/dev/null 2>&1; then
+  source /var/lib/fwupd/uefi_capsule.conf
+
+  if [ "${EFI_PATH}" != "" ] && [ "${ESP}" != "" ]; then
+    echo "Adding boot entry for BIOS/UEFI Firmware Updater ..." >&2
+    cat << EOF
+menuentry 'BIOS/UEFI Firmware Updater' \$menuentry_id_option 'uefi-firmware-updater' {
+EOF
+    ${grub_probe:?} --version > /dev/null
+    prepare_grub_to_access_device "$(${grub_probe} --target=device ${ESP})" | sed -e "s/^/\t/"
+    cat << EOF
+  chainloader ${EFI_PATH}
+}
+EOF
+  fi
+fi

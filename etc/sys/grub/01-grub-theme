@@ -1,21 +1,11 @@
 #!/bin/sh
+#
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-04-30T09:39:38+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+# Copy to /etc/grub.d/01-grub-theme
 set -e
-
-# grub-mkconfig helper script.
-# Copyright (C) 2010  Alexander Kurtz <kurtz.alex@googlemail.com>
-#
-# GRUB is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# GRUB is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
 
 # Include the GRUB helper library for grub-mkconfig.
 . /usr/share/grub/grub-mkconfig_lib

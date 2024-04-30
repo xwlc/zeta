@@ -1,0 +1,20 @@
+#!/bin/sh
+#
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-04-30T09:39:38+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+# Copy to /etc/grub.d/30-custom
+exec tail -n +3 $0
+
+# This file provides an easy way to add more custom menu entries.
+# Simply type the menu entries you want to add after this comment.
+# Be careful do NOT to change the `exec tail` line above.
+
+cat <<EOF
+if [ -f  \${config_directory}/custom.cfg ]; then
+  source \${config_directory}/custom.cfg
+elif [ -z "\${config_directory}" -a -f  \${prefix}/custom.cfg ]; then
+  source \${prefix}/custom.cfg
+fi
+EOF
