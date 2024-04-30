@@ -14,12 +14,12 @@ datarootdir="/usr/share"
 export TEXTDOMAIN=grub
 export TEXTDOMAINDIR="${datarootdir}/locale"
 
-# The helper library for grub-mkconfig
 # => ${pkgdatadir}/grub-mkconfig_lib
+# The helper library for grub-mkconfig
 if [ -f /usr/lib/grub/grub-mkconfig_lib ]; then
-  source /usr/lib/grub/grub-mkconfig_lib
+  .  /usr/lib/grub/grub-mkconfig_lib
 elif [ -f /usr/share/grub/grub-mkconfig_lib ]; then
-  source /usr/share/grub/grub-mkconfig_lib
+  .  /usr/share/grub/grub-mkconfig_lib
 else
   # no grub file, so we notify and exit gracefully
   echo "ERROR: Can not find grub-mkconfig helper library file, exiting." >&2

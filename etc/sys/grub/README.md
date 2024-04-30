@@ -15,8 +15,8 @@ Run command `apt-file search /etc/grub.d/` to show orginal default hook-scripts.
 - 1[0-9]-*: The OS boot entries
   * `10-prober-os`
   * `11-prober-linux`
-  * `11-prober-linux-xen`
-  * `11-prober-linux-zfs`
+  * `12-prober-linux-xen`
+  * `13-prober-linux-zfs`
 
 - 2[0-9]-*: Third party apps/utils
   * `20-uefi-firmware`

@@ -27,7 +27,7 @@ GRUB_SAVEDEFAULT=true
 ## The timeout seconds before boot the default menu entry
 ## -1  waiting for user operation indefinitely
 ##  0  boot immediately without displaying menu
-GRUB_TIMEOUT=8
+GRUB_TIMEOUT=6
 ## menu   - GRUB_TIMEOUT is counted after  menu is displayed
 ## hidden - GRUB_TIMEOUT is counted before menu is displayed
 GRUB_TIMEOUT_STYLE=menu
@@ -38,13 +38,19 @@ GRUB_DISABLE_MEMTEST=true
 GRUB_DISABLE_RECOVERY=true
 ## If your computer has multiple operating systems installed,
 ## then you probably want to run os-prober.
-#GRUB_DISABLE_OS_PROBER=true
+GRUB_DISABLE_OS_PROBER=false
 
 ## NOTE About linux kernel command-line parameters
 ##   Show current running kernel parameters by `cat /proc/cmdline`
 ##     参数顺序 ... GRUB_CMDLINE_LINUX GRUB_CMDLINE_LINUX_DEFAULT ...
 ##   GRUB_CMDLINE_LINUX_DEFAULT will add only to the normal-boot entries
 ## https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
+
+## NOTE kernel does NOT understand root=UUID= or root=PARTUUID=
+## Make GRUB do not pass "root=UUID=xxx" parameter to kernel
+GRUB_DISABLE_LINUX_UUID=false
+## Make GRUB do not pass "root=PARTUUID=xxx" parameter to kernel
+GRUB_DISABLE_LINUX_PARTUUID=true
 
 ## quiet   kernel start-up parameter, disable most log messages
 ## splash  causes boot screen to be shown, it's NOT kernel option
@@ -54,7 +60,10 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
 ##
 ## gpu-manager - Ubuntu Hybrid Graphic Card Manager
 ## https://github.com/canonical/ubuntu-drivers-common/tree/master/share/hybrid
-#GRUB_CMDLINE_LINUX="nogpumanager"
+GRUB_CMDLINE_LINUX="" # nogpumanager
+
+## Make speaker beep when grub start
+#GRUB_INIT_TUNE="480 440 1"
 
 ## Uncomment to disable graphical terminal
 #GRUB_TERMINAL=console
@@ -63,10 +72,8 @@ GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"
 #      you can see them in real GRUB with the command `vbeinfo`
 #GRUB_GFXMODE=640x480
 
-## Make GRUB do not pass "root=UUID=xxx" parameter to kernel
-#GRUB_DISABLE_LINUX_UUID=true
-## Make GRUB do not pass "root=PARTUUID=xxx" parameter to kernel
-#GRUB_DISABLE_LINUX_PARTUUID=true
-
-## Make speaker beep when grub start
-#GRUB_INIT_TUNE="480 440 1"
+## Set GRUB background image, supported format *.png/*.jpg/*.jpeg
+## => Method One: GRUB_BACKGROUND=/path/to/boot.png
+## => Method Two: put the image to /boot/grub/x.png
+## XanMod Arts https://dl.xanmod.org/artwork/assets
+GRUB_BACKGROUND=/boot/grub/xanmod-logo-2017.png
