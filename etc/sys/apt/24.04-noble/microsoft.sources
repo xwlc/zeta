@@ -1,0 +1,18 @@
+## /etc/apt/sources.list.d/microsoft.sources
+##
+## https://vscodium.com
+## https://code.visualstudio.com
+## https://github.com/Microsoft/vscode
+## https://github.com/VSCodium/vscodium
+##
+## https://www.microsoft.com/en-us/edge/download
+##
+## sudo apt install microsoft-edge-stable code
+
+Types: deb
+URIs: https://packages.microsoft.com/repos/edge
+      https://packages.microsoft.com/repos/code
+Suites: stable
+Components: main
+Signed-By: /usr/share/keyrings/microsoft.gpg
+Architectures: amd64

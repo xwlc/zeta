@@ -1,0 +1,15 @@
+## /etc/apt/sources.list.d/vscodium.sources
+##
+## https://vscodium.com
+## https://code.visualstudio.com
+## https://github.com/Microsoft/vscode
+## https://github.com/VSCodium/vscodium
+##
+## sudo apt install codium
+
+Types: deb
+URIs: https://download.vscodium.com/debs
+Suites: vscodium
+Components: main
+Signed-By: /usr/share/keyrings/vscodium.gpg
+Architectures: amd64

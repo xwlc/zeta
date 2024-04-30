@@ -1,0 +1,13 @@
+## /etc/apt/sources.list.d/bcompare.sources
+##
+## https://www.scootersoftware.com/download.php
+## Beyond Compare popular choice for data comparison.
+##
+## sudo apt install bcompare
+
+Types: deb
+URIs: https://www.scootersoftware.com
+Suites: bcompare4
+Components: non-free
+Signed-By: /usr/share/keyrings/bcompare.gpg
+Architectures: amd64

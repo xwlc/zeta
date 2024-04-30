@@ -1,0 +1,53 @@
+## /etc/apt/sources.list.d/ubuntu.sources - Ubuntu APT Repository
+##
+## https://help.ubuntu.com/community/UpgradeNotes    Howto Upgrade Ubuntu
+## NOTE https://discourse.ubuntu.com/t/spec-apt-deb822-sources-by-default
+## apt configure use the more featureful deb822 format since Ubuntu 24.04
+## /etc/apt/sources.list  move-to  /etc/apt/sources.list.d/ubuntu.sources
+
+## Types: Append deb-src to enable the fetching of package source.
+## URIs:  A URL to the repository, multiple URLs is also supported.
+## Suites:
+##    <name>              packages that were part of initial release.
+##    <name>-updates      Major bug fix or updates after Ubuntu release.
+##    <name>-security     Security updates supported by the official ubuntu.
+##    <name>-proposed      Pre-release version of packages, NOT recommended.
+##    <name>-backports    New version of APPs that are backported to work with
+##                        <name> distro, and the software may NOT well tested.
+##                        NOTE APPs in backports will NOT supported by Ubuntu.
+## Components:
+##    main        Ubuntu Team maintained software which is under a free license.
+##    restricted  contains proprietary driver and software supported by Ubuntu.
+##    universe    includes community-maintained free and open-source software.
+##    multiverse  community-maintained of restricted software which is entirely
+##                NOT supported by Ubuntu, may NOT be free/under a free licence.
+##                NOTE Please note that software in multiverse will NOT receive
+##                any review or updates from the official Ubuntu Security Team.
+##
+## See the sources.list(5) manual page for further more details.
+
+# http://archive.ubuntu.com/ubuntu        https://mirrors.163.com/ubuntu
+# https://hk.archive.ubuntu.com/ubuntu    https://mirrors.aliyun.com/ubuntu
+# https://cn.archive.ubuntu.com/ubuntu    https://mirrors.cloud.tencent.com/ubuntu
+# http://security.ubuntu.com/ubuntu       https://mirrors.tuna.tsinghua.edu.cn/ubuntu
+
+Types: deb deb-src
+URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
+Suites: noble noble-updates
+Components: main universe restricted multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+Types: deb
+URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
+Suites: noble-backports
+Components: main universe restricted multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+## Ubuntu security updates. Aside from the URIs and Suites,
+## this should mirror your choices in the previous section.
+Types: deb
+URIs: http://security.ubuntu.com/ubuntu
+      https://mirrors.tuna.tsinghua.edu.cn/ubuntu
+Suites: noble-security
+Components: main universe restricted multiverse
+Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg

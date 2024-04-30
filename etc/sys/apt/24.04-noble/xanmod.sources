@@ -1,0 +1,16 @@
+## /etc/apt/sources.list.d/xanmod.sources
+##
+## https://www.kernel.org
+## https://kernelnewbies.org/LinuxChanges
+## https://kernelnewbies.org/LinuxVersions
+##
+## XanMod is a more general-purpose Linux kernel distribution.
+## https://dl.xanmod.org/ and https://github.com/xanmod/linux
+##
+## sudo apt install linux-image-6.1.77-x64v3-xanmod1 linux-headers-6.1.77-x64v3-xanmod1
+
+Types: deb
+URIs: https://deb.xanmod.org
+Suites: releases
+Components: main
+Signed-By: /usr/share/keyrings/xanmod.gpg
