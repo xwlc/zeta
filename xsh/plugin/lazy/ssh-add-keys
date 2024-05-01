@@ -41,10 +41,10 @@ fi
 # https://invent.kde.org/plasma/ksshaskpass
 # https://wiki.archlinux.org/title/KDE_Wallet
 # Use the KDE Wallet to store SSH secret key passphrases
-if [[ -z "${SSH_ASKPASS}" ]] && @zeta:xsh:has-cmd ksshaskpass; then
+if [[ -z "${SSH_ASKPASS_REQUIRE}" ]] && @zeta:xsh:has-cmd ksshaskpass; then
+  export SSH_ASKPASS="$(command -v ksshaskpass)"
   # prefer to use the askpass program instead of the TTY
   export SSH_ASKPASS_REQUIRE=prefer
-  export SSH_ASKPASS="$(command -v ksshaskpass)"
 fi
 
 # ps -U "${LOGNAME}" -o pid,ucomm | grep -q -- "${SSH_AGENT_PID:--1} ssh-agent"
