@@ -34,7 +34,7 @@ fi
 # variables that are used to communicate the boot-time information
 # between the bootloader and the operating system.
 
-grub_info "Adding entry for UEFI/BIOS Firmware Setup"
+grub_info "Add menu entry for UEFI/BIOS Firmware Setup"
 cat << EOF
 if [ "\${grub_platform}" = "efi" ]; then
   insmod bli
@@ -52,7 +52,7 @@ if [ -f /var/lib/fwupd/uefi_capsule.conf ] && ls /sys/firmware/efi/efivars/fwupd
   .  /var/lib/fwupd/uefi_capsule.conf
 
   if [ "${EFI_PATH}" != "" ] && [ "${ESP}" != "" ]; then
-    grub_info "Adding entry for UEFI/BIOS Firmware Updater"
+    grub_info "Add menu entry for UEFI/BIOS Firmware Updater"
     cat << EOF
 menuentry 'UEFI/BIOS Firmware Updater' \${menuentry_id_option} 'uefi-firmware-updater' {
 EOF

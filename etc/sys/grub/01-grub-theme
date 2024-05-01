@@ -111,7 +111,7 @@ set_background_image() {
   fi
 
   # Step-7: Everything went fine, print out a message to stderr ...
-  grub_info "Found background image: ${1}"
+  grub_info "Found background image ${1}"
 
   # ... and write our configuration snippet to stdout. Use the colors
   # desktop-base specified. If we're using a user-defined background, use
@@ -137,7 +137,7 @@ if false; then
 # Remove obsolete /boot/grub/* images, which are copied by earlier version grub.
 while read checksum background; do
   if [ -f "${background}" ] && [ "x$(sha1sum "${background}")" = "x${checksum}  ${background}" ]; then
-    grub_info "Remove old background image: ${background}"
+    grub_info "Deletes old background ${background}"
     rm "${background}"
   fi
 done << EOF

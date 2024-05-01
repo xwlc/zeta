@@ -172,7 +172,7 @@ for OS in ${OSPROBED} ; do
     fi
 
     if [ "x${GRUB_OS_PROBER_SKIP_LIST}" != "x" ] && [ "x`echo ${GRUB_OS_PROBER_SKIP_LIST} | grep -i -e '\b'${EXPUUID}'\b'`" != "x" ]; then
-      echo "Skipped ${LONGNAME} on ${DEVICE} by user request." >&2
+      grub_info "Skipped ${LONGNAME} on ${DEVICE} by user request."
       continue
     fi
   fi
@@ -190,7 +190,7 @@ for OS in ${OSPROBED} ; do
   # os-prober returns text string followed by optional counter
   CLASS="--class $(echo "${LABEL}" | LC_ALL=C sed 's,[[:digit:]]*$,,' | cut -d' ' -f1 | tr 'A-Z' 'a-z' | LC_ALL=C sed 's,[^[:alnum:]_],_,g')"
 
-  gettext_printf "Found %s on %s\n" "${LONGNAME}" "${DEVICE}" >&2
+  grub_info "Found ${LONGNAME} on ${DEVICE}"
 
   case ${BOOT} in
     chain)
@@ -395,7 +395,7 @@ EOF
       ;;
     *)
       # TRANSLATORS: %s is replaced by OS name.
-      gettext_printf "%s is not yet supported by grub-mkconfig.\n" " ${LONGNAME}" >&2
+      grub_info "${LONGNAME} is not yet supported by grub-mkconfig."
       ;;
   esac
 done
