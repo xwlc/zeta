@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2023-05-16T07:56:43+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+# https://git-scm.com/docs/git-difftool
+# $LOCAL    set to a temporary file, which is original, pre-image data
+# $REMOTE   set to a temporary file, which is modified, pre-image data
+
+# https://git-scm.com/docs/git-mergetool
+# $LOCAL    set to a temporary file, which is the current branch file
+# $REMOTE   set to a temporary file, which is file of branch being merged
+# $BASE     set to a temporary file, common base of the files to be merged
+# $MERGED   set to the file to which the merge tool should write the results
+LOCAL="$1"; REMOTE="$2"; BASE="$3"; MERGED="$4";
+
+# NOTE `which` can not found alias or shell function
+function has-cmd() {   command -v "$1" > /dev/null; }
+function no-cmd()  { ! command -v "$1" > /dev/null; }
+
+if [ -z "${XCOMPARE_CMD}" ]; then
+  if has-cmd bcompare; then
+    XCOMPARE_CMD=bcompare
+  elif has-cmd codecompare; then
+    XCOMPARE_CMD=codecompare
+  elif has-cmd kompare; then
+    XCOMPARE_CMD=kompare
+  elif has-cmd meld; then
+    XCOMPARE_CMD=meld
+  elif has-cmd kdiff3; then
+    XCOMPARE_CMD=kdiff3
+  fi
+fi
+
+_XCOMPARE_CMD_="$(git config --get zeta.xcompare)"
+if [[ $? -eq 0 && -n "${_XCOMPARE_CMD_}" ]]; then
+  XCOMPARE_CMD="${_XCOMPARE_CMD_}"
+fi
+
+if [[ -z "${XCOMPARE_CMD}" ]] || no-cmd "${XCOMPARE_CMD}"; then
+  echo '[zeta/xcompare] git difftool --tool-help    查看当前可用比较工具'
+  echo '[zeta/xcompare] git mergetool --tool-help   查看当前可用合并工具'
+  echo
+  echo '[zeta/xcompare] 设置环境变量 XCOMPARE_CMD 或 zeta.xcompare'
+  echo '[zeta/xcompare] git config zeta.xcompare "..."          => .git/config'
+  echo '[zeta/xcompare] git config --global zeta.xcompare "..." => ~/.gitconfig'
+  echo
+  echo "=> https://meldmerge.org          开源免费 $ sudo apt install meld"
+  echo "=> https://apps.kde.org/kompare/  开源免费 $ sudo apt install kompare"
+  echo "=> https://www.scootersoftware.com/download.php          闭源收费，免费试用"
+  echo "=> https://www.devart.com/codecompare/featurematrix.html 闭源收费，免费试用"
+  exit 1
+fi
+
+if [ $# -eq 2 ]; then # diff
+  "${XCOMPARE_CMD}" "${LOCAL}" "${REMOTE}"
+else # merge
+  "${XCOMPARE_CMD}" "${LOCAL}" "${REMOTE}" "${BASE}" "${MERGED}"
+fi

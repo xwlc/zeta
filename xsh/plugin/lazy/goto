@@ -27,7 +27,7 @@ function goto() {
     } >&2
 
     [[ ! -d "$2" ]] && {
-      builtin echo "Directory $(@R3 $2) does NOT exist, skip!"
+      builtin echo "SKIP: no directory $(@R3 $2)"
       return 2
     } >&2
 

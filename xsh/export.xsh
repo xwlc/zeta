@@ -21,6 +21,10 @@ if [ -n "${VISUAL}" ]; then
   export GIT_EDITOR="${VISUAL:-}"
 fi
 
+if [ -f ~/.config/git/xcompare ]; then
+  export XCOMPARE=~/.config/git/xcompare
+fi
+
 # https://wiki.archlinux.org/title/Locale  显示当前本地化设置 locale
 # 格式文件 => /usr/share/i18n/locales      显示可用本地化设置 locale -a
 # 值的格式: [语言[_地域][.字符集][@修正值] 显示当前本地化设置 localectl status
