@@ -14,6 +14,9 @@ datarootdir="/usr/share"
 export TEXTDOMAIN=grub
 export TEXTDOMAINDIR="${datarootdir}/locale"
 
+grub_errs() { echo "ERRS: $@" >&2; }
+grub_info() { echo "INFO: $@" >&2; }
+
 # => ${pkgdatadir}/grub-mkconfig_lib
 # The helper library for grub-mkconfig
 if [ -f /usr/lib/grub/grub-mkconfig_lib ]; then
@@ -22,7 +25,7 @@ elif [ -f /usr/share/grub/grub-mkconfig_lib ]; then
   .  /usr/share/grub/grub-mkconfig_lib
 else
   # no grub file, so we notify and exit gracefully
-  echo "ERROR: Can not find grub-mkconfig helper library file, exiting." >&2
+  grub_errs "Can not find grub-mkconfig helper library file, exiting."
   exit 0
 fi
 
@@ -39,7 +42,7 @@ fi
 # device, but the initrds that Linux uses do not like that.
 case ${GRUB_DEVICE} in
   /dev/loop/*|/dev/loop[0-9])
-    GRUB_DEVICE=`losetup ${GRUB_DEVICE} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/"`
+    GRUB_DEVICE=$(losetup ${GRUB_DEVICE} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/")
     # We can't cope with devices loop-mounted from files here.
     case ${GRUB_DEVICE} in
       /dev/*)   ;;
@@ -77,7 +80,7 @@ if [ "${GRUB_CMDLINE_LINUX_XEN_REPLACE_DEFAULT}" ]; then
   GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_XEN_REPLACE_DEFAULT}"
 fi
 
-case x"$GRUB_FS" in
+case x"${GRUB_FS}" in
   xbtrfs)
     rootsubvol="$(make_system_path_relative_to_its_root /)"
     rootsubvol="${rootsubvol#/}"
@@ -139,7 +142,7 @@ linux_entry_xsm() {
 
       title_correction_code="${title_correction_code}if [ \"x\${default}\" = '${quoted}' ]; then default='$(echo "${replacement_title}" | grub_quote)'; fi;"
 
-      grub_warn "$(gettext_printf "Please don't use old title \`%s' for GRUB_DEFAULT, use \`%s' (for versions before 2.00) or \`%s' (for 2.00 or later)" \
+      grub_warn "$(gettext_printf "Please don't use old title \`%s' for GRUB_DEFAULT, use \`%s' (before 2.00) or \`%s' (2.00 or later)" \
         "${GRUB_ACTUAL_DEFAULT}" "${replacement_title}" \
         "gnulinux-advanced-${boot_device_id}>gnulinux-${version}-${type}-${boot_device_id}")"
     fi
@@ -278,7 +281,7 @@ fi
 is_top_level=true
 
 for current_xen in ${reverse_sorted_xen_list}; do
-   xen_dirname=$(dirname ${current_xen})
+   xen_dirname=$(dirname  ${current_xen})
   xen_basename=$(basename ${current_xen})
 
   xen_version=$(echo ${xen_basename} | sed -e "s,.gz$,,g;s,^xen-,,g")
@@ -313,7 +316,7 @@ for current_xen in ${reverse_sorted_xen_list}; do
   done
 
   for linux in ${reverse_sorted_linux_list}; do
-    gettext_printf "Found linux image: %s\n" "${linux}" >&2
+    grub_info "Found linux image: ${linux}"
      dirname=$(dirname  ${linux})
     basename=$(basename ${linux})
 
@@ -351,7 +354,7 @@ for current_xen in ${reverse_sorted_xen_list}; do
         initrd_display="${initrd_display} ${dirname}/${i}"
       done
 
-      gettext_printf "Found initrd image: %s\n" "$(echo ${i}nitrd_display)" >&2
+      grub_info "Found initrd image: $(echo ${i}nitrd_display)"
     fi
 
     if test -z "${initrd_real}"; then
