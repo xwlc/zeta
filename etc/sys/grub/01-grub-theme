@@ -133,6 +133,7 @@ set_background_image() {
   echo "fi"
 }
 
+if false; then
 # Remove obsolete /boot/grub/* images, which are copied by earlier version grub.
 while read checksum background; do
   if [ -f "${background}" ] && [ "x$(sha1sum "${background}")" = "x${checksum}  ${background}" ]; then
@@ -143,6 +144,7 @@ done << EOF
 648ee65dd0c157a69b019a5372cbcfea4fc754a5  debian-wallpaper-640x480.png
 11143e8c92a073401de0b0fd42d0c052af4ccd9b  moreblue-wallpaper-64x64.png
 EOF
+fi
 
 # First check whether user has specified a background image explicitly.
 if [ -n "${GRUB_BACKGROUND+x}" ]; then

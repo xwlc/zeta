@@ -310,7 +310,7 @@ esac
 
 if [ "x${gfxterm}" = x1 ]; then
   if [ "x${GRUB_THEME}" != x ] && [ -f "${GRUB_THEME}" ] && is_path_readable_by_grub "${GRUB_THEME}"; then
-    grub_info "Found theme ${GRUB_THEME}"
+    # grub_info "Found theme ${GRUB_THEME}"
     prepare_grub_to_access_device $(${grub_probe} --target=device "${GRUB_THEME}")
     cat << EOF
 insmod gfxmenu
@@ -347,7 +347,7 @@ set theme=(\${root})$(make_system_path_relative_to_its_root ${GRUB_THEME})
 export theme
 EOF
   elif [ "x${GRUB_BACKGROUND}" != x ] && [ -f "${GRUB_BACKGROUND}" ] && is_path_readable_by_grub "${GRUB_BACKGROUND}"; then
-    grub_info "Found background image: ${GRUB_BACKGROUND}"
+    # grub_info "Found background image: ${GRUB_BACKGROUND}"
     case "${GRUB_BACKGROUND}" in
       *.png) reader=png ;;
       *.tga) reader=tga ;;
