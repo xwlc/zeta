@@ -5,8 +5,10 @@
 
 ## FAQs for Linux Permissions => https://www.redhat.com/sysadmin/suid-sgid-sticky-bit
 ##
-## The command to show the details info of the disk layout is $ ls-disk-layout /dev/nvme0n1
-## alias ls-disk-layout='lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID'
+## The command to show runtime mount options of each mounted partitions.
+##   $ cat /etc/mtab
+## The command to show details information of the disk layout
+##   $ lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID /dev/nvme0n1
 
 ## Disk Partition                               MountPoint    Type    Options                       dump  fsck
 PARTUUID=fa02ab0d-0e66-1c45-bbec-d540dd1144a9   /             ext4    defaults,noatime              0     1
