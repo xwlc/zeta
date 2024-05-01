@@ -18,6 +18,9 @@ grubdir="$(echo "/boot/grub" | sed 's,//*,/,g')"
 export TEXTDOMAIN=grub
 export TEXTDOMAINDIR="${datarootdir}/locale"
 
+grub_errs() { echo "ERRS: $@" >&2; }
+grub_info() { echo "INFO: $@" >&2; }
+
 # => ${pkgdatadir}/grub-mkconfig_lib
 # The helper library for grub-mkconfig
 if [ -f /usr/lib/grub/grub-mkconfig_lib ]; then
@@ -26,24 +29,24 @@ elif [ -f /usr/share/grub/grub-mkconfig_lib ]; then
   .  /usr/share/grub/grub-mkconfig_lib
 else
   # no grub file, so we notify and exit gracefully
-  echo "ERROR: Can not find grub-mkconfig helper library file, exiting." >&2
+  grub_errs "Can not find grub-mkconfig helper library file, exiting."
   exit 0
 fi
 
 # Do this as early as possible, since other commands might depend on it.
 # (e.g. the `loadfont' command might need lvm or raid modules)
-for i in ${GRUB_PRELOAD_MODULES} ; do
+for i in ${GRUB_PRELOAD_MODULES}; do
   echo "insmod ${i}"
 done
 
 if [ "x${GRUB_DEFAULT}" = "x" ]; then GRUB_DEFAULT=0; fi
-if [ "x${GRUB_DEFAULT}" = "xsaved" ]; then GRUB_DEFAULT='${saved_entry}'; fi
-if [ "x${GRUB_TIMEOUT}" = "x" ]; then GRUB_TIMEOUT=5; fi
+if [ "x${GRUB_DEFAULT}" = "xsaved" ] ; then GRUB_DEFAULT='${saved_entry}'; fi
+if [ "x${GRUB_TIMEOUT}" = "x" ]; then GRUB_TIMEOUT=6; fi
 if [ "x${GRUB_GFXMODE}" = "x" ]; then GRUB_GFXMODE=auto; fi
 
-if [ "x${GRUB_DEFAULT_BUTTON}" = "x" ]; then GRUB_DEFAULT_BUTTON="$GRUB_DEFAULT";  fi
+if [ "x${GRUB_DEFAULT_BUTTON}" = "x" ]; then GRUB_DEFAULT_BUTTON="${GRUB_DEFAULT}"; fi
 if [ "x${GRUB_DEFAULT_BUTTON}" = "xsaved" ]; then GRUB_DEFAULT_BUTTON='${saved_entry}'; fi
-if [ "x${GRUB_TIMEOUT_BUTTON}" = "x" ]; then GRUB_TIMEOUT_BUTTON="$GRUB_TIMEOUT";  fi
+if [ "x${GRUB_TIMEOUT_BUTTON}" = "x" ]; then GRUB_TIMEOUT_BUTTON="${GRUB_TIMEOUT}"; fi
 
 cat << EOF
 if [ -s \${prefix}/grubenv ]; then
@@ -109,7 +112,7 @@ if [ "\${prev_saved_entry}" ]; then
   set boot_once=true
 fi
 
-function savedefault() {
+function savedefault {
   if [ -z "\${boot_once}" ]; then
     saved_entry="\${chosen}"
     save_env saved_entry
@@ -117,8 +120,8 @@ function savedefault() {
 }
 EOF
 
-cat << EOF
-function initrdfail() {
+cat << "EOF"
+function initrdfail {
   if [ -n "${have_grubenv}" ]; then
     if [ -n "${partuuid}" ]; then
       if [ -z "${initrdfail}" ]; then
@@ -136,7 +139,7 @@ EOF
 
 if [ "${quick_boot}" = 1 ]; then
   cat <<EOF
-function recordfail() {
+function recordfail {
   set recordfail=1
 EOF
 
@@ -146,7 +149,8 @@ EOF
       case "${abstraction}" in
         diskfilter | lvm)
           cat << EOF
-  # GRUB lacks write support for ${abstraction}, so recordfail support is disabled.
+  # GRUB lacks write support for ${abstraction},
+  # so recordfail() support is disabled.
 EOF
           return 1
           ;;
@@ -157,7 +161,8 @@ EOF
     case "${FS}" in
       btrfs | cpiofs | newc | odc | romfs | squash4 | tarfs | zfs)
         cat << EOF
-  # GRUB lacks write support for ${FS}, so recordfail support is disabled.
+  # GRUB lacks write support for ${FS},
+  # so recordfail() support is disabled.
 EOF
         return 1
         ;;
@@ -182,7 +187,7 @@ EOF
 fi
 
 cat << EOF
-function load_video() {
+function load_video {
 EOF
 if [ -n "${GRUB_VIDEO_BACKEND}" ]; then
   cat << EOF
@@ -210,8 +215,7 @@ cat << EOF
 
 EOF
 
-serial=0
-gfxterm=0
+serial=0; gfxterm=0
 for x in ${GRUB_TERMINAL_INPUT} ${GRUB_TERMINAL_OUTPUT}; do
   if [ xserial = "x${x}" ]; then serial=1; fi
   if [ xgfxterm = "x${x}" ]; then gfxterm=1; fi
@@ -219,15 +223,14 @@ done
 
 if [ "x${serial}" = x1 ]; then
   if [ "x${GRUB_SERIAL_COMMAND}" = "x" ]; then
-    grub_warn "$(gettext "Requested serial terminal but GRUB_SERIAL_COMMAND is unspecified. Default parameters will be used.")"
+    grub_warn "Requested serial terminal but GRUB_SERIAL_COMMAND is unspecified. Default args will be used."
     GRUB_SERIAL_COMMAND=serial
   fi
   echo "${GRUB_SERIAL_COMMAND}"
 fi
 
 if [ "x${gfxterm}" = x1 ]; then
-  if [ -n "${GRUB_FONT}" ]; then
-    # Make the font accessible
+  if [ -n "${GRUB_FONT}" ]; then # Make the font accessible
     prepare_grub_to_access_device $(${grub_probe} --target=device "${GRUB_FONT}")
     cat << EOF
 if loadfont $(make_system_path_relative_to_its_root "${GRUB_FONT}"); then
@@ -307,7 +310,7 @@ esac
 
 if [ "x${gfxterm}" = x1 ]; then
   if [ "x${GRUB_THEME}" != x ] && [ -f "${GRUB_THEME}" ] && is_path_readable_by_grub "${GRUB_THEME}"; then
-    gettext_printf "Found theme: %s\n" "${GRUB_THEME}" >&2
+    grub_info "Found theme ${GRUB_THEME}"
     prepare_grub_to_access_device $(${grub_probe} --target=device "${GRUB_THEME}")
     cat << EOF
 insmod gfxmenu
@@ -344,12 +347,12 @@ set theme=(\${root})$(make_system_path_relative_to_its_root ${GRUB_THEME})
 export theme
 EOF
   elif [ "x${GRUB_BACKGROUND}" != x ] && [ -f "${GRUB_BACKGROUND}" ] && is_path_readable_by_grub "${GRUB_BACKGROUND}"; then
-    gettext_printf "Found background: %s\n" "${GRUB_BACKGROUND}" >&2
+    grub_info "Found background image: ${GRUB_BACKGROUND}"
     case "${GRUB_BACKGROUND}" in
-      *.png)         reader=png ;;
-      *.tga)         reader=tga ;;
-      *.jpg|*.jpeg)  reader=jpeg ;;
-      *) gettext "Unsupported image format" >&2; echo >&2; exit 1 ;;
+      *.png) reader=png ;;
+      *.tga) reader=tga ;;
+      *.jpg|*.jpeg) reader=jpeg ;;
+      *) grub_warn "Unsupported image format: ${GRUB_BACKGROUND}"; exit 1 ;;
     esac
     prepare_grub_to_access_device $(${grub_probe} --target=device "${GRUB_BACKGROUND}")
     cat << EOF
@@ -372,12 +375,12 @@ EOF
     # Handle the deprecated GRUB_HIDDEN_TIMEOUT scheme.
     timeout="${1}"
     if [ "x${2}" != "x0" ] ; then
-      grub_warn "$(gettext "Setting GRUB_TIMEOUT to a non-zero value when GRUB_HIDDEN_TIMEOUT is set is no longer supported.")"
+      grub_warn "Set GRUB_TIMEOUT to non-zero value when GRUB_HIDDEN_TIMEOUT is set is no longer supported."
     fi
 
-    if [ "x${GRUB_HIDDEN_TIMEOUT_QUIET}" = "xtrue" ] ; then
-      style="hidden"
+    if [ "x${GRUB_HIDDEN_TIMEOUT_QUIET}" = "xtrue" ]; then
       verbose=
+      style="hidden"
     else
       style="countdown"
       verbose=" --verbose"
@@ -395,13 +398,15 @@ EOF
 EOF
   if [ "x${style}" = "xmenu" ]; then
     cat << EOF
-  # Fallback normal timeout code in case timeout_style feature is unavailable.
+  # Fallback normal timeout code in case
+  # timeout_style feature is unavailable.
   else
     set timeout=${timeout}
 EOF
   else
     cat << EOF
-  # Fallback hidden-timeout code in case timeout_style feature is unavailable.
+  # Fallback hidden-timeout code in case
+  # timeout_style feature is unavailable.
   elif sleep${verbose} --interruptible ${timeout}; then
     set timeout=0
 EOF
@@ -442,10 +447,5 @@ EOF
 fi
 
 # Play an initial tune
-if [ "x${GRUB_INIT_TUNE}" != "x" ]; then
-  echo "play ${GRUB_INIT_TUNE}"
-fi
-
-if [ "x${GRUB_BADRAM}" != "x" ]; then
-  echo "badram ${GRUB_BADRAM}"
-fi
+if [ "x${GRUB_INIT_TUNE}" != "x" ]; then echo "play ${GRUB_INIT_TUNE}"; fi
+if [ "x${GRUB_BADRAM}" != "x" ]; then echo "badram ${GRUB_BADRAM}"; fi
