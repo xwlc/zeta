@@ -27,8 +27,8 @@ function goto() {
     } >&2
 
     [[ ! -d "$2" ]] && {
-      builtin echo "SKIP: no directory $(@R3 $2)"
-      return 2
+      # builtin echo "SKIP: no target directory $(@R3 $2)"
+      return 1
     } >&2
 
     local key val
