@@ -6,7 +6,7 @@
 # `env | grep PATH` 和 `sudo env | grep PATH`
 # 二者运行时的 PATH 不同(普通用户非标准命令 sudo 无法执行)
 # 修改 sudo 执行时的环境变量 PATH 的值(包含非标准命令路径)
-#alias sudo='sudo env PATH=${PATH}'
+alias sudo-env-path='sudo env PATH=${PATH}'
 
 # 临时切换到 Root 权限的交互式终端
 alias login-as-root='/bin/sudo -i'
