@@ -18,7 +18,7 @@ alias rm='rm -i'  ;   alias  ...='cd ../../'
 alias d='dirs -v'
 
 # Delete garbage objects(unreachable commits) & do objects compress
-alias git-xgc='git gc --prune=now'
+alias git-delete-trash='git gc --prune=now'
 
 # Show report message if two files are identical
 alias diff='diff --color=auto --report-identical-files'
