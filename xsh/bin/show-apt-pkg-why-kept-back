@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+# `sudo apt upgrade` 显示 packages have been kept back 的原因
+# - 原因一: <PKG> 软件包位于 hold 列表
+#     apt-mark showhold           apt-mark showhold <PKG>
+#     sudo apt-mark hold <PKG>    sudo apt-mark unhold <PKG>
+# - 原因二: 包阶段更新百分比(Phased-Update-Percentage)
+#     显示 <PKG> 软件包信息 apt show <PKG>
+# - 原因三: 新版 <PKG> 软件包的依赖发生变化
+
+THIS_DIR="$(dirname "$0")"
+THIS_FNAME="$(basename "$0")"
+if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
+  source "${XCOLORS}"
+else
+  exit 255
+fi
+
+if ! command -v apt > /dev/null; then
+  exit 1
+fi
+
+NEW_VER=""; OLD_VER=""; IS_HOLD=""; IS_PHASED=""
+CACHE_LOG_OLD="${THIS_DIR}/${THIS_FNAME}-old.log"
+CACHE_LOG_NEW="${THIS_DIR}/${THIS_FNAME}-new.log"
+
+for PKG in $(apt list --upgradable 2> /dev/null | grep / | cut -d/ -f1); do
+  is_new_version=true
+  for VER in $(apt list --all-versions "${PKG}" 2> /dev/null | grep "${PKG}" | cut -d' ' -f2); do
+    if ${is_new_version}; then
+      NEW_VER="${VER}"
+      is_new_version=false
+    else
+      OLD_VER="${VER}"
+    fi
+  done
+
+  # 软件包 PKG 从 OLD_VER 版本更新到 NEW_VER 版本
+  echo "$(@D9 ${PKG}) $(@G3 ${OLD_VER}) -> $(@R3 ${NEW_VER})"
+
+  IS_HOLD="$(apt-mark showhold "${PKG}" 2> /dev/null)"
+  if [[ $? && -n "${IS_HOLD}" ]]; then
+    echo "=> It is $(@Y3 hold) by $(@C3 apt-mark)"
+    echo
+    continue
+  fi
+
+  IS_PHASED="$(apt show "${PKG}" 2> /dev/null | grep Phased-Update-Percentage)"
+  if [[ $? && -n "${IS_PHASED}" ]]; then
+    IS_PHASED=$(echo ${IS_PHASED} | cut -d' ' -f2)
+    echo "=> $(@D9 Phased-Update-Percentage) $(@B3 ${IS_PHASED})"
+    echo
+    continue
+  fi
+
+  # apt show <PKG>=<VERSION>
+  # apt show --all-versions <PKG>
+  # apt show <PKG>=<OLD_VER> <PKG>=<NEW_VER>
+  echo "   diff --color=always <(apt show "${PKG}=${OLD_VER}" 2> /dev/null) <(apt show "${PKG}=${NEW_VER}" 2> /dev/null)"
+  printf "=> %-119s %s\n" "$(@B3 'Old Version')" "$(@Y3 'New Version')"
+  printf "   %-119s %s\n" "$(@C3 apt show ${PKG}=${OLD_VER})" "$(@C3 apt show ${PKG}=${NEW_VER})"
+# diff --color=always <(apt show "${PKG}=${OLD_VER}" 2> /dev/null) <(apt show "${PKG}=${NEW_VER}" 2> /dev/null)
+
+  apt show "${PKG}=${OLD_VER}" > "${CACHE_LOG_OLD}" 2> /dev/null
+  apt show "${PKG}=${NEW_VER}" > "${CACHE_LOG_NEW}" 2> /dev/null
+
+  old_deps=$(grep Depends "${CACHE_LOG_OLD}" | sed -e "s/, /␟/g")
+  old_task=$(grep Task    "${CACHE_LOG_OLD}" | sed -e "s/, /␟/g")
+  sed -e "s/Depends:.*/${old_deps}/g" "${CACHE_LOG_OLD}" --in-place
+  sed -e "s/Task:.*/${old_task}/"     "${CACHE_LOG_OLD}" --in-place
+  sed -e "s/␟/\n/g" "${CACHE_LOG_OLD}" --in-place
+
+  new_deps=$(grep Depends "${CACHE_LOG_NEW}" | sed -e "s/, /␟/g")
+  new_task=$(grep Task    "${CACHE_LOG_NEW}" | sed -e "s/, /␟/g")
+  sed -e "s/Depends:.*/${new_deps}/" "${CACHE_LOG_NEW}" --in-place
+  sed -e "s/Task:.*/${new_task}/"    "${CACHE_LOG_NEW}" --in-place
+  sed -e "s/␟/\n/g" "${CACHE_LOG_NEW}" --in-place
+
+  diff --color=always --side-by-side --width=222 "${CACHE_LOG_OLD}" "${CACHE_LOG_NEW}"
+  echo;echo "Press $(@G3 Enter) to continue, other else key-press will $(@R3 exit)"
+  read enter_to_continue
+  [[ -n "${enter_to_continue}" ]] && exit 0
+done
+
+exit 0
+
+while read PKG; do
+  printf "%30s -> ${PKG}\n" "$(apt show "${PKG}" 2>&1 | grep Phased)"
+done < <(apt list --upgradable 2>&1 | grep / | cut -d/ -f1)
