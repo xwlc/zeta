@@ -37,10 +37,11 @@ fi
 # SSH_ASKPASS => /mingw64/bin/git-askpass.exe
 # https://github.com/git-ecosystem/git-credential-manager
 # https://github.com/Microsoft/Git-Credential-Manager-for-Windows
-#
+
 # https://invent.kde.org/plasma/ksshaskpass
 # https://wiki.archlinux.org/title/KDE_Wallet
-# Use the KDE Wallet to store SSH secret key passphrases
+# NOTE Use KDE Wallet to save SSH/GnuPG secret key passphrases
+# - encrypted password is stored in ~/.local/share/kwalletd/*.kwl
 if [[ -z "${SSH_ASKPASS_REQUIRE}" ]] && @zeta:xsh:has-cmd ksshaskpass; then
   export SSH_ASKPASS="$(command -v ksshaskpass)"
   # prefer to use the askpass program instead of the TTY
