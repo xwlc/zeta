@@ -3,6 +3,12 @@
 # Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
+# About POSIX ACL(Access Control Lists)
+# - https://savannah.nongnu.org/projects/acl
+# - https://wiki.archlinux.org/title/Access_Control_Lists
+# - 软件包 apt show acl 包含的命令 getfacl, setfacl 和 chacl
+# - NOTE 若 ls -l 命令显示的权限标志中包含 + 则表示已设置 ACL
+#
 # FAQs ^_^ https://www.redhat.com/sysadmin/suid-sgid-sticky-bit
 # By default, most Linux Distro set it to 002, focus on sharing
 # 002 -> new file with 664, and new folder with 775 permissions

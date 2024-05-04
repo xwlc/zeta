@@ -105,17 +105,18 @@ function ls-split() {
 alias ls-sh-envs='printenv'
 # 显示当前 Shell 的[变量]列表
 alias ls-sh-vars='declare -p'
+
 # 显示当前 Shell 的[函数]定义
-alias ls-sh-body='declare -f'
+alias ls-sh-func-body='declare -f'
 
 if [[ -n "${ZSH_VERSION:-}" ]]; then
   alias help='help-zsh'
   # 显示当前会话可用函数列表, 包括:
   # - 补全函数, 自动加载函数, 等等
-  alias ls-sh-funs='typeset -f +'
+  alias ls-sh-func-names='typeset -f +'
 else
   # 显示当前会话可用函数列表
-  alias ls-sh-funs='declare -F'
+  alias ls-sh-func-names='declare -F'
 fi
 
 # 显示 Bash 或 Zsh 的 keywords 列表

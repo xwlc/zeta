@@ -3,13 +3,75 @@
 # Created By: Charles Wong 2024-04-25T07:23:48+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
+# 临时切换到 Root 权限的交互式终端
+alias login-as-root='/bin/sudo -i'
+
 # `env | grep PATH` 和 `sudo env | grep PATH`
 # 二者运行时的 PATH 不同(普通用户非标准命令 sudo 无法执行)
 # 修改 sudo 执行时的环境变量 PATH 的值(包含非标准命令路径)
 alias sudo-env-path='sudo env PATH=${PATH}'
 
-# 临时切换到 Root 权限的交互式终端
-alias login-as-root='/bin/sudo -i'
+# NOTE 当前内核文件系统 cat /proc/filesystems
+# https://www.kernel.org/doc/html/latest/filesystems
+# 文件系统内核模块 ls /lib/modules/$(uname -r)/kernel/fs
+# /etc/mtab -> /proc/self/mounts 和 /proc/mounts -> self/mounts
+#
+# 查看已经加载文件系统的命令 cat /etc/mtab 或 findmnt
+# 卸载已经加载文件系统的命令 sudo umount /dev/nvme0n1p1
+
+# https://docs.kernel.org/filesystems/vfat.html
+# https://docs.kernel.org/filesystems/ntfs3.html
+function zeta@admin:mount-partition() {
+  local fstype=auto device="$2" mountpoint="$3" owner_only="$4" opts umask0077
+  [[ -n "${owner_only}" ]] && umask0077=',umask=0077'
+
+  case "$1" in
+    fat16|FAT16|fat32|FAT32|vfat|VFAT) fstype=vfat ;;
+    ntfs|NTFS|ntfs3|NTFS3) fstype=ntfs3 ;;
+    *) return 1 ;;
+  esac
+
+  opts="rw,nosuid,nodev,noatime"
+  opts="${opts},uid=$(id -u),gid=$(id -g)" # 当前用户 ID 和 用户组 ID
+  opts="${opts},fmask=0122,dmask=0022${umask0077}" # 设置文件及目录的权限
+  sudo mount --onlyonce --types ${fstype} -o ${opts} \
+    --source "${device}" --target "${mountpoint}"
+}
+
+function zeta@admin:mount-ntfs() {
+  local disk_label="$1" dir_name="$2" owner_only="$3" block_device
+
+  block_device=$(realpath "/dev/disk/by-label/${disk_label}")
+  if [[ $? != 0 || ${block_device} == "/dev/disk/by-label/${disk_label}" ]]; then
+    echo "no block device $(@R3 "/dev/disk/by-label/${disk_label}")"
+    return 1
+  fi
+
+  if [[ ! -d "/media/${USER}" ]]; then
+    sudo mkdir "/media/${USER}"
+    sudo chown ${USER}:${USER} "/media/${USER}"
+    chmod 0750 /media/${USER}
+
+    # 关于 POSIX ACL(Access Control Lists) Permissions
+    # => 设置 POSIX ACL 权限
+    #    setfacl -m u:${USER}:r-x "/media/${USER}" # User
+    #    setfacl -m g:${USER}:r-x "/media/${USER}" # Group
+    #    setfacl -m other:---     "/media/${USER}" # Others
+    # => 删除 POSIX ACL 权限
+    #    setfacl --remove-all "/media/${USER}"
+    # => 查看 POSIX ACL 权限
+    #    getfacl /media/${USER}
+    #    ls -l /media/${USER} # 显示 + 已设置 POSIX ACL 权限
+  fi
+
+  local mount_point="/media/${USER}/${dir_name}"
+  if [[ ! -d "${mount_point}" ]]; then
+    mkdir "${mount_point}"
+    [[ -n "${owner_only}" ]] && chmod 0700 "${mount_point}"
+  fi
+
+  zeta@admin:mount-partition NTFS ${block_device} "${mount_point}" "${owner_only}"
+}
 
 # https://wiki.linuxfoundation.org/lsb/start
 # https://wiki.linuxfoundation.org/lsb/fhs-30

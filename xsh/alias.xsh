@@ -3,8 +3,7 @@
 # Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
-alias c='clear'   ;   alias rmdir='rmdir'
-alias j='jobs -l' ;   alias mkdir='mkdir -p'
+alias c='clear'   ;   alias j='jobs -l'
 
 alias cp='cp -i'  ;   alias -- -='cd -'
 alias mv='mv -i'  ;   alias   ..='cd ../'
