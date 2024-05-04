@@ -125,6 +125,23 @@ alias ls-x509-crt='openssl x509 -noout -text -in' # path/to/ca.crt 查看证书�
 alias ls-x509-csr='openssl req  -noout -text -in' # path/to/ca.csr 查看签名请求
 alias ls-x509-crl='openssl crl  -noout -text -in' # path/to/ca.crl 查看注销列表
 
+function ls-gpg-key() {
+  if [[ $# -eq 0 ]]; then
+    gpg -k; return # 显示本地公钥
+  fi
+
+  local key=$1 type=$2
+  [[ ! -f "${key}" ]] && return 1
+  [[ -z "${type}" ]] && type=short
+
+  # -k,--list-public-keys 和 --with-subkey-fingerprint
+  case ${type} in
+    short) gpg --show-keys "${key}" ;;
+     long) gpg --no-default-keyring -k --keyring "${key}" ;;
+        *) gpg --show-keys --with-colons "${key}" ;;
+  esac
+}
+
 # 显示网址/域名的 HTTPS 证书链
 function ls-x509-https-cert-chain() {
   [[ $# -eq 0 ]] && {
