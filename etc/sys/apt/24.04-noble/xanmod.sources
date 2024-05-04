@@ -13,4 +13,4 @@ Types: deb
 URIs: https://deb.xanmod.org
 Suites: releases
 Components: main
-Signed-By: /usr/share/keyrings/xanmod.gpg
+Signed-By: /etc/apt/keyrings/xanmod.gpg

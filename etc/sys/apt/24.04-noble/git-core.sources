@@ -10,5 +10,5 @@ Types: deb
 URIs: https://ppa.launchpadcontent.net/git-core/ppa/ubuntu
 Suites: noble
 Components: main
-Signed-By: /usr/share/keyrings/git-core.gpg
+Signed-By: /etc/apt/keyrings/git-core.gpg
 Architectures: amd64

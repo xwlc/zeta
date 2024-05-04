@@ -9,5 +9,5 @@ Types: deb
 URIs: https://www.scootersoftware.com
 Suites: bcompare4
 Components: non-free
-Signed-By: /usr/share/keyrings/bcompare.gpg
+Signed-By: /etc/apt/keyrings/bcompare.gpg
 Architectures: amd64

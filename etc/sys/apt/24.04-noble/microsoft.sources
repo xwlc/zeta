@@ -14,5 +14,5 @@ URIs: https://packages.microsoft.com/repos/edge
       https://packages.microsoft.com/repos/code
 Suites: stable
 Components: main
-Signed-By: /usr/share/keyrings/microsoft.gpg
+Signed-By: /etc/apt/keyrings/microsoft.gpg
 Architectures: amd64

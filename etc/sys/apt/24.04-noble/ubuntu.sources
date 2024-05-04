@@ -35,13 +35,13 @@ Types: deb deb-src
 URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
 Suites: noble noble-updates
 Components: main universe restricted multiverse
-Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+Signed-By: /etc/apt/keyrings/ubuntu.gpg
 
 Types: deb
 URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
 Suites: noble-backports
 Components: main universe restricted multiverse
-Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+Signed-By: /etc/apt/keyrings/ubuntu.gpg
 
 ## Ubuntu security updates. Aside from the URIs and Suites,
 ## this should mirror your choices in the previous section.
@@ -50,4 +50,4 @@ URIs: http://security.ubuntu.com/ubuntu
       https://mirrors.tuna.tsinghua.edu.cn/ubuntu
 Suites: noble-security
 Components: main universe restricted multiverse
-Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+Signed-By: /etc/apt/keyrings/ubuntu.gpg
