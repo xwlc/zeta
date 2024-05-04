@@ -103,20 +103,21 @@ alias lms='ls -hlt'     # 按 mtime 排序 the newest first
 
 # 仅显示隐藏文件, 按名称排序(字母表), 显示 ctime
 if [[ -n "${ZSH_VERSION:-}" ]]; then
-  alias lh='ls -hlcd .*(N)'
+  alias lh='ls -hld .*(N) 2> /dev/null'
 else
-  alias lh='ls -hlcd .*'
+  alias lh='ls -hld .* 2> /dev/null'
 fi
 
 function ls-dot-files() {
-  local _here_="$1"
-  [[ -z "${_here_}" ]] && _here_="${PWD}"
-  [[ ! -d "${_here_}" ]] && return 1
+  local folder="$1"
+  [[ -z "${folder}" ]] && folder="${PWD}"
+  folder="$(realpath "${folder}")"
+  [[ ! -d "${folder}" ]] && return 1
   # NOTE 引号之外的 .* 用于 Shell Glob File Name Match
   if [[ -n "${ZSH_VERSION:-}" ]]; then
-    builtin eval "ls -hlcd '${_here_}'/.*(N)"
+    builtin eval "ls -hld '${folder}'/.*(N)" 2> /dev/null
   else
-    ls -hlcd "${_here_}"/.*
+    ls -hld "${folder}"/.* 2> /dev/null
   fi
 }
 
