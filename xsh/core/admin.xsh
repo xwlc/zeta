@@ -67,7 +67,7 @@ function zeta@admin:mount-ntfs() {
   local mount_point="/media/${USER}/${dir_name}"
   if [[ ! -d "${mount_point}" ]]; then
     mkdir "${mount_point}"
-    [[ -n "${owner_only}" ]] && chmod 0700 "${mount_point}"
+    chmod 0700 "${mount_point}"
   fi
 
   zeta@admin:mount-partition NTFS ${block_device} "${mount_point}" "${owner_only}"
