@@ -1,0 +1,39 @@
+# /etc/apt/preferences.d/no-ubuntu-snap
+#
+# NOTE https://wiki.debian.org/AptConfiguration
+# When multiple APT repositories are enabled, a package can exist in several
+# of them. To know which one should be installed, APT assigns priorities to
+# packages. The default APT repository priorities value is 500.
+# 查看软件包优先级命令 $ apt policy <PKG>
+# - if pkgs have the same priority, pkg with higher version number wins.
+# - if pkgs have different priorities, pkg with the higher priority wins.
+
+# Package:
+#   软件包名(不支持通配符), 其中 * 表示任意字符序列(特例)
+# Pin:
+#   过滤规则语法
+#   version   软件包的版本                  2.6* 匹配 2.6 和 2.6.18
+#   origin    my.custom.repo.url            源域名(domain name of repository)
+#   release   o=Ubuntu,v=24.04,a=noble-security,n=noble,l=Ubuntu,c=main,b=amd64
+#     v=发行版本号   a=CodeName-{,updates,security,proposed,backports}
+#     n=发行版别名   c=main, universe, restricted, multiverse
+# Pin-Priority:
+#   高优先级软件包优先安装, 优先级(P)
+#   P < 0 表示禁止安装    P = 0 未定义(不建议用)
+#      0 < P < 100        若未安装, 则可安装
+#   100 <= P < 500        允许安装 backports 的软件包
+#   500 <= P < 990        允许安装适用于当前系统的新版软件包
+#   990 <= P < 1000       强制安装软件包, 即使其和当前系统不匹配
+#   P >= 1000             允许安装低版本的软件包(降级安装)
+
+Package: snapd
+Pin: release a=*
+Pin-Priority: -10
+
+Package: thunderbird*
+Pin: release o=Ubuntu*
+Pin-Priority: -10
+
+Package: firefox*
+Pin: release o=Ubuntu*
+Pin-Priority: -10
