@@ -1,0 +1,14 @@
+#
+# The folders which should be hidden for the KDE Dolphin.
+#
+
+# NTFS System Folders
+$RECYCLE.BIN
+System Volume Information
+
+# EXT4 data recovery
+lost+found
+
+# ${HOME} folders
+snap
+Desktop
