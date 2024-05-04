@@ -1,45 +1,68 @@
 # APT
 
-- [How to upgrade to the newer distribution version](http://help.ubuntu.com/community/UpgradeNotes)
+- [How to upgrade to newer ubuntu](http://help.ubuntu.com/community/UpgradeNotes)
 
-- 关于 `/etc/apt/sources.list` 文件 [CodeName](https://wiki.ubuntu.com/Releases)
+- 关于 APT 配置及缓存
+  * https://salsa.debian.org/apt-team/apt
+  * https://salsa.debian.org/apt-team/aptitude
+  * https://wiki.debian.org/DebianRepository/UseThirdParty
+  * https://manpages.debian.org/buster/apt/sources.list.5.en.html
 
-  ```
-  CodeName              Main Packages
-  CodeName-updates      Recommended Updates
-  CodeName-security     Important Security Updates
-  CodeName-backports    HWE Versions, Not Well Tested
-  CodeName-proposed     Pre-released Software/Packages
+  * `man apt-key` 和 `man apt-secure`
+  * 关于 Ubuntu 官方签名密钥
+    - 官方源签名包 `apt-file list ubuntu-keyring`
+      * `/etc/apt/trusted.gpg.d/ubuntu-keyring-*.gpg`
+      * `/usr/share/keyrings/ubuntu-archive-*.gpg`
+      * `/usr/share/keyrings/ubuntu-cloudimage-*.gpg`
+      * `/usr/share/keyrings/ubuntu-master-keyring.gpg`
 
-  main                  Ubuntu Team & Security Team 维护/更新
-  restricted            受法律和版权保护, 设备驱动/专利软件
-  universe              社区支持维护的开源软件
-  multiverse            受法律和版权保护, 非开源软件
-  ```
+    - Pro 管理工具 `apt-file list ubuntu-pro-client | grep .gpg$`
+      * `/usr/share/keyrings/ubuntu-pro-*.gpg`
+  * 显示本机的 CPU 体系结构 `dpkg --print-architecture`
 
-- [Microsoft Edge](https://www.microsoft.com/en-us/edge/download?form=MA13FJ)
-  * `/etc/apt/trusted.gpg.d/microsoft-edge.gpg`
-  * `/etc/apt/sources.list.d/microsoft-edge.list`
+  * 包签名公钥放哪里
+    - https://askubuntu.com/questions/1437207
+    - https://stackoverflow.com/questions/68992799
+    - https://askubuntu.com/questions/1286545 为何 `apt-key` 被废弃
+    - **NOTE** 按照 x.dep 软件包时其中可能包含如何保存其更新源和签名公钥的规则
+    - `man 5 source.list` 的建议 `/etc/apt/keyrings/*.gpg`  保存系统管理员 **手动** 管理的公钥
+    - `man 5 source.list` 的建议 `/usr/share/keyrings/*gpg` 保存包管理工具 **自动** 管理的公钥
 
-- [Latest Stable Git Version](https://git-scm.com/download/linux)
-  * `/etc/apt/trusted.gpg.d/git-core-ppa.gpg`
-  * `/etc/apt/sources.list.d/git-core-ppa.list`
+  * `/etc/apt/apt.conf.d/*`
+  * `/etc/apt/auth.conf.d/*`
+  * `/etc/apt/preferences.d/*`
 
-- [Beyond Compare](https://www.scootersoftware.com/download)
-  * `/usr/share/keyrings/bcompare4.gpg`
-  * `/etc/apt/sources.list.d/bcompare4.list`
+  * **已弃用** `/etc/apt/sources.list`
+  * `/etc/apt/sources.list.d/*` 软件源配置文件 [CodeName](https://wiki.ubuntu.com/Releases)
+    - `/etc/apt/sources.list.d/ubuntu.sources` Ubuntu 默认源(取代 `/etc/apt/sources.list`)
+  * **已弃用** `/etc/apt/trusted.gpg`
+  * **手动管理** 独立的软件包签名 GnuPG 公钥
+    - `/etc/apt/keyrings/x.gpg` 关联 `/etc/apt/sources.list.d/x.sources`
+  * **自动管理** 独立的软件包签名 GnuPG 公钥
+    - `/usr/share/keyrings/x.gpg` 关联 `/etc/apt/sources.list.d/x.sources`
+    - `/etc/apt/trusted.gpg.d/x.gpg` 关联 `/etc/apt/sources.list.d/x.list`
 
-- [XanMod](https://xanmod.org) Kernel [仓库](https://gitlab.com/xanmod)
-  * `/usr/share/keyrings/xanmod-kernel.gpg`
-  * `/etc/apt/sources.list.d/xanmod-kernel.list`
-  * 显示包信息 `apt show linux-xanmod-lts-x64v3`
-  * 安装 `sudo apt install linux-xanmod-lts-x64v3`
-
+  * [查看指定源软件包的签名密钥](https://unix.stackexchange.com/questions/653279)
+    - `file /var/lib/apt/lists/deb.xanmod.org_dists_releases_InRelease` 签名信息
+    - `gpgv /var/lib/apt/lists/deb.xanmod.org_dists_releases_InRelease` 查看签名
+    - `gpg --no-default-keyring -k --keyring path/to/x.gpg` 查看 GnuPG 公钥信息
     ```bash
-    # 安装 5 个软件包
-    # linux-xanmod-lts-x64v3
-    # zlib1g-dev
-    # libelf-dev
-    # linux-image-6.6.22-x64v3-xanmod1
-    # linux-headers-6.6.22-x64v3-xanmod1
+    for key in /usr/share/keyrings/*.gpg; do
+      # -k,--list-public-keys; --with-subkey-fingerprint
+      echo ${key}; gpg -k --no-default-keyring --keyring ${key};
+    done
     ```
+
+- [Latest Git](https://git-scm.com/download/linux)
+- [Beyond Compare](https://www.scootersoftware.com/download)
+- [Microsoft Edge](https://www.microsoft.com/en-us/edge/download?form=MA13FJ)
+- [XanMod](https://xanmod.org) Kernel [仓库](https://gitlab.com/xanmod)
+  ```bash
+  # 安装 LTS 内核版本(后续自动升级)
+  apt show linux-xanmod-lts-x64v3
+  sudo apt install linux-xanmod-lts-x64v3
+
+  # 安装指定内核版本(后续不会自动升级内核版本)
+  sudo apt install linux-image-6.6.22-x64v3-xanmod1
+  sudo apt install linux-headers-6.6.22-x64v3-xanmod1
+  ```
