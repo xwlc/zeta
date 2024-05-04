@@ -1,14 +1,10 @@
 #
-# The folders which should be hidden for the KDE Dolphin.
+# 设置 KDE Dolphin 文件管理器需要隐藏的目录或文件
 #
 
-# NTFS System Folders
+# => Windows NTFS 文件系统的系统目录
 $RECYCLE.BIN
 System Volume Information
 
-# EXT4 data recovery
+# EXT2/EXT3/EXT4 文件系统数据恢复
 lost+found
-
-# ${HOME} folders
-snap
-Desktop
