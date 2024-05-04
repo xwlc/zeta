@@ -26,22 +26,26 @@
 ##
 ## See the sources.list(5) manual page for further more details.
 
+# NOTE 国内镜像源
 # http://archive.ubuntu.com/ubuntu        https://mirrors.163.com/ubuntu
 # https://hk.archive.ubuntu.com/ubuntu    https://mirrors.aliyun.com/ubuntu
 # https://cn.archive.ubuntu.com/ubuntu    https://mirrors.cloud.tencent.com/ubuntu
 # http://security.ubuntu.com/ubuntu       https://mirrors.tuna.tsinghua.edu.cn/ubuntu
+#
+# NOTE 软件包 ubuntu-keyring 提供 /usr/share/keyrings/ubuntu-archive-keyring.gpg
+#      ubuntu-archive.gpg 拷贝自  /usr/share/keyrings/ubuntu-archive-keyring.gpg
 
 Types: deb deb-src
 URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
 Suites: noble noble-updates
 Components: main universe restricted multiverse
-Signed-By: /etc/apt/keyrings/ubuntu.gpg
+Signed-By: /etc/apt/keyrings/ubuntu-archive.gpg
 
 Types: deb
 URIs: https://mirrors.tuna.tsinghua.edu.cn/ubuntu
 Suites: noble-backports
 Components: main universe restricted multiverse
-Signed-By: /etc/apt/keyrings/ubuntu.gpg
+Signed-By: /etc/apt/keyrings/ubuntu-archive.gpg
 
 ## Ubuntu security updates. Aside from the URIs and Suites,
 ## this should mirror your choices in the previous section.
@@ -50,4 +54,4 @@ URIs: http://security.ubuntu.com/ubuntu
       https://mirrors.tuna.tsinghua.edu.cn/ubuntu
 Suites: noble-security
 Components: main universe restricted multiverse
-Signed-By: /etc/apt/keyrings/ubuntu.gpg
+Signed-By: /etc/apt/keyrings/ubuntu-archive.gpg
