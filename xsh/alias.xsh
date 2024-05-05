@@ -39,6 +39,9 @@ alias  egrep="egrep --color=auto --exclude-dir={${_list_}}" # grep -E extend reg
 alias  fgrep="fgrep --color=auto --exclude-dir={${_list_}}" # grep -F fixed strings
 unset -v _list_
 
+@zeta:xsh:no-cmd duf && alias duf='du -sh *'
+@zeta:xsh:no-cmd dud && alias dud='du -d 1 -h'
+
 # https://www.baeldung.com/linux/find-command-regex
 # 显示 find 有效的正则表达式名称 => find -regextype help
 # .   period          matches any character once, except a newline character
@@ -52,11 +55,24 @@ unset -v _list_
 # *   zero or more of any characters
 @zeta:xsh:no-cmd ff && alias ff='find . -type f -name'
 @zeta:xsh:no-cmd fd && alias fd='find . -type d -name'
-# find . -maxdepth 1 -type f -regex '.*\.js'
-# find . -maxdepth 1 -type d -regex 'foo[0-9]'
-# -maxdepth 1 => just start point folder, no recursively
-@zeta:xsh:no-cmd duf && alias duf='du -sh *'
-@zeta:xsh:no-cmd dud && alias dud='du -d 1 -h'
+
+# 示例 find . -maxdepth 1 -type f -regex '.*\.js'
+# 示例 find . -maxdepth 1 -type d -regex 'foo[0-9]'
+function find-file-regex() {
+  case $# in
+    1) command find ./ -type f -name "*$1*" -print | xargs realpath ;;
+    2) command find $1 -type f -name "*$2*" -print | xargs realpath ;;
+    *) return 1 ;;
+  esac
+}
+
+function find-dirs-regex() {
+  case $# in
+    1) command find ./ -type d -name "*$1*" -print | xargs realpath ;;
+    2) command find $1 -type d -name "*$2*" -print | xargs realpath ;;
+    *) return 1 ;;
+  esac
+}
 
 # https://unix.stackexchange.com/questions/367547
 # http://www.makelinux.net/ldd3/chp-3-sect-2.shtml
