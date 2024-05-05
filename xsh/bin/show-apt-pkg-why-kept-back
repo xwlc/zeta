@@ -27,6 +27,7 @@ fi
 NEW_VER=""; OLD_VER=""; IS_HOLD=""; IS_PHASED=""
 CACHE_LOG_OLD="${THIS_DIR}/${THIS_FNAME}-old.log"
 CACHE_LOG_NEW="${THIS_DIR}/${THIS_FNAME}-new.log"
+POLICY_STATUS="$(apt policy 2> /dev/null)"
 
 for PKG in $(apt list --upgradable 2> /dev/null | grep / | cut -d/ -f1); do
   is_new_version=true
@@ -42,21 +43,29 @@ for PKG in $(apt list --upgradable 2> /dev/null | grep / | cut -d/ -f1); do
   # 软件包 PKG 从 OLD_VER 版本更新到 NEW_VER 版本
   echo "$(@D9 ${PKG}) $(@G3 ${OLD_VER}) -> $(@R3 ${NEW_VER})"
 
+  # => 原因一: 软件包被标记为 Hold
   IS_HOLD="$(apt-mark showhold "${PKG}" 2> /dev/null)"
   if [[ $? && -n "${IS_HOLD}" ]]; then
     echo "=> It is $(@Y3 hold) by $(@C3 apt-mark)"
-    echo
-    continue
+    echo; continue
   fi
 
+  # => 原因二: 新版软件包未完成全部更新(处于阶段性更新阶段)
   IS_PHASED="$(apt show "${PKG}" 2> /dev/null | grep Phased-Update-Percentage)"
   if [[ $? && -n "${IS_PHASED}" ]]; then
     IS_PHASED=$(echo ${IS_PHASED} | cut -d' ' -f2)
     echo "=> $(@D9 Phased-Update-Percentage) $(@B3 ${IS_PHASED})"
-    echo
-    continue
+    echo; continue
   fi
 
+  # => 原因三: 软件包被优先级规则过滤(/etc/apt/preferences.d/*)
+  if echo "${POLICY_STATUS}" | grep "${PKG}"; then
+    echo "=> $(@R3 ${PKG}) is filtered out by $(@Y3 /etc/apt/preferences.d/*)"
+    echo; continue
+  fi
+
+  # => 原因四: 新版软件包依赖问题
+  # https://www.baeldung.com/linux/apt-packages-kept-back
   # apt show <PKG>=<VERSION>
   # apt show --all-versions <PKG>
   # apt show <PKG>=<OLD_VER> <PKG>=<NEW_VER>
@@ -68,20 +77,28 @@ for PKG in $(apt list --upgradable 2> /dev/null | grep / | cut -d/ -f1); do
   apt show "${PKG}=${OLD_VER}" > "${CACHE_LOG_OLD}" 2> /dev/null
   apt show "${PKG}=${NEW_VER}" > "${CACHE_LOG_NEW}" 2> /dev/null
 
+  # https://www.baeldung.com/linux/tasksel-guide
+  # 基于 Debian 的发行版根据实际需要(Task)预定义元包
+
   old_deps=$(grep Depends "${CACHE_LOG_OLD}" | sed -e "s/, /␟/g")
-  old_task=$(grep Task    "${CACHE_LOG_OLD}" | sed -e "s/, /␟/g")
   sed -e "s/Depends:.*/${old_deps}/g" "${CACHE_LOG_OLD}" --in-place
-  sed -e "s/Task:.*/${old_task}/"     "${CACHE_LOG_OLD}" --in-place
-  sed -e "s/␟/\n/g" "${CACHE_LOG_OLD}" --in-place
+  sed -e "s/␟/\nDepends: /g" "${CACHE_LOG_OLD}" --in-place
+  old_task=$(grep Task "${CACHE_LOG_OLD}" | sed -e "s/, /␟/g")
+  sed -e "s/Task:.*/${old_task}/" "${CACHE_LOG_OLD}" --in-place
+  sed -e "s/␟/\nTask: /g" "${CACHE_LOG_OLD}" --in-place
 
   new_deps=$(grep Depends "${CACHE_LOG_NEW}" | sed -e "s/, /␟/g")
-  new_task=$(grep Task    "${CACHE_LOG_NEW}" | sed -e "s/, /␟/g")
   sed -e "s/Depends:.*/${new_deps}/" "${CACHE_LOG_NEW}" --in-place
-  sed -e "s/Task:.*/${new_task}/"    "${CACHE_LOG_NEW}" --in-place
-  sed -e "s/␟/\n/g" "${CACHE_LOG_NEW}" --in-place
+  sed -e "s/␟/\nDepends: /g" "${CACHE_LOG_NEW}" --in-place
+  new_task=$(grep Task "${CACHE_LOG_NEW}" | sed -e "s/, /␟/g")
+  sed -e "s/Task:.*/${new_task}/" "${CACHE_LOG_NEW}" --in-place
+  sed -e "s/␟/\nTask: /g" "${CACHE_LOG_NEW}" --in-place
 
   diff --color=always --side-by-side --width=222 "${CACHE_LOG_OLD}" "${CACHE_LOG_NEW}"
-  echo;echo "Press $(@G3 Enter) to continue, other else key-press will $(@R3 exit)"
+  echo; echo "=> 仔细检查软件包的依赖关系/版本/影响范围"
+  echo "- 解决方式1 $(@G9 sudo apt install)   $(@C3 PKG)"
+  echo "- 解决方式2 $(@G9 sudo apt-mark hold) $(@C3 PKG)"
+  echo "Press $(@G3 Enter) to continue, else other key-press will $(@R3 exit)"
   read enter_to_continue
   [[ -n "${enter_to_continue}" ]] && exit 0
 done
