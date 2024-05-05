@@ -17,10 +17,11 @@
   default = current
 
   # A boolean value, or the string `if-asked`
+  # false    => make all pushes to not GPG signed
   # true     => causes all pushes to be GPG signed
   # if-asked => sign pushes if remote server supports
   # https://people.kernel.org/monsieuricon/signed-git-pushes
-  gpgSign = if-asked
+  gpgSign = false
 
 [commit]
   # make GnuPG signed commit
