@@ -59,17 +59,19 @@ unset -v _list_
 # 示例 find . -maxdepth 1 -type f -regex '.*\.js'
 # 示例 find . -maxdepth 1 -type d -regex 'foo[0-9]'
 function find-file-regex() {
+  local it
   case $# in
-    1) command find ./ -type f -name "*$1*" -print | xargs realpath ;;
-    2) command find $1 -type f -name "*$2*" -print | xargs realpath ;;
+    1) for it in $(command find ./ -type f -name "*$1*" -print); do realpath ${it}; done ;;
+    2) for it in $(command find $1 -type f -name "*$2*" -print); do realpath ${it}; done ;;
     *) return 1 ;;
   esac
 }
 
 function find-dirs-regex() {
+  local it
   case $# in
-    1) command find ./ -type d -name "*$1*" -print | xargs realpath ;;
-    2) command find $1 -type d -name "*$2*" -print | xargs realpath ;;
+    1) for it in $(command find ./ -type d -name "*$1*" -print); do realpath ${it}; done ;;
+    2) for it in $(command find $1 -type d -name "*$2*" -print); do realpath ${it}; done ;;
     *) return 1 ;;
   esac
 }
