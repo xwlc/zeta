@@ -56,6 +56,9 @@ unset -v _list_
 @zeta:xsh:no-cmd ff && alias ff='find . -type f -name'
 @zeta:xsh:no-cmd fd && alias fd='find . -type d -name'
 
+# 示例命令 touch ok > 'it ok'; echo "it ok" | esc-space | xargs cat
+alias esc-space='sed -e "s/ /\\\\ /g"' # 反斜杠数目: 四 -> 二 -> 一
+
 # 示例 find . -maxdepth 1 -type f -regex '.*\.js'
 # 示例 find . -maxdepth 1 -type d -regex 'foo[0-9]'
 function find-file-regex() {
