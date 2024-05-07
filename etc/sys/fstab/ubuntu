@@ -14,8 +14,10 @@
 PARTUUID=fa02ab0d-0e66-1c45-bbec-d540dd1144a9   /             ext4    defaults,noatime              0     1
 PARTUUID=c4efee92-fb3f-2c43-b654-d130f40a430f   /boot/efi     vfat    defaults,noatime              0     2
 tmpfs                                           /tmp          tmpfs   defaults,noatime,mode=1777    0     0
+
 ## FAQs for SWAP => https://help.ubuntu.com/community/SwapFaq
 PARTUUID=b3a01835-8dc9-7f4b-afad-457487970df8   none          swap    defaults,noatime              0     0
 
 ## Workspace for codes/docs/dot-files, more shorter path is well and make them sharable between multi-OS
 PARTUUID=b1bd84c9-5f41-42fd-85d1-06b3f7c3b5e7   /me           ext4    defaults,noatime              0     0
+PARTUUID=d7a8263b-a5fe-b44e-bb2b-39a340fd5261   /me/tech      ntfs3   defaults,noatime              0     0
