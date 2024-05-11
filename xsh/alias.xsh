@@ -197,10 +197,11 @@ function ls-x509-skid-ed25519() {
 # 显示系统配置的默认应用程序及相关库文件
 alias ls-alt-selections="update-alternatives --get-selections"
 
+# 显示磁盘分区详细信息 => ls-disk-layout /dev/nvme0n1
 # - /dev/sdXY         driver `ide-scsi`  => SCSI/SATA/USB disks
 # - /dev/nvmeXnYpZ    driver `nvme`      => NVMe or SSD devices
-# 显示磁盘分区详细信息 => ls-disk-layout /dev/nvme0n1
 alias ls-disk-layout='lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID'
+alias ls-disk-block-size='stat -fc %s .' # 显示磁盘 Block Size 字节
 
 if @zeta:xsh:has-cmd dpkg; then
   alias dpkg-ls-rc='dpkg -l | grep "^rc"'
