@@ -1,23 +1,16 @@
-## /etc/fstab - Configure auto-mount partitions on boot.
+## /etc/fstab - Configure the auto-mount partitions on boot
 ##
-## Read https://wiki.archlinux.org/title/Fstab for more details.
-## PARTUUID robust way for named device, fstab(5) for more details.
+## PARTUUID= robust way for named device, fstab(5) for details
+## The commands to show mounted info `cat /etc/mtab` or `findmnt`
 
-## FAQs for Linux Permissions => https://www.redhat.com/sysadmin/suid-sgid-sticky-bit
-##
-## The command to show runtime mount options of each mounted partitions.
-##   $ cat /etc/mtab
-## The command to show details information of the disk layout
-##   $ lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID /dev/nvme0n1
-
-## Disk Partition                               MountPoint    Type    Options                       dump  fsck
-PARTUUID=0b024420-657e-5042-a521-24f5ae1979a3   /             ext4    defaults,noatime              0     1
-PARTUUID=c4efee92-fb3f-2c43-b654-d130f40a430f   /boot/efi     vfat    defaults,noatime              0     2
-tmpfs                                           /tmp          tmpfs   defaults,noatime,mode=1777    0     0
+## Disk Partition                               Mount Point   FS Type   Mount Options                         dump  fsck
+PARTUUID=0b024420-657e-5042-a521-24f5ae1979a3   /             ext4      defaults,noatime                      0     1
+PARTUUID=c4efee92-fb3f-2c43-b654-d130f40a430f   /boot/efi     vfat      defaults,noatime                      0     2
+tmpfs                                           /tmp          tmpfs     defaults,noatime,mode=1777            0     0
 
 ## FAQs for SWAP => https://help.ubuntu.com/community/SwapFaq
-PARTUUID=b3a01835-8dc9-7f4b-afad-457487970df8   none          swap    defaults,noatime              0     0
+PARTUUID=b3a01835-8dc9-7f4b-afad-457487970df8   none          swap      defaults,noatime                      0     0
 
 ## Workspace for codes/docs/dot-files, more shorter path is well and make them sharable between multi-OS
-PARTUUID=b1bd84c9-5f41-42fd-85d1-06b3f7c3b5e7   /me           ext4    defaults,noatime              0     0
-PARTUUID=d7a8263b-a5fe-b44e-bb2b-39a340fd5261   /me/tech      ntfs3   defaults,noatime              0     0
+PARTUUID=b1bd84c9-5f41-42fd-85d1-06b3f7c3b5e7   /me           ext4      defaults,noatime                      0     0
+PARTUUID=d7a8263b-a5fe-b44e-bb2b-39a340fd5261   /me/tech      ntfs3     defaults,noatime,uid=1000,gid=1000    0     0
