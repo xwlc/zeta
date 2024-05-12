@@ -31,9 +31,19 @@ function zeta@admin:mount-partition() {
     *) return 1 ;;
   esac
 
-  opts="rw,nosuid,nodev,noatime"
+  # nosuid    禁用 SUID 权限标志位
+  # nodev     可创建字符/块设备文件, 但文件将失去特殊作用
+  # noexec    执行标志位可设置, 但可执行文件不允许直接运行
+  #           禁止 $ path/demo.sh 允许 $ bash path/demo.sh
+  # noatime   禁止更新文件的访问时间属性 access-time
+  opts="rw,nosuid,nodev,noexec,noatime"
+
+  # https://www.baeldung.com/linux/user-ids-reserved-values
   opts="${opts},uid=$(id -u),gid=$(id -g)" # 当前用户 ID 和 用户组 ID
   opts="${opts},fmask=0122,dmask=0022${umask0077}" # 设置文件及目录的权限
+
+  # https://www.baeldung.com/linux/mount-owner
+  # https://www.baeldung.com/linux/mount-user-rights
   sudo mount --onlyonce --types ${fstype} -o ${opts} \
     --source "${device}" --target "${mountpoint}"
 }
