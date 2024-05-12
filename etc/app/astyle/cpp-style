@@ -1,0 +1,29 @@
+## astyle options for C++
+##
+## http://astyle.sourceforge.net
+## To convert source coding style recursively by run
+## $ astyle --options=cpp-style --recursive '*.cpp' '*.h'
+
+--mode=c
+--style=allman
+--indent=spaces=4
+--attach-closing-while
+--indent-switches
+--indent-preproc-block
+--indent-preproc-define
+--min-conditional-indent=2
+--max-continuation-indent=100
+--break-blocks
+--delete-empty-lines
+--align-pointer=name
+--add-braces
+--max-code-length=100
+--lineend=linux
+
+# no backup of original file with '.ogir' suffix
+--suffix=none
+
+--attach-namespaces
+--attach-extern-c
+--align-reference=name
+--close-templates
