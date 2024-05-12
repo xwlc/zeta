@@ -88,7 +88,11 @@ function find-dirs-regex() {
 # 文件-  目录d  软链接l  字符设备c  块设备b
 # 1,3 -> 第五列 Major 设备号, 第六列 Minor 次设备号
 
-alias ls='/usr/bin/ls --color=auto --time-style="+%FT%T"'
+# https://www.baeldung.com/linux/ls-ignore-hide-files
+_hide_ntfs_dirs_='--hide="System Volume Information"' # NTFS 格式系统卷信息
+_hide_ntfs_dirs_="${_hide_ntfs_dirs_} --hide=\""'\$RECYCLE.BIN''"' # NTFS 回收站
+alias ls='/usr/bin/ls --color=auto --time-style=+%FT%T'" ${_hide_ntfs_dirs_}"
+unset -v _hide_ntfs_dirs_
 # https://unix.stackexchange.com/questions/50377
 #alias dir='command dir --color=auto' # compatibility
 # https://unix.stackexchange.com/questions/217757
