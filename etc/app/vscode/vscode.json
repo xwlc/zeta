@@ -1,0 +1,183 @@
+{
+  // 配置文件编辑器 ui 或 json
+  "workbench.settings.editor": "json",
+  // 根据系统主题自动选择 IDE 主题
+  "window.autoDetectColorScheme": false,
+
+  // 执行任务后如果出现错该如何处理
+  // abort, prompt, showErrors, debugAnyway
+  "debug.onTaskErrors": "showErrors",
+
+  // 信息悬停弹窗显示延迟时间
+  "editor.hover.delay": 500,
+  // 悬停弹窗尽量显示在目标上方
+  "editor.hover.above": true,
+  // 鼠标离开目标后弹窗是否继续显示
+  "editor.hover.sticky": true,
+  // 是否开启鼠标悬停显示信息弹窗功能
+  "editor.hover.enabled": true,
+  // 信息悬停弹窗隐藏延迟时间
+  "editor.hover.hidingDelay": 200,
+
+  // 界面放缩 Ctrl + C 鼠标滚轮
+  "editor.mouseWheelZoom": true,
+  // 是否使用简单列列表的方式打开本地文件
+  "files.simpleDialog.enable": true,
+  // 是否自动打开已打开的文件/目录所在的父级仓库
+  "git.openRepositoryInParentFolders": "never",
+
+  // 资源管理器窗口需要隐藏的文件及文件夹
+  "files.exclude": {
+    "**/.git": true,
+    "**/.github": true,
+    "**/.vscode": true,
+    "**/node_modules": true
+  },
+  // 删除文件时弹窗确认
+  "explorer.confirmDelete": true,
+  //
+  "explorer.confirmDragAndDrop": true,
+  "workbench.tree.indent": 15,
+  "workbench.sideBar.location": "left",
+  "workbench.list.smoothScrolling": true,
+  "workbench.tree.expandMode": "singleClick",
+
+  // 排除的搜索内容, 继承 files.exclude 的值
+  "search.exclude": {
+    "**/tmp": true,
+    "**/wip": true,
+    "**/logs": true,
+    "**/dist/**": true,
+    "**/build/**": true
+  },
+
+  // 每行最大字符数提示垂直线
+  "editor.rulers": [
+    { "column":  80, "color": "#00FF00" },
+    { "column": 100, "color": "#0000FF" },
+    { "column": 120, "color": "#FFFF00" },
+    { "column": 140, "color": "#FF0000" }
+  ],
+
+  // 最多同时打开的文本编辑器个数
+  "workbench.editor.limit.value": 8,
+  "workbench.editor.limit.enabled": true,
+  // Tab 标签关闭按钮左侧还是右侧
+  "workbench.editor.tabCloseButton": "right",
+  // 已打开文件被其它程序删除或重命名后是否关闭
+  "workbench.editor.closeOnFileDelete": true,
+  // 高亮显示修改过的 Tab 标签
+  "workbench.editor.highlightModifiedTabs": true,
+
+  // 左侧文件预览(小地图)显示内容宽度(列数)
+  "editor.minimap.maxColumn": 120,
+  // 多光标(多行编辑)修饰符
+  "editor.multiCursorModifier": "alt",
+
+  // 是否在顶部固定显示外层嵌套代码的头部内容
+  "editor.stickyScroll.enabled": true,
+  // 是否启用代码块垂直指示线/平指示线
+  // true, false, "active" 仅激活代码块启用
+  "editor.guides.bracketPairs": "active",
+  "editor.guides.bracketPairsHorizontal": "active",
+  // 是否启用括号对着色
+  "editor.bracketPairColorization.enabled": true,
+
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "editor.lineNumbers": "on",
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+
+  "editor.fontSize": 20,
+  "editor.lineHeight": 26,
+  // 去掉 Slab 则使用无衬线版, 命令显示系统字体 $ fc-list
+  "editor.fontFamily": "'Sarasa Mono Slab SC', 'Regular', monospace",
+
+  // 单行文字超过设定字符数时折行显示
+  "editor.wordWrapColumn": 120,
+  "editor.wordWrap": "wordWrapColumn",
+  // 折行显示后先对原始行缩进 2 个空格
+  "editor.wrappingIndent": "deepIndent",
+  // 滚动时是否可以超过文件的最后一行
+  "editor.scrollBeyondLastLine": false,
+
+  // 修改的内容是否自动保存及何时保存
+  // off, afterDelay, onFocusChange, onWindowChange
+  "files.autoSaveDelay": 5000,
+  "files.autoSave": "afterDelay",
+  // 保存文件之前执行的代码调整工作
+  "editor.codeActionsOnSave": {
+    //"source.fixAll": false,
+    // import 语句按字母顺序排列
+    //"source.organizeImports": false
+  },
+
+  // 是否显示空白字符及何时显示
+  // none, boundary, selection, all
+  "editor.renderWhitespace": "boundary",
+  // 文件比较时不忽略前缀/后缀空白字符的差异
+  "diffEditor.ignoreTrimWhitespace": false,
+  // 是否突出显示仅保留空格或完全没有宽度的字符
+  "editor.unicodeHighlight.invisibleCharacters": true,
+
+  // 保存文件时文件末尾自动添加换行符
+  "files.insertFinalNewline": true,
+  // 保存文件时自动删除行尾的空白字符
+  "files.trimTrailingWhitespace": true,
+
+  // 是否预览建议结果
+  "editor.suggest.preview": true,
+  // 预选 first, recentlyUsed, recentlyUsedByPrefix
+  "editor.suggestSelection": "recentlyUsed",
+  // 输入时显示自动补全内容
+  "editor.inlineSuggest.enabled": true,
+  // 参数提示菜单在到达列表末尾时是循环还是停止
+  "editor.parameterHints.cycle": true,
+  // 启用弹窗，键入时显示参数文档和类型信息
+  "editor.parameterHints.enabled": true,
+
+  // 不保存会话记录及命令历史等信息
+  "terminal.integrated.persistentSessionReviveProcess": "never",
+  "terminal.integrated.fontWeight": "normal", // 常规字体
+  "terminal.integrated.cursorStyle": "block", // 方块光标
+  "terminal.integrated.cursorBlinking": true, // 终端光标闪烁
+  "terminal.integrated.tabs.enabled": true, // 列表显示 Tabs
+
+  "git.autofetch": false,
+  "git.confirmSync": true,
+  "git.enableSmartCommit": false,
+  "git.untrackedChanges": "separate",
+
+  "json.validate.enable": true,
+  "json.schemaDownload.enable": true,
+
+  // 查找窗口是否应在编辑器顶部添加额外的行
+  "editor.find.addExtraSpaceOnTop": false,
+  // 是否对屏幕阅读器(语音播放)进行优化
+  // off, on, auto 系统 API 自动检测
+  "editor.accessibilitySupport": "off",
+
+  // https://github.com/wayou/vscode-todo-highlight
+  // TODO:, FIXME:, NOTE: | TIPS:, DEBUG: | REVIEW:
+  "todohighlight.isEnable": true,
+  "todohighlight.isCaseSensitive": true,
+  "todohighlight.include": [
+    "**/*.md", "**/*.mk",
+    "**/*.c", "**/*.cpp", "**/*.h",
+    "**/*.js", "**/*.ts",
+    "**/*.html", "**/*.css"
+  ],
+  "todohighlight.exclude": [
+    "**/node_modules/**",
+    "**/dist/**", "**/build/**",
+    "**/.vscode/**", "**/.github/**"
+    ],
+  "todohighlight.keywords": [
+    { "text": "NOTE:", "color": "black", "backgroundColor": "yellow" },
+    { "text": "TIPS:", "color": "black", "backgroundColor": "yellow" },
+    { "text": "DEBUG:", "color": "black", "backgroundColor": "gray" },
+    { "text": "REVIEW:", "color": "black", "backgroundColor": "gray" }
+  ],
+  "workbench.editor.tabActionLocation": "right"
+}
