@@ -83,6 +83,48 @@ function zeta@admin:mount-ntfs() {
   zeta@admin:mount-partition NTFS ${block_device} "${mount_point}" "${owner_only}"
 }
 
+function admin-eject-usb-disk() {
+  if ! command -v udisksctl > /dev/null; then
+    echo "$(@R3 udisksctl) command NOT found, exit."
+    return 1
+  fi
+
+  echo "=> $(@D9 The High-level Disk Info)"
+  udisksctl status
+  echo
+  echo "=> $(@D9 List of Mounted File-systems)"
+  findmnt --real
+  echo
+
+  if [[ $# -ne 1 || -z "$1" ]]; then
+    echo "Usage Example: $(@G3 admin-eject-usb-disk) $(@Y3 /dev/sda)"
+    return 0
+  fi
+
+  if [[ "$1" != "/dev/"?* ]]; then
+    echo "Block device argment should started with $(@R3 /dev/)"
+    return 1
+  fi
+
+  if findmnt | grep "$1"; then
+    echo "$(@R3 $1) disk has partition mounted, exit."
+    return 1
+  fi
+
+  if [[ ! -b "$1" ]]; then
+    echo "$(@R3 $1) is not a block device, exit."
+    return 1
+  fi
+
+  echo -n "=> $(@D9 'Power-off and eject') $(@R3 $1) $(@D9 'disk, press (')"
+  echo -n "$(@G3 Y)$(@D9 ')es to confirm ?') "
+  read power_off_confirm
+  [[ "${power_off_confirm}" != "Y" ]] && return 1
+
+  echo "   Power-off and eject $(@R3 $1) disk ..."
+  sudo udisksctl power-off --block-device $1
+}
+
 # https://wiki.linuxfoundation.org/lsb/start
 # https://wiki.linuxfoundation.org/lsb/fhs-30
 
