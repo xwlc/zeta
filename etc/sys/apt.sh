@@ -34,9 +34,12 @@ if false; then
   sudo apt install ${DRY_RUN} timeshift # 操作系统备份
 fi
 
-sudo apt install ${DRY_RUN} git zsh
-# 用户默认终端设置为 ZSH
-[[ -z "${DRY_RUN}" ]] && chsh --shell /usr/bin/zsh
+IS_DEFAULT_ZSH="$(cat /etc/passwd | grep ${USER} | grep zsh)"
+if [[ -z "${IS_DEFAULT_ZSH}" ]]; then
+  sudo apt install ${DRY_RUN} git zsh
+  # 用户默认终端设置为 ZSH
+  [[ -z "${DRY_RUN}" ]] && chsh --shell /usr/bin/zsh
+fi
 
 # https://github.com/scop/bash-completion
 # https://github.com/zsh-users/zsh-completions
