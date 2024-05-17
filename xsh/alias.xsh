@@ -18,6 +18,8 @@ alias d='dirs -v'
 
 # Delete garbage objects(unreachable commits) & do objects compress
 alias git-delete-trash='git gc --prune=now'
+# 显示提交 commit 邮箱后缀排序(从少到多)
+alias git-show-statistics-ae="git log --format='%ae' | sed 's/.*@//' | sort | uniq -c | sort -k1n"
 
 # Show report message if two files are identical
 alias diff='diff --color=auto --report-identical-files'
