@@ -4,7 +4,7 @@
 # Repository: https://github.com/xwlc/zeta
 
 # Cherry pick tools, ignore if folder not exist
-path-head-add "${ZETA_DIR}/3rd/bin/ruby" # -> GEM_HOME/bin
+path-head-add "${ZETA_DIR}/3rd/bin/gems" # -> GEM_HOME/bin
 path-head-add "${ZETA_DIR}/3rd/bin/jdk"  # -> OpenJDK/bin
 path-head-add "${ZETA_DIR}/3rd/bin/js"   # -> NodeJS/bin
 path-head-add "${ZETA_DIR}/3rd/bin"
@@ -35,14 +35,14 @@ fi
 
 # RubyGems Package Install Location GEM_HOME
 # https://jekyllrb.com/docs/installation/ubuntu
-if [[ -d "${ZETA_DIR}/3rd/vendor/rubygems" ]]; then
-  export GEM_HOME="${ZETA_DIR}/3rd/vendor/rubygems"
+if [[ -d "${ZETA_DIR}/3rd/vendor/ruby/gems" ]]; then
+  export GEM_HOME="${ZETA_DIR}/3rd/vendor/ruby/gems"
 fi
 
 function @zeta:3rd:get-versions() {
   local app="${ZETA_DIR}/3rd/vendor/$1"
   # --hide='PATTERN' --ignore='PATTERN' 可多次使用
-  [[ -d "${app}" ]] && command ls --hide='*'{.zip,.bz2,.gz,.xz}'*' "${app}"
+  [[ -d "${app}" ]] && command ls --hide='*'{.zip,.bz2,.gz,.xz} --hide='[^0-9]*' "${app}"
 }
 
 function @zeta:3rd:update-symlink() {
@@ -79,15 +79,11 @@ function switch-to() {
     case "$1" in
       os-default)
         local sln symlinks=(
-          nvim
-          ccache
-          cppcheck
-          graph-easy
-          go  gofmt
-          cmake cpack  ccmake  ctest  cmake-gui
+          cmake   cpack  ccmake  ctest  cmake-gui
+          go      gofmt
           js
           jdk
-          ruby
+          gems
         )
         local bin="${ZETA_DIR}/3rd/bin"
         for sln in ${symlinks}; do
@@ -100,17 +96,7 @@ function switch-to() {
         return
         ;;
       cherry-pick)
-        @zeta:3rd:update-symlink nvim "nvim/bin/nvim"
-        @zeta:3rd:update-symlink ccache "ccache/ccache"
-        @zeta:3rd:update-symlink cppcheck "cppcheck/bin/cppcheck"
-        # Graph-Easy ASCII Art Graphic
-        # https://metacpan.org/pod/Graph::Easy
-        # https://github.com/ironcamel/Graph-Easy
-        # 方式一 sudo apt install libgraph-easy-perl
-        # 方式二 下载压缩包, 解压缩，设置 PATH 路径
-        @zeta:3rd:update-symlink graph-easy "graph-easy/bin/graph-easy"
-
-        @zeta:3rd:update-symlink ruby "rubygems/bin"
+        @zeta:3rd:update-symlink gems "ruby/gems/bin"
         return
         ;;
     esac
