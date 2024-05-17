@@ -135,6 +135,24 @@ function admin-eject-usb-disk() {
 # 日志管理工具 https://github.com/logrotate/logrotate
 # 配置文件 /etc/logrotate.conf 和 /etc/logrotate.d/*
 
+#   0=emerg     1=alert     2=crit  3=err
+#   4=warning   5=notice    6=info  7=debug
+function admin-show-boot-log() {
+  if [ $# -eq 0 ]; then
+    echo "$(@R3 0) = $(@D9 emerg)     $(@R3 1) = $(@D9 alert)"
+    echo "$(@R3 2) = $(@D9 crit)      $(@R3 3) = $(@D9 err)"
+    echo "$(@R3 4) = $(@D9 warning)   $(@R3 5) = $(@D9 notice)"
+    echo "$(@R3 6) = $(@D9 info)      $(@R3 7) = $(@D9 debug)"
+    return
+  fi
+
+  case $# in # FROM..TO
+    1) journalctl -b --priority=$1 ;;
+    2) journalctl -b --priority=$1..$2 ;;
+    *) ;;
+  esac
+}
+
 alias admin-journalctl-rm-all-logs='sudo journalctl --rotate --vacuum-time=1s'
 
 function admin-rm-all-system-logs() {
