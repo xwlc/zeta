@@ -262,7 +262,12 @@ function admin-clean-system-trash() {
     fi
   fi
 
-  local xfile
+  local xfile zsh_enable_nullglob
+
+  if [[ -n "${ZSH_VERSION:-}" && ! -o nullglob ]]; then
+    setopt nullglob
+    zsh_enable_nullglob=1
+  fi
 
   # 应用程序崩溃报告/日志
   for xfile in /var/crash/*.crash; do
@@ -283,6 +288,10 @@ function admin-clean-system-trash() {
   # https://systemd.io/TEMPORARY_DIRECTORIES/
 
   admin-rm-all-system-logs # 清空系统日志文件
+
+  if [[ -n "${ZSH_VERSION:-}" && -n "${zsh_enable_nullglob}" ]]; then
+    unsetopt nullglob
+  fi
 
   echo "Clean/Reset home trash => $(@G3 ~/.xsession-errors)"
   [ -f ~/.xsession-errors ] && echo > ~/.xsession-errors
