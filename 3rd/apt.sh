@@ -101,6 +101,9 @@ no-cmd ack && sudo apt install ${DRY_RUN} ack
 # https://github.com/junegunn/fzf
 no-cmd fzf && sudo apt install ${DRY_RUN} fzf
 
+# https://sourceforge.net/p/cppcheck
+no-cmd cppcheck && sudo apt install ${DRY_RUN} cppcheck
+
 ######################
 # 手动下载/解压/配置 #
 ######################
