@@ -135,14 +135,27 @@ function admin-eject-usb-disk() {
 # 日志管理工具 https://github.com/logrotate/logrotate
 # 配置文件 /etc/logrotate.conf 和 /etc/logrotate.d/*
 
-#   0=emerg     1=alert     2=crit  3=err
-#   4=warning   5=notice    6=info  7=debug
 function admin-show-boot-log() {
   if [ $# -eq 0 ]; then
-    echo "$(@R3 0) = $(@D9 emerg)     $(@R3 1) = $(@D9 alert)"
-    echo "$(@R3 2) = $(@D9 crit)      $(@R3 3) = $(@D9 err)"
-    echo "$(@R3 4) = $(@D9 warning)   $(@R3 5) = $(@D9 notice)"
-    echo "$(@R3 6) = $(@D9 info)      $(@R3 7) = $(@D9 debug)"
+    echo
+    printf "$(@R3 %d)=$(@D9 %-8s)"  0  emerg
+    printf "$(@R3 %d)=$(@D9 %-8s)"  1  alert
+    printf "$(@R3 %d)=$(@D9 %-8s)"  2  crit
+    printf "$(@R3 %d)=$(@D9 %-8s)"  3  err
+    printf "$(@R3 %d)=$(@D9 %-8s)"  4  warning
+    printf "$(@R3 %d)=$(@D9 %-8s)"  5  notice
+    printf "$(@R3 %d)=$(@D9 %-8s)"  6  info
+    printf "$(@R3 %d)=$(@D9 %s)\n"  7  debug
+    echo
+    # -X    最早启动日志 -b 1
+    # ...
+    # -1    上次启动日志 -b -1
+    #  0    当前启动日志 -b 或 -b 0 或 -b -0
+    journalctl --list-boots # 显示启动日志记录
+    echo
+    systemd-analyze # 启动单元耗时
+    systemd-analyze blame | head -n 9
+    echo
     return
   fi
 
