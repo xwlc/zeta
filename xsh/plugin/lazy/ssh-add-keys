@@ -52,11 +52,11 @@ fi
 ssh-add -l > /dev/null 2>&1 # 代理状态 -> 0 有密钥, 1 无密钥, 2 未运行
 if [[ $? -eq 2 || -z "${SSH_AUTH_SOCK}" || ! -S "${SSH_AUTH_SOCK}" ]]; then
   #echo "PID=[${SSH_AGENT_PID}] SOCK=[${SSH_AUTH_SOCK}]"
-  if [[ -f "${HOME}/.ssh/agent-env" ]]; then
-    source "${HOME}/.ssh/agent-env" 2> /dev/null
+  if [[ -f "${HOME}/.ssh/agent-env-info" ]]; then
+    source "${HOME}/.ssh/agent-env-info" 2> /dev/null
   fi
   if ! @zeta:host:is-windows; then # 启动 SSH 代理
-    ( umask 077; ssh-agent -s > "${HOME}/.ssh/agent-env" )
+    ( umask 077; ssh-agent -s > "${HOME}/.ssh/agent-env-info" )
   fi
 fi
 
@@ -71,8 +71,11 @@ function ssh-add-keys() {
   _ukeys_="$(command ls "${HOME}/.ssh" | grep "secret")"
   [[ $# -eq 0 || $? -ne 0 || -z "${_ukeys_}" ]] && return
 
-  local LoadSecKeys=$@
+  local LoadSecKeys=$@ # 私钥 ID 列表
   _xkeys_="$(command ssh-add -l 2>&1)"
+
+  local is_enable_shwordsplit=$(@zeta:zsh:opt:status shwordsplit)
+  [[ -z "${is_enable_shwordsplit}" ]] && @zeta:zsh:opt:enable shwordsplit
 
   for _keyid_ in ${LoadSecKeys}; do
     echo "${_xkeys_}" | grep -q "${_keyid_}" && continue
@@ -89,5 +92,6 @@ function ssh-add-keys() {
     fi
   done
 
-  unset -f ssh-add-keys
+  [[ -z "${is_enable_shwordsplit}" ]] && @zeta:zsh:opt:disable shwordsplit
+  unset -f ssh-add-keys # only revoke once, after that no need it anymore
 }

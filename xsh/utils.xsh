@@ -58,6 +58,37 @@ function @zeta:xsh:emsg() {
   { @zeta:xsh:_msg_ ERROR '\e[0;31m' "$@"; } 1>&2
 }
 
+# https://www.baeldung.com/linux/bash-zsh-loop-splitting-globbing
+function @zeta:xsh:is-valid-zsh-opt() {
+  [[ -z "${ZSH_VERSION:-}" ]] && return 1
+
+  case $1 in
+    # NOTE do split strings based on $IFS
+    shwordsplit)    ;; # 默认 Bash do it, ZSH not
+    # NOTE none if GLOB match nothing
+    nullglob)       ;; # 默认 Bash do it, ZSH report error
+    *) return 1 ;;
+  esac
+}
+
+function @zeta:zsh:opt:status() {
+  if @zeta:xsh:is-valid-zsh-opt $1; then
+    [[ -o $1 ]] && echo 'on'
+  fi
+}
+
+function @zeta:zsh:opt:enable() {
+  if @zeta:xsh:is-valid-zsh-opt $1; then
+    [[ ! -o $1 ]] && setopt $1
+  fi
+}
+
+function @zeta:zsh:opt:disable() {
+  if @zeta:xsh:is-valid-zsh-opt $1; then
+    [[ -o $1 ]] && unsetopt $1
+  fi
+}
+
 function @zeta:util:is-binnum() { # binary
   [[ $# -eq 0 ]] && return 1
   [[ -n "$1" && -z "${1//[0-1]/}" ]]
