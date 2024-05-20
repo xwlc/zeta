@@ -1,6 +1,7 @@
 # APT
 
 - [How to upgrade to newer ubuntu](http://help.ubuntu.com/community/UpgradeNotes)
+- https://canonical-ubuntu-packaging-guide.readthedocs-hosted.com/en/latest/explanation/archive
 
 - 关于 APT 配置及缓存
   * https://salsa.debian.org/apt-team/apt
