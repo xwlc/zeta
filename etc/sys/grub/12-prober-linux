@@ -1,0 +1,556 @@
+#!/bin/sh
+#
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-04-30T09:39:38+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+# Copy to /etc/grub.d/12-prober-linux
+set -e
+
+prefix="/usr"
+exec_prefix="/usr"
+datarootdir="/usr/share"
+
+quiet_boot="1"
+quick_boot="1"
+vt_handoff="1"
+
+gfxpayload_dynamic="1"
+enable_recovery_mode="1"
+
+export TEXTDOMAIN=grub
+export TEXTDOMAINDIR="${datarootdir}/locale"
+
+grub_errs() { echo "ERRS: $@" >&2; }
+grub_info() { echo "INFO: $@" >&2; }
+
+# => ${pkgdatadir}/grub-mkconfig_lib
+# The helper library for grub-mkconfig
+if [ -f /usr/lib/grub/grub-mkconfig_lib ]; then
+  .  /usr/lib/grub/grub-mkconfig_lib
+elif [ -f /usr/share/grub/grub-mkconfig_lib ]; then
+  .  /usr/share/grub/grub-mkconfig_lib
+else
+  # no grub file, so we notify and exit gracefully
+  grub_errs "Can not find grub-mkconfig helper library file, exiting."
+  exit 0
+fi
+
+CLASS="--class gnu-linux --class gnu --class os"
+
+if [ "x${GRUB_DISTRIBUTOR}" = "x" ] ; then
+  DISTROS="GNU/Linux"
+else
+  case ${GRUB_DISTRIBUTOR} in
+    *Arch* | *Debian* | *Ubuntu*) DISTROS="${GRUB_DISTRIBUTOR}" ;;
+    *) DISTROS="${GRUB_DISTRIBUTOR} GNU/Linux" ;;
+  esac
+  CLASS="--class $(echo ${GRUB_DISTRIBUTOR} | tr 'A-Z' 'a-z' | cut -d' ' -f1 | LC_ALL=C sed 's,[^[:alnum:]_],_,g') ${CLASS}"
+fi
+
+# loop-AES arranges things so that /dev/loop/X can be root
+# device, but the initrds that Linux uses don't like that.
+case ${GRUB_DEVICE} in
+  /dev/loop/*|/dev/loop[0-9])
+    GRUB_DEVICE=$(losetup ${GRUB_DEVICE} | sed -e "s/^[^(]*(\([^)]\+\)).*/\1/")
+    # We can't cope with devices loop-mounted from files here.
+    case ${GRUB_DEVICE} in
+      /dev/*) ;;
+      *) exit 0 ;;
+    esac
+  ;;
+esac
+
+if [ -x /lib/recovery-mode/recovery-menu ]; then
+  : ${GRUB_CMDLINE_LINUX_RECOVERY:=recovery}
+else
+  : ${GRUB_CMDLINE_LINUX_RECOVERY:=single}
+fi
+
+# Default to disabling partition-uuid support
+# to maintian compatibility with older kernels.
+: ${GRUB_DISABLE_LINUX_PARTUUID=true}
+
+# get_dm_field_for_dev /dev/dm-0 uuid -> get device mapper UUID for /dev/dm-0
+# get_dm_field_for_dev /dev/dm-1 name -> get device mapper name for /dev/dm-1
+get_dm_field_for_dev() {
+  dmsetup info -c --noheadings -o $2 $1 2>/dev/null
+}
+
+# Is $1 a multipath device?
+is_multipath() {
+  local dmuuid dmtype
+  dmuuid="$(get_dm_field_for_dev $1 uuid)"
+
+  if [ $? -ne 0 ]; then
+    # Not a device mapper device -- or dmsetup not installed, and as
+    # multipath depends on kpartx which depends on dmsetup, if there is
+    # no dmsetup then there are not going to be any multipath devices.
+    return 1
+  fi
+
+  # A device mapper "uuid" is always <type>-<uuid>. If <type> is of the form
+  # part[0-9] then <uuid> is the device the partition is on and we want to
+  # look at that instead. A multipath node always has <type> of mpath.
+  dmtype="${dmuuid%%-*}"
+  if [ "${dmtype#part}" != "${dmtype}" ]; then
+    dmuuid="${dmuuid#*-}"
+    dmtype="${dmuuid%%-*}"
+  fi
+
+  if [ "${dmtype}" = "mpath" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+if test -e "${GRUB_DEVICE}" && is_multipath "${GRUB_DEVICE}"; then
+  # If / is multipathed, there will be multiple paths to the partition, so
+  # using root=UUID= exposes the boot process to udev races. In addition
+  # GRUB_DEVICE in this case will be /dev/dm-0 or similar -- better to use a
+  # symlink that depends on the multipath name.
+  GRUB_DEVICE=/dev/mapper/"$(get_dm_field_for_dev ${GRUB_DEVICE} name)"
+  GRUB_DISABLE_LINUX_UUID=true
+fi
+
+# btrfs may reside on multiple devices. can not pass it as value of root= args
+# and mounting btrfs requires user space scanning, so force UUID in this case.
+if     ( [ "x${GRUB_DEVICE_UUID}" = "x" ] && [ "x${GRUB_DEVICE_PARTUUID}" = "x" ] ) \
+    || ( [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ] && [ "x${GRUB_DISABLE_LINUX_PARTUUID}" = "xtrue" ] ) \
+    || ( ! test -e "/dev/disk/by-uuid/${GRUB_DEVICE_UUID}" && ! test -e "/dev/disk/by-partuuid/${GRUB_DEVICE_PARTUUID}" ) \
+    || ( test -e "${GRUB_DEVICE}" && uses_abstraction "${GRUB_DEVICE}" lvm ); then
+  LINUX_ROOT_DEVICE=${GRUB_DEVICE}
+elif [ "x${GRUB_DEVICE_UUID}" = "x" ] || [ "x${GRUB_DISABLE_LINUX_UUID}" = "xtrue" ]; then
+  LINUX_ROOT_DEVICE=PARTUUID=${GRUB_DEVICE_PARTUUID}
+else
+  LINUX_ROOT_DEVICE=UUID=${GRUB_DEVICE_UUID}
+fi
+
+case x"${GRUB_FS}" in
+  xbtrfs)
+    rootsubvol="$(make_system_path_relative_to_its_root /)"
+    rootsubvol="${rootsubvol#/}"
+    if [ "x${rootsubvol}" != x ]; then
+      GRUB_CMDLINE_LINUX="rootflags=subvol=${rootsubvol} ${GRUB_CMDLINE_LINUX}"
+    fi
+    ;;
+  xzfs)
+    # We have a more specialized ZFS handler script.
+    if [ -e "$(dirname $(readlink -f $0))/11-prober-linux-zfs" ]; then
+      exit 0
+    fi
+    rpool=$(${grub_probe} --device ${GRUB_DEVICE} --target=fs_label 2>/dev/null || true)
+    bootfs="$(make_system_path_relative_to_its_root / | sed -e "s,@$,,")"
+    LINUX_ROOT_DEVICE="ZFS=${rpool}${bootfs%/}"
+    ;;
+esac
+
+if [ "${enable_recovery_mode}" = 1 ]; then
+  GRUB_CMDLINE_LINUX_RECOVERY="$GRUB_CMDLINE_LINUX_RECOVERY nomodeset"
+fi
+
+if [ "${vt_handoff}" = 1 ]; then
+  for word in $GRUB_CMDLINE_LINUX_DEFAULT; do
+    if [ "$word" = splash ]; then
+      GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT \${vt_handoff}"
+    fi
+  done
+fi
+
+if [ x"${GRUB_FORCE_PARTUUID}" != x ]; then
+  grub_info "GRUB_FORCE_PARTUUID is set, will attempt initrdless boot."
+  cat << EOF
+#
+# GRUB_FORCE_PARTUUID is set, will attempt initrdless
+# boot Upon panic fallback to booting with initrd
+EOF
+  echo "set partuuid=${GRUB_FORCE_PARTUUID}"
+fi
+
+  # ${GRUB_CMDLINE_LINUX} ${GRUB_CMDLINE_LINUX_DEFAULT} GRUB_CMDLINE_LINUX_RECOVERY
+  if [ x${GRUB_ENABLE_CONSOLE_LOGIN} = xtrue ]; then
+
+  fi
+
+# => console, desktop, 6.1.2/XanMod/GA/HWE
+add_linux_boot_menu primary "${kernel_info}" "${kernel_boot_args}"
+#
+# $1  menu type is one of 'primary', 'advanced' or 'recovery'
+# $2  kernel version and extra kernel description information
+# $3  kernel boot arguments
+add_linux_boot_menu() {
+  local title indents
+  case $1 in
+    advanced) indents="  "; title="${DISTROS}, with kernel " ;;
+    recovery) indents="  "; title="${DISTROS}, with kernel (on )" ;;
+    *) title="${DISTROS}"; indents= ;;
+  esac
+
+  local boot_device_id="$(grub_get_device_id "${GRUB_DEVICE}")"
+  echo "${indents}menuentry '$(grub_quote "${title}")' ${CLASS} \${menuentry_id_option} 'gnulinux-$1-${boot_device_id}' {"
+
+################################# here -------
+  local osname="$1"
+  local osversion="$2"
+  local boot_type="$3"
+  local kernel_args="$4"
+
+  if [ x${boot_type} != xsimple ] ; then
+    case ${boot_type} in
+      recovery) title="$(gettext_printf "%s, with Linux %s (%s)" "${osname}" "${osversion}" "$(gettext "${GRUB_RECOVERY_TITLE}")")" ;;
+      *)        title="$(gettext_printf "%s, with Linux %s"      "${osname}" "${osversion}")" ;;
+    esac
+
+    if [ x"${title}" = x"${GRUB_ACTUAL_DEFAULT}" ] || [ x"Previous Linux versions>${title}" = x"${GRUB_ACTUAL_DEFAULT}" ]; then
+      quoted="$(echo "${GRUB_ACTUAL_DEFAULT}" | grub_quote)"
+      replacement_title="$(echo "Advanced options for ${DISTROS}" | sed 's,>,>>,g')>$(echo "${title}" | sed 's,>,>>,g')"
+
+      title_correction_code="${title_correction_code}if [ \"x\${default}\" = '${quoted}' ]; then default='$(echo "${replacement_title}" | grub_quote)'; fi;"
+
+      grub_warn "$(gettext_printf "Please don't use old title \`%s' for GRUB_DEFAULT, use \`%s' (for versions before 2.00) or \`%s' (for 2.00 or later)" \
+        "${GRUB_ACTUAL_DEFAULT}" "${replacement_title}" \
+        "gnulinux-advanced-${boot_device_id}>gnulinux-${osversion}-${boot_type}-${boot_device_id}")"
+    fi
+    echo "menuentry '$(echo "${title}" | grub_quote)' ${CLASS} \${menuentry_id_option} 'gnulinux-${osversion}-${boot_type}-${boot_device_id}' {" | sed "s/^/${submenu_indentation}/"
+  fi
+
+  if [ "${quick_boot}" = 1 ]; then
+    echo "  recordfail" | sed "s/^/${submenu_indentation}/"
+  fi
+
+  if [ x${boot_type} != xrecovery ] ; then
+    save_default_entry | grub_add_tab
+  fi
+
+  # Use ELILO's generic "efifb" when it's known to be available.
+  # FIXME: We need an interface to select vesafb in case efifb can't be used.
+  if [ "x${GRUB_GFXPAYLOAD_LINUX}" = x ]; then
+    echo "  load_video" | sed "s/^/${submenu_indentation}/"
+  else
+    if [ "x${GRUB_GFXPAYLOAD_LINUX}" != xtext ]; then
+      echo " load_video" | sed "s/^/${submenu_indentation}/"
+    fi
+  fi
+
+  if   ( [ "${enable_recovery_mode}" = 0 ] || [ x${boot_type} != xrecovery ] ) \
+    && ( [ "x${GRUB_GFXPAYLOAD_LINUX}" != x ] || [ "${gfxpayload_dynamic}" = 1 ] ); then
+    echo "  gfxmode \$linux_gfx_mode" | sed "s/^/${submenu_indentation}/"
+  fi
+
+  echo "  insmod gzio" | sed "s/^/${submenu_indentation}/"
+  echo "  if [ x\${grub_platform} = xxen ]; then insmod xzio; insmod lzopio; fi" | sed "s/^/${submenu_indentation}/"
+
+  if [ x${kpathname} = x/ ]; then
+    if [ -z "${prepare_root_cache}" ]; then
+      prepare_root_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE} | grub_add_tab)"
+    fi
+    printf '%s\n' "${prepare_root_cache}" | sed "s/^/${submenu_indentation}/"
+  else
+    if [ -z "${prepare_boot_cache}" ]; then
+      prepare_boot_cache="$(prepare_grub_to_access_device ${GRUB_DEVICE_BOOT} | grub_add_tab)"
+    fi
+    printf '%s\n' "${prepare_boot_cache}" | sed "s/^/${submenu_indentation}/"
+  fi
+
+  if [ x"$quiet_boot" = x0 ] || [ x"${boot_type}" != xsimple ]; then
+    message="$(gettext_printf "Loading Linux %s ..." ${osversion})"
+    sed "s/^/${submenu_indentation}/" << EOF
+  echo '$(echo "${message}" | grub_quote)'
+EOF
+  fi
+
+  # We have initrd and PARTUUID is set - we try to boot
+  # without initrd, and fallback to using it if it fails.
+  # "panic=-1"  means on panic reboot immediately
+  # "panic=0"   disables the reboot behavior.
+  if [ x"${GRUB_FORCE_PARTUUID}" != x ]; then
+    linux_root_device_kernel_arg="PARTUUID=${GRUB_FORCE_PARTUUID}"
+  fi
+
+  message="$(gettext_printf "Loading initial ramdisk ...")"
+  initrdlessfail_msg="$(gettext_printf "GRUB_FORCE_PARTUUID set, initrdless boot failed. Attempting with initrd.")"
+   initrdlesstry_msg="$(gettext_printf "GRUB_FORCE_PARTUUID set, attempting initrdless boot.")"
+
+  initrd_path=
+  for i in ${initrd_imgs}; do
+    initrd_path="${initrd_path} ${rel_kpathname}/${i}"
+  done
+
+  initrd_path_only_early=
+  for i in ${initrd_early}; do
+    initrd_path_only_early="${initrd_path_only_early} ${rel_kpathname}/${i}"
+  done
+
+  if test -n "${initrd_imgs}" && [ x"${GRUB_FORCE_PARTUUID}" != x ]; then
+    sed "s/^/${submenu_indentation}/" << EOF
+  if [ "\${initrdfail}" = 1 ]; then
+    echo '$(echo "${initrdlessfail_msg}" | grub_quote)'
+    linux ${rel_kpathname}/${kfilename} root=${linux_root_device_kernel_arg} ro ${kernel_args}
+EOF
+    if [ x"${quiet_boot}" = x0 ] || [ x"${boot_type}" != xsimple ]; then
+      sed "s/^/${submenu_indentation}/" << EOF
+    echo '$(echo "${message}" | grub_quote)'
+EOF
+    fi
+    sed "s/^/${submenu_indentation}/" << EOF
+    initrd $(echo ${initrd_path})
+  else
+    echo '$(echo "${initrdlesstry_msg}" | grub_quote)'
+    linux ${rel_kpathname}/${kfilename} root=${linux_root_device_kernel_arg} ro ${kernel_args} panic=-1
+EOF
+    if [ -n "$initrd_path_only_early" ]; then
+      sed "s/^/${submenu_indentation}/" << EOF
+    initrd $(echo $initrd_path_only_early)
+EOF
+    fi
+    sed "s/^/${submenu_indentation}/" << EOF
+  fi
+
+  initrdfail
+EOF
+  else
+    # We don't have initrd or we don't want to set PARTUUID.
+    # Don't try initrd-less boot with fallback.
+    sed "s/^/${submenu_indentation}/" << EOF
+  linux ${rel_kpathname}/${kfilename} root=${linux_root_device_kernel_arg} ro ${kernel_args}
+EOF
+    if test -n "${initrd_imgs}"; then
+      # We do have initrd - let's use it at boot.
+      # TRANSLATORS: ramdisk isn't identifier. Should be translated.
+      if [ x"${quiet_boot}" = x0 ] || [ x"${boot_type}" != xsimple ]; then
+        sed "s/^/${submenu_indentation}/" << EOF
+  echo '$(echo "${message}" | grub_quote)'
+EOF
+      fi
+      sed "s/^/${submenu_indentation}/" << EOF
+  initrd $(echo ${initrd_path})
+EOF
+    fi
+
+    if test -n "${device_tree}" ; then
+      if [ x"${quiet_boot}" = x0 ] || [ x"${boot_type}" != xsimple ]; then
+        message="$(gettext_printf "Loading device tree blob...")"
+        sed "s/^/${submenu_indentation}/" << EOF
+  echo '$(echo "${message}" | grub_quote)'
+EOF
+      fi
+      sed "s/^/${submenu_indentation}/" << EOF
+  devicetree ${rel_kpathname}/${device_tree}
+EOF
+    fi
+  fi
+  sed "s/^/${submenu_indentation}/" << EOF
+}
+EOF
+}
+
+case "${GRUB_DISABLE_RECOVERY}" in
+  y|Y|yes|Yes|YES|T|t|true|True|TRUE) GRUB_DISABLE_RECOVERY=true ;;
+esac
+
+case "${GRUB_ENABLE_CONSOLE_LOGIN}" in
+  y|Y|yes|Yes|YES|T|t|true|True|TRUE) GRUB_ENABLE_CONSOLE_LOGIN=true ;;
+esac
+
+# The GRUB_DISABLE_SUBMENU option used to be different than others since it was
+# mentioned in the documentation that has to be set to 'y' instead of 'true' to
+# enable it. This caused a lot of confusion to users that set the option to 'y',
+# 'yes' or 'true'. This was fixed but all of these values must be supported now.
+case "${GRUB_DISABLE_SUBMENU}" in
+  y|Y|yes|Yes|YES|T|t|true|True|TRUE) GRUB_DISABLE_SUBMENU=true ;;
+esac
+
+generate_linux_boot_menus() {
+  local host_arch kernel_arch
+
+  host_arch=$(uname -m)
+  case "${host_arch}" in
+    i?86)             kernel_arch="x86" ;;
+    mips|mips64)      kernel_arch="mips" ;;
+    mipsel|mips64el)  kernel_arch="mipsel" ;;
+    arm*)             kernel_arch="arm" ;;
+    *)                kernel_arch="${host_arch}" ;;
+  esac
+
+  case "${kernel_arch}" in
+    x86*) GRUB_CMDLINE_LINUX_RECOVERY="${GRUB_CMDLINE_LINUX_RECOVERY} dis_ucode_ldr" ;;
+  esac
+
+  local kernel_imgs reverse_imgs_list
+  case "x${host_arch}" in
+    xi?86 | xx86_64)
+      for i in /boot/vmlinuz-* /vmlinuz-* /boot/kernel-*; do
+        if grub_file_is_not_garbage "${i}"; then kernel_imgs="${kernel_imgs} ${i}"; fi
+      done
+      ;;
+    *)
+      for i in /boot/vmlinuz-* /boot/vmlinux-* /vmlinuz-* /vmlinux-* /boot/kernel-*; do
+        if grub_file_is_not_garbage "${i}"; then kernel_imgs="${kernel_imgs} ${i}"; fi
+      done
+      ;;
+  esac
+
+  # Perform a reverse version sort on the linux kernel image files.
+  # Temporarily replace the '.old' suffix by ' 1' and append ' 2' for all
+  # other files to order the '.old' files after their non-old counterpart
+  # in the reverse-sorted kernel image files order.
+  reverse_imgs_list=$(echo ${kernel_imgs} | tr ' ' '\n' | sed -e 's/\.old$/ 1/; / 1$/! s/$/ 2/')
+  reverse_imgs_list=$(echo ${reverse_imgs_list} | version_sort -r | sed -e 's/ 1$/.old/; s/ 2$//')
+  if [ "x${GRUB_TOP_LEVEL}" != x ]; then
+    reverse_imgs_list=$(grub_move_to_front "${GRUB_TOP_LEVEL}" ${reverse_imgs_list})
+  fi
+
+  # default enable submenu for all the kernels
+  local linux grub_add_submenu=true
+  local linux_root_device_kernel_arg
+  local kfilename kpathname rel_kpathname
+  local kversion1 kversion2 kernel_version kernel_details
+
+  for linux in ${reverse_imgs_list}; do
+    grub_info "Found linux image ${linux}"
+
+    kfilename=$(basename ${linux})
+    kpathname=$(dirname  ${linux})
+    rel_kpathname=$(make_system_path_relative_to_its_root ${kpathname})
+
+    kversion1="${kfilename#[^0-9]*-}" # remove leading names
+    #kversion1=$(echo ${kfilename} | sed -e "s,^[^0-9]*-,,g")
+
+    kversion2="${kversion1%.old}" # remove from the end
+    #kversion2=$(echo ${kversion1} | sed -e "s,\.old$,,g")
+
+    kernel_version="${kversion1%%-*}"
+    kernel_details="${kversion1#*-*}"
+
+    local initrd_early initrd_real initrd_imgs
+    for i in ${GRUB_EARLY_INITRD_LINUX_STOCK} ${GRUB_EARLY_INITRD_LINUX_CUSTOM}; do
+      if test -e "${kpathname}/${i}"; then
+        initrd_early="${initrd_early} ${i}"
+      fi
+    done
+
+    for i in "initrd.img-${kversion1}"       "initrd.img-${kversion2}" \
+            "initrd-${kversion1}.img"        "initrd-${kversion2}.img" \
+                                             "initrd-${kversion2}.img.old" \
+            "initrd-${kversion1}"            "initrd-${kversion2}" \
+            "initrd-${kversion1}.gz"         "initrd-${kversion2}.gz.old" \
+            "initramfs-${kversion1}.img"     "initramfs-${kversion2}.img" \
+                                             "initramfs-${kversion2}.img.old" \
+            "initramfs-genkernel-${kversion1}" \
+            "initramfs-genkernel-${kversion2}" \
+            "initramfs-genkernel-${kernel_arch}-${kversion1}" \
+            "initramfs-genkernel-${kernel_arch}-${kversion2}"; do
+      if test -e "${kpathname}/${i}"; then
+        initrd_real="${i}"
+        break
+      fi
+    done
+
+    if test -n "${initrd_early}" || test -n "${initrd_real}"; then
+      initrd_imgs="${initrd_early} ${initrd_real}"
+      for i in ${initrd_imgs}; do
+        grub_info "Found initrd image ${kpathname}/${i}"
+      done
+    fi
+
+    local device_tree
+    for i in "dtb-${kversion1}" "dtb-${kversion2}" "dtb"; do
+      if test -e "${kpathname}/${i}"; then
+        device_tree="${i}"
+        break
+      fi
+    done
+
+    local config_initramfs_source
+    for i in "${kpathname}/config-${kversion1}" "${kpathname}/config-${kversion2}"; do
+      if test -e "${i}"; then
+        config_initramfs_source=$(grep CONFIG_INITRAMFS_SOURCE= "${i}" | cut -f2 -d= | tr -d \")
+        break
+      fi
+    done
+
+    linux_root_device_kernel_arg="${LINUX_ROOT_DEVICE}"
+    if test -z "${config_initramfs_source}" && test -z "${initrd_real}"; then
+      # "UUID=" and "ZFS=" magic is parsed by initrd or initramfs.
+      # Since there's no initrd or builtin initramfs, it can't work here.
+      if [ "x${GRUB_DEVICE_PARTUUID}" = "x" ] || [ "x${GRUB_DISABLE_LINUX_PARTUUID}" = "xtrue" ]; then
+        linux_root_device_kernel_arg=${GRUB_DEVICE}
+      else
+        linux_root_device_kernel_arg=PARTUUID=${GRUB_DEVICE_PARTUUID}
+      fi
+    fi
+
+    local kernel_info kernel_boot_args
+
+    if [ "x${grub_add_submenu}" = xtrue ] && [ "x${GRUB_DISABLE_SUBMENU}" != xtrue ]; then
+      add_linux_boot_menu simple "${DISTROS}" "${kernel_info}" "${kernel_boot_args}"
+
+      grub_add_submenu=false
+      echo "submenu '$(grub_quote "Advanced Menus for ${DISTROS}")' \${menuentry_id_option} 'gnulinux-advanced-$(grub_get_device_id "${GRUB_DEVICE}")' {"
+    fi
+
+    add_linux_boot_menu advanced "${DISTROS}" "${kernel_info}" "${kernel_boot_args}"
+
+    if [ "x${GRUB_DISABLE_RECOVERY}" != "xtrue" ]; then
+      add_linux_boot_menu recovery "${DISTROS}" "${kernel_info}" "${kernel_boot_args}"
+    fi
+  done
+
+  # If found at least one kernel, then add a closing '}' for submenu command.
+  if [ x"${grub_add_submenu}" != xtrue ]; then echo '}'; fi
+}
+
+cat << 'EOF'
+function gfxmode {
+  set gfxpayload="${1}"
+EOF
+if [ "${vt_handoff}" = 1 ]; then
+  cat << 'EOF'
+  if [ "${1}" = "keep" ]; then
+    set vt_handoff=vt.handoff=7
+  else
+    set vt_handoff=
+  fi
+EOF
+fi
+cat << EOF
+}
+EOF
+
+# Use ELILO's generic "efifb" when it's known to be available.
+# FIXME: We need an interface to select vesafb in case efifb can't be used.
+if [ "x${GRUB_GFXPAYLOAD_LINUX}" != x ] || [ "${gfxpayload_dynamic}" = 0 ]; then
+  echo "set linux_gfx_mode=${GRUB_GFXPAYLOAD_LINUX}"
+else
+  cat << EOF
+if [ "\${recordfail}" != 1 ]; then
+  if [ -e \${prefix}/gfxblacklist.txt ]; then
+    if [ \${grub_platform} != pc ]; then
+      set linux_gfx_mode=keep
+    elif hwmatch \${prefix}/gfxblacklist.txt 3; then
+      if [ \${match} = 0 ]; then
+        set linux_gfx_mode=keep
+      else
+        set linux_gfx_mode=text
+      fi
+    else
+      set linux_gfx_mode=text
+    fi
+  else
+    set linux_gfx_mode=keep
+  fi
+else
+  set linux_gfx_mode=text
+fi
+EOF
+fi
+cat << EOF
+export linux_gfx_mode
+EOF
+
+prepare_boot_cache=
+prepare_root_cache=
+title_correction_code=
+
+generate_linux_boot_menus

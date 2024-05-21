@@ -1,0 +1,68 @@
+#!/bin/sh
+#
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-04-30T09:39:38+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+# Copy to /etc/grub.d/00-grub-common
+set -e
+
+# See the following script for details information of GRUB script.
+# => /usr/sbin/grub-mkconfig          /usr/lib/grub/grub-mkconfig_lib
+# => /usr/bin/grub-script-check       /usr/share/grub/grub-mkconfig_lib
+
+# check file type for GRUB
+if test "x${grub_file}" = x; then
+  grub_file="/usr/bin/grub-file"
+fi
+
+# probe device information for GRUB
+if test "x${grub_probe}" = x; then
+  grub_probe="/usr/sbin/grub-probe"
+fi
+
+# make a system path relative to its root
+if test "x${grub_mkrelpath}" = x; then
+  grub_mkrelpath="/usr/bin/grub-mkrelpath"
+fi
+
+grub_info() { echo "INFO: $@" >&2; }
+grub_warn() { echo "WARN: $@" >&2; }
+grub_printf() {  printf "%s" "$@"; }
+
+grub_make_sys_path_rel_to_its_root() {
+  "${grub_mkrelpath}" "$1"
+}
+
+grub_is_path_readable() {
+  # abort if path doesn't exist
+  if ! test -e "$1"; then
+    return 1
+  fi
+
+  # abort if file is in a filesystem we can't read
+  if ! "${grub_probe}" -t fs "$1" > /dev/null 2>&1; then
+    return 1
+  fi
+
+  local abstractions xinfo
+
+  # if we can not figure out the abstraction module, for
+  # example if the memberlist fails on an LVM volume group.
+  abstractions="$("${grub_probe}" -t abstraction "$1" 2> /dev/null)"
+  if ! $?; then
+    return 1
+  fi
+
+  if [ x${GRUB_ENABLE_CRYPTODISK} = xy ]; then
+    return 0
+  fi
+
+  for xinfo in ${abstractions}; do
+    if [ "x${xinfo}" = xcryptodisk ]; then
+      return 1
+    fi
+  done
+
+  return 0
+}

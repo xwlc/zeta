@@ -1,0 +1,67 @@
+## /etc/default/grub - `grub-mkconfig` configuration
+##
+## - Make modifications of this configuration file
+## - `sudo update-grub` to update /boot/grub/grub.cfg
+##
+## This file is valid with shell-like syntax: `KEY=value`
+## See `info -f grub -n Configuration` for more detail info
+##
+## grubby is boot menu manager confirm to BLS
+## https://src.fedoraproject.org/rpms/grubby
+## NOTE Retired https://github.com/rhboot/grubby
+
+## Enable console-login menu aside from graphical ones
+GRUB_ENABLE_CONSOLE_LOGIN=true
+
+## XanMod Art Works https://dl.xanmod.org/artwork/assets
+## Set GRUB background, supported format *.png/*.jpg/*.jpeg
+GRUB_BACKGROUND=/boot/grub/xanmod-logo-2017.png
+
+## It is used to generate more informative menu entry titles
+GRUB_DISTRIBUTOR=$(lsb_release -is 2> /dev/null || echo 'GNU/Linux')
+
+## The default boot menu entry, can hold one of following values
+## - The special string 'saved' collaborate with GRUB_SAVEDEFAULT
+## - N(zero-based-number) is the Nth entry in the generated menus
+## Make currently selected menu entry as default for next bootup
+GRUB_DEFAULT=saved
+GRUB_SAVEDEFAULT=true
+## Make the first entry menu as the default boot entry
+#GRUB_DEFAULT=0
+#GRUB_SAVEDEFAULT=false
+
+## The timeout seconds before boot the default menu entry
+## -1  waiting for user operation indefinitely
+##  0  boot immediately without displaying menu
+GRUB_TIMEOUT=6
+## menu   - GRUB_TIMEOUT is counted after  menu is displayed
+## hidden - GRUB_TIMEOUT is counted before menu is displayed
+GRUB_TIMEOUT_STYLE=menu
+
+## Disable generation of memory-test boot menu entries
+GRUB_DISABLE_MEMTEST=false
+## When false or not set, each kernel will generate two menus
+## one entry for normal-boot and one entry for recovery modes
+GRUB_DISABLE_RECOVERY=false
+## If your computer has multiple operating systems installed,
+## then you probably want to add GRUB boot menu entries for them.
+GRUB_DISABLE_OS_PROBER=false
+
+## NOTE kernel don't understand root=UUID or root=PARTUUID
+## Make GRUB do not pass "root=UUID=..." parameter to kernel
+GRUB_DISABLE_LINUX_UUID=false
+## Make GRUB do not pass "root=PARTUUID=..." parameter to kernel
+GRUB_DISABLE_LINUX_PARTUUID=true
+
+## NOTE About linux kernel command-line parameters
+##   Show current running kernel parameters by `cat /proc/cmdline`
+##     参数顺序 ... GRUB_CMDLINE_LINUX GRUB_CMDLINE_LINUX_DEFAULT ...
+##   GRUB_CMDLINE_LINUX_DEFAULT will add only to the normal-boot entries
+## https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
+
+## gpu-manager - Ubuntu Hybrid Graphic Card Manager
+## https://github.com/canonical/ubuntu-drivers-common/tree/master/share/hybrid
+GRUB_CMDLINE_LINUX="" # nogpumanager
+## quiet   kernel start-up parameter, disable most log messages
+## splash  causes boot screen to be shown, it's NOT kernel option
+GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"

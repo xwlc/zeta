@@ -4,7 +4,7 @@
 # SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
 # Created By: Charles Wong 2024-04-30T09:39:38+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
-# Copy to /etc/grub.d/01-grub-theme
+# Copy to /etc/grub.d/02-grub-themes
 set -e
 
 grub_errs() { echo "ERRS: $@" >&2; }

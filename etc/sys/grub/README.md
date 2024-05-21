@@ -9,18 +9,16 @@ depending on the position you want the entries to occupy in the generated menus.
 Run command `apt-file search /etc/grub.d/` to show orginal default hook-scripts.
 
 - 0[0-9]-*: GRUB reserved
-  * `00-grub-header`
-  * `01-grub-theme`
+  * `00-grub-common`
+  * `01-grub-header`
+  * `02-grub-themes`
 
 - 1[0-9]-*: The OS boot entries
-  * `10-prober-os`
-  * `11-prober-linux`
-  * `12-prober-linux-xen`
-  * `13-prober-linux-zfs`
+  * `10-prober-windows`
+  * `11-prober-macos`
+  * `12-prober-linux`
 
 - 2[0-9]-*: Third party apps/utils
+  * `20-bios-firmware`
   * `20-uefi-firmware`
-  * `21-util-memtest86`
-
-- 3[0-9]-*:
-  * `30-custom`
+  * `21-util-memtests`

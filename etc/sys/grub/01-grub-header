@@ -4,37 +4,17 @@
 # SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
 # Created By: Charles Wong 2024-04-30T09:39:38+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
-# Copy to /etc/grub.d/00-grub-header
-set -e
+# Copy to /etc/grub.d/01-grub-header
 
-prefix="/usr"
-exec_prefix="/usr"
-datarootdir="/usr/share"
-
-quick_boot="1"
-grub_lang=$(echo ${LANG} | cut -d . -f 1)
-grubdir="$(echo "/boot/grub" | sed 's,//*,/,g')"
-
-export TEXTDOMAIN=grub
-export TEXTDOMAINDIR="${datarootdir}/locale"
-
-grub_errs() { echo "ERRS: $@" >&2; }
-grub_info() { echo "INFO: $@" >&2; }
-
-# => ${pkgdatadir}/grub-mkconfig_lib
-# The helper library for grub-mkconfig
-if [ -f /usr/lib/grub/grub-mkconfig_lib ]; then
-  .  /usr/lib/grub/grub-mkconfig_lib
-elif [ -f /usr/share/grub/grub-mkconfig_lib ]; then
-  .  /usr/share/grub/grub-mkconfig_lib
+if [ -f /etc/grub.d/00-grub-common ]; then
+  .  /etc/grub.d/00-grub-common
 else
-  # no grub file, so we notify and exit gracefully
-  grub_errs "Can not find grub-mkconfig helper library file, exiting."
+  echo "ERROR: not found /etc/grub.d/00-grub-common, nothing changed." >&2
   exit 0
 fi
 
 # Do this as early as possible, since other commands might depend on it.
-# (e.g. the `loadfont' command might need lvm or raid modules)
+# For example, the `loadfont` command might need 'lvm' or 'raid' modules.
 for i in ${GRUB_PRELOAD_MODULES}; do
   echo "insmod ${i}"
 done
@@ -47,6 +27,18 @@ if [ "x${GRUB_GFXMODE}" = "x" ]; then GRUB_GFXMODE=auto; fi
 if [ "x${GRUB_DEFAULT_BUTTON}" = "x" ]; then GRUB_DEFAULT_BUTTON="${GRUB_DEFAULT}"; fi
 if [ "x${GRUB_DEFAULT_BUTTON}" = "xsaved" ]; then GRUB_DEFAULT_BUTTON='${saved_entry}'; fi
 if [ "x${GRUB_TIMEOUT_BUTTON}" = "x" ]; then GRUB_TIMEOUT_BUTTON="${GRUB_TIMEOUT}"; fi
+
+
+# save_selected_menu
+#####################=================================
+
+prefix="/usr"
+exec_prefix="/usr"
+datarootdir="/usr/share"
+
+quick_boot="1"
+grub_lang=$(echo ${LANG} | cut -d . -f 1)
+grubdir="$(echo "/boot/grub" | sed 's,//*,/,g')"
 
 cat << EOF
 if [ -s \${prefix}/grubenv ]; then
