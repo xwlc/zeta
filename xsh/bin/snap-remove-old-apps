@@ -1,9 +1,14 @@
 #!/usr/bin/env bash
 
+set -eu
+
+function has-cmd() {  command -v "$1" > /dev/null; }
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+no-cmd snap && exit 1
+
 # CLOSE ALL SNAPS BEFORE RUNNING THIS
 # NOTE Removes old revisions of snaps
-
-set -eu
 
 snap list --all | awk '/disabled/{print $1, $3}' |
 while read snapname revision; do

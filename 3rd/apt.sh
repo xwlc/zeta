@@ -104,6 +104,9 @@ no-cmd fzf && sudo apt install ${DRY_RUN} fzf
 # https://sourceforge.net/p/cppcheck
 no-cmd cppcheck && sudo apt install ${DRY_RUN} cppcheck
 
+# https://sourceware.org/elfutils
+# sudo apt install ${DRY_RUN} elfutils
+
 ######################
 # 手动下载/解压/配置 #
 ######################
