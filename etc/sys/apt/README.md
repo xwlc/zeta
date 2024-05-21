@@ -63,17 +63,18 @@
   * [查看指定源软件包的签名密钥](https://unix.stackexchange.com/questions/653279)
     - `file /var/lib/apt/lists/deb.xanmod.org_dists_releases_InRelease` 签名信息
     - `gpgv /var/lib/apt/lists/deb.xanmod.org_dists_releases_InRelease` 查看签名
-    - `gpg --no-default-keyring -k --keyring path/to/x.gpg` 查看 GnuPG 公钥信息
+    - `gpg --no-default-keyring --show-keys path/to/x.gpg` 查看 GnuPG 公钥信息
     ```bash
     for key in /usr/share/keyrings/*.gpg; do
       # -k,--list-public-keys; --with-subkey-fingerprint
-      echo ${key}; gpg -k --no-default-keyring --keyring ${key};
+      echo ${key}; gpg --no-default-keyring --show-keys ${key};
     done
     ```
 
 - [Latest Git](https://git-scm.com/download/linux)
 - [Beyond Compare](https://www.scootersoftware.com/download)
 - [Microsoft Edge](https://www.microsoft.com/en-us/edge/download?form=MA13FJ)
+
 - [XanMod](https://xanmod.org) Kernel [仓库](https://gitlab.com/xanmod)
   ```bash
   # 安装 LTS 内核版本(后续自动升级)

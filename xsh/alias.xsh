@@ -165,7 +165,7 @@ function ls-gpg-key() {
   # -k,--list-public-keys 和 --with-subkey-fingerprint
   case ${type} in
     short) gpg --show-keys "${key}" ;;
-     long) gpg --no-default-keyring -k --keyring "${key}" ;;
+     long) gpg --no-default-keyring --show-keys "${key}" ;;
         *) gpg --show-keys --with-colons "${key}" ;;
   esac
 }
