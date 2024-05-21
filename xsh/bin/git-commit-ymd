@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+# 同时重定向标准输出和标准错误
+# &> /dev/null         Bash/ZSH shortcut
+#  > /dev/null 2>&1    POSIX-compatible shell
+function is-inside-git-work-tree() {
+  no-cmd git && return 1
+  git rev-parse --is-inside-work-tree &> /dev/null
+}
+
+! is-inside-git-work-tree && exit 1
+
+if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
+  source "${XCOLORS}"
+else
+  exit 255
+fi
+
+MSG="$@"
+YMD="$(date '+%Y-%m-%d')"
+
+echo -n "Press $(@D9 Enter) confirm [$(@R3 ${YMD}): $(@G3 ${MSG})] "
+read confirm_commit
+[[ -n "${confirm_commit}" ]] && {
+  echo 'Skip Commit.'; exit 1
+}
+
+git commit -m "${YMD}: ${MSG}"

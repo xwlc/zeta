@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
-
 no-cmd apt && exit 1
 
 apt --dry-run autoremove

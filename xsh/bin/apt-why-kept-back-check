@@ -15,16 +15,14 @@
 THIS_DIR="$(dirname "$0")"
 THIS_FNAME="$(basename "$0")"
 
-function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
+no-cmd apt && exit 1
 
 if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
   source "${XCOLORS}"
 else
   exit 255
 fi
-
-no-cmd apt && exit 1
 
 NEW_VER=""; OLD_VER=""; IS_HOLD=""; IS_PHASED=""
 CACHE_LOG_OLD="${THIS_DIR}/${THIS_FNAME}-old.log"
