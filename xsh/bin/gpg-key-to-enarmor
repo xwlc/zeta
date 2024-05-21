@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+no-cmd gpg && exit 1
+[[ $# -eq 0 || ! -f "$1" ]] && exit 1
+
+MIME="$(file --mime "$1")"
+if [[ "$(echo "${MIME}" | cut -d' ' -f2)" != 'application/pgp-keys;' ]]; then
+  exit 2 # 不是 GPG 密钥文件
+fi
+
+# 原始文件非二进制格式(无需转换)
+[[ "$(echo "${MIME}" | cut -d'=' -f2)" != 'binary' ]] && exit 0
+
+gpg --output "auto-$1.asc" --enarmor "$1"
