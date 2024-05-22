@@ -211,15 +211,15 @@ alias ls-disk-block-size='stat -fc %s .' # 显示磁盘 Block Size 字节
 # ISO-8601 格式时间标签
 # -> date +'%F %T %z'              date +'%FT%T%Z'
 # -> date +'%Y-%m-%d %H:%M:%S %z'  date +'%Y-%m-%dT%H:%M:%S%Z'
-@zeta:xsh:no-cmd now && alias now=timestap-iso-8601-now
-function timestap-iso-8601-now() {
+@zeta:xsh:no-cmd now && alias now=timestamp-iso-8601-now
+function timestamp-iso-8601-now() {
   case "$1" in
-        date) date --iso-8601         ;; # 2023-12-29
-       hours) date --iso-8601=hours   ;; # 2023-12-29T05+08:00
-     minutes) date --iso-8601=minutes ;; # 2023-12-29T05:22+08:00
-     seconds) date --iso-8601=seconds ;; # 2023-12-29T05:22:46+08:00
-    compress) date '+%Y%m%d%H%M%S%z'  ;; # 20231229053537+0800
-           *) date --iso-8601=seconds ;;
+        date|d|D) date --iso-8601         ;; # 2023-12-29
+       hours|h|H) date --iso-8601=hours   ;; # 2023-12-29T05+08:00
+     minutes|m|M) date --iso-8601=minutes ;; # 2023-12-29T05:22+08:00
+     seconds|s|S) date --iso-8601=seconds ;; # 2023-12-29T05:22:46+08:00
+    compress|c|C) date '+%Y%m%d%H%M%S'    ;; # 20231229053537
+               *) date --iso-8601=seconds ;;
   esac
 }
 
