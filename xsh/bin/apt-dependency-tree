@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
+  source "${XCOLORS}"
+else
+  exit 255
+fi
+
+function no-cmd() { ! command -v "$1" > /dev/null; }
+no-cmd apt && exit 1
+
+if [[ $# -eq 0 ]]; then
+  echo "正向依赖 $(@D9 ${0##*/}) $(@R3 PKG)"
+  echo "逆向依赖 $(@D9 ${0##*/}) $(@R3 PKG) $(@G3 X)"
+  exit 1
+fi
+
+if [[ $# -eq 2 ]]; then
+  apt rdepends --recurse --installed "$1" # 逆向依赖
+else
+  apt  depends --recurse --installed "$1" # 正向依赖
+fi
