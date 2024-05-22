@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
 
 set -eu
 function no-cmd() { ! command -v "$1" > /dev/null; }

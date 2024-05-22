@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
+  source "${XCOLORS}"
+else
+  exit 255
+fi
+
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+# 同时重定向标准输出和标准错误
+# &> /dev/null         Bash/ZSH shortcut
+#  > /dev/null 2>&1    POSIX-compatible shell
+function is-inside-git-work-tree() {
+  no-cmd git && return 1
+  git rev-parse --is-inside-work-tree &> /dev/null
+}
+
+! is-inside-git-work-tree && exit 1
+
+DOT_GIT_DIR="$(git rev-parse --show-toplevel)/.git"
+echo "$(@G3 '(Meta)') $(@Y3 ${DOT_GIT_DIR})"
+
+function delete-meta-trash() {
+  echo "$(@R3 delete) $(@D9 "${DOT_GIT_DIR}/")$(@P3 $1)"
+
+  if [[ -f "${DOT_GIT_DIR}/$1" ]]; then
+    rm --force "${DOT_GIT_DIR}/$1"
+  elif [[ -d "${DOT_GIT_DIR}/$1" ]]; then
+    rm --force --recursive "${DOT_GIT_DIR}/$1"
+  fi
+}
+
+delete-meta-trash ORIG_HEAD
+delete-meta-trash FETCH_HEAD
+delete-meta-trash COMMIT_EDITMSG
+
+delete-meta-trash hooks/      # 仓库级 hooks 脚本
+delete-meta-trash logs/       # 本地 commit 历史记录
+delete-meta-trash branches/   # 历史遗留目录(已废弃)
+echo
+@D9 'delete all unreachable/trash objects then do compress'
+echo
+git gc --prune=now
+echo

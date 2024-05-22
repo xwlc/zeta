@@ -16,19 +16,5 @@ function is-inside-git-work-tree() {
 
 ! is-inside-git-work-tree && exit 1
 
-if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
-  source "${XCOLORS}"
-else
-  exit 255
-fi
-
-MSG="$@"
-YMD="$(date '+%Y-%m-%d')"
-
-echo -n "Press $(@D9 Enter) confirm [$(@R3 ${YMD}): $(@G3 ${MSG})] "
-read confirm_commit
-[[ -n "${confirm_commit}" ]] && {
-  echo 'Skip Commit.'; exit 1
-}
-
-git commit -m "${YMD}: ${MSG}"
+# 显示 commit-author 邮箱后缀排序(从少到多)
+git log --format='%ae' | sed 's/.*@//' | sort | uniq -c | sort -k1n | head

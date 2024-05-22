@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+function no-cmd() { ! command -v "$1" > /dev/null; }
+no-cmd dpkg && return 1
+
+if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
+  source "${XCOLORS}"
+else
+  exit 255
+fi
+
+if [[ $1 == "delete" ]]; then
+  dpkg -l | grep "^rc" | awk "{print \$2}" | sudo xargs dpkg --purge
+else
+  echo " => Use $(@D9 ${0##*/}) $(@R3 delete) to delete trash configurations."
+  dpkg -l | grep "^rc"
+fi

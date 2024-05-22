@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
+  source "${XCOLORS}"
+else
+  exit 255
+fi
+
+function no-cmd() { ! command -v "$1" > /dev/null; }
+no-cmd md5sum && exit 1
+
+[[ $# != 2 || ! -f "$1" || ! -f "$2" ]] && {
+  echo "Usage: $(@G3 is-file-md5-eq) path/to/$(@B3 file1) path/to/$(@Y3 file2)"
+  exit 1
+}
+
+hashA=$(md5sum "$1" | cut -d' ' -f1)
+[[ $? != 0 || -z "${hashA}" ]] && {
+  echo >&2 "Calculate $(@D9 md5) error for file $(@Y9 $1)"
+  exit 1
+}
+
+hashB=$(md5sum "$2" | cut -d' ' -f1)
+[[ $? != 0 || -z "${hashB}" ]] && {
+  echo >&2 "Calculate $(@D9 md5) error for file $(@Y9 $2)"
+  exit 1
+}
+
+if [[ "${hashA}" != "${hashB}" ]]; then
+  echo >&2 "The $(@D9 MD5)-hash $(@R3 not) equal for $(@G9 $1) and $(@Y9 $2)"
+  exit 1
+fi
+
+echo >&2 "The $(@D9 MD5)-hash $(@G3 equal) for $(@G9 $1) and $(@Y9 $2)"
+
+# NOTE 产生的哈希值位数越长, 其运行效率越慢, 其安全性越高, 其越不容易产生哈希碰撞
+# 散列算法 MD5, SHA1, SHA256(SHA-224,SHA-256,SHA-384,SHA-512,SHA-512/224,SHA-512/256)
+#
+# shasum --algorithm  1(默认)/224/256/384/512/512224/512256
+# md5sum    空文件 => ( 32字节字符串哈希值) d41d8cd98f00b204e9800998ecf8427e
+# sha1sum   空文件 => ( 40字节字符串哈希值) da39a3ee5e6b4b0d3255bfef95601890afd80709
+# sha224sum 空文件 => ( 56字节字符串哈希值) d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f
+# sha256sum 空文件 => ( 64字节字符串哈希值) e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+# sha384sum 空文件 => ( 98字节字符串哈希值) 38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b
+# sha512sum 空文件 => (128字节字符串哈希值) cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e

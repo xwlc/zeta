@@ -16,11 +16,6 @@ alias rm='rm -i'  ;   alias  ...='cd ../../'
 # 当前 shell 会话目录栈列表, 左起第一项(0)表示当前目录, 往后依次类推
 alias d='dirs -v'
 
-# Delete garbage objects(unreachable commits) & do objects compress
-alias git-delete-trash='git gc --prune=now'
-# 显示提交 commit 邮箱后缀排序(从少到多)
-alias git-show-statistics-ae="git log --format='%ae' | sed 's/.*@//' | sort | uniq -c | sort -k1n"
-
 # Show report message if two files are identical
 alias diff='diff --color=auto --report-identical-files'
 
@@ -149,10 +144,6 @@ function ls-dot-files() {
   fi
 }
 
-alias ls-x509-crt='openssl x509 -noout -text -in' # path/to/ca.crt 查看证书信息
-alias ls-x509-csr='openssl req  -noout -text -in' # path/to/ca.csr 查看签名请求
-alias ls-x509-crl='openssl crl  -noout -text -in' # path/to/ca.crl 查看注销列表
-
 function ls-gpg-key() {
   if [[ $# -eq 0 ]]; then
     gpg -k; return # 显示本地公钥
@@ -169,6 +160,10 @@ function ls-gpg-key() {
         *) gpg --show-keys --with-colons "${key}" ;;
   esac
 }
+
+alias ls-x509-crt='openssl x509 -noout -text -in' # path/to/ca.crt 查看证书信息
+alias ls-x509-csr='openssl req  -noout -text -in' # path/to/ca.csr 查看签名请求
+alias ls-x509-crl='openssl crl  -noout -text -in' # path/to/ca.crl 查看注销列表
 
 # 显示网址/域名的 HTTPS 证书链
 function ls-x509-https-cert-chain() {
@@ -210,16 +205,11 @@ alias ls-alt-selections="update-alternatives --get-selections"
 alias ls-disk-layout='lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID'
 alias ls-disk-block-size='stat -fc %s .' # 显示磁盘 Block Size 字节
 
-if @zeta:xsh:has-cmd dpkg; then
-  alias dpkg-ls-rc='dpkg -l | grep "^rc"'
-  alias dpkg-rm-rc='dpkg -l | grep "^rc" | awk "{print \$2}" | sudo xargs dpkg --purge'
-fi
-
 # ISO-8601 格式时间标签
 # -> date +'%F %T %z'              date +'%FT%T%Z'
 # -> date +'%Y-%m-%d %H:%M:%S %z'  date +'%Y-%m-%dT%H:%M:%S%Z'
-@zeta:xsh:no-cmd now && alias now=timestap-iso-8601
-function timestap-iso-8601() {
+@zeta:xsh:no-cmd now && alias now=timestap-iso-8601-now
+function timestap-iso-8601-now() {
   case "$1" in
         date) date --iso-8601         ;; # 2023-12-29
        hours) date --iso-8601=hours   ;; # 2023-12-29T05+08:00
@@ -228,44 +218,6 @@ function timestap-iso-8601() {
     compress) date '+%Y%m%d%H%M%S%z'  ;; # 20231229053537+0800
            *) date --iso-8601=seconds ;;
   esac
-}
-
-# NOTE 产生的哈希值位数越长, 其运行效率越慢, 其安全性越高, 其越不容易产生哈希碰撞
-# 散列算法 MD5, SHA1, SHA256(SHA-224,SHA-256,SHA-384,SHA-512,SHA-512/224,SHA-512/256)
-#
-# shasum --algorithm  1(默认)/224/256/384/512/512224/512256
-# md5sum    空文件 => ( 32字节字符串哈希值) d41d8cd98f00b204e9800998ecf8427e
-# sha1sum   空文件 => ( 40字节字符串哈希值) da39a3ee5e6b4b0d3255bfef95601890afd80709
-# sha224sum 空文件 => ( 56字节字符串哈希值) d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f
-# sha256sum 空文件 => ( 64字节字符串哈希值) e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
-# sha384sum 空文件 => ( 98字节字符串哈希值) 38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da274edebfe76f65fbd51ad2f14898b95b
-# sha512sum 空文件 => (128字节字符串哈希值) cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e
-
-function is-file-md5-eq() {
-  [[ $# != 2 || ! -f "$1" || ! -f "$2" ]] && {
-    echo "Usage: $(@G3 is-file-md5-eq) path/to/$(@B3 file1) path/to/$(@Y3 file2)"
-    return
-  }
-
-  local hashA hashB
-  hashA=$(md5sum "$1" | cut -d' ' -f1)
-  [[ $? != 0 || -z "${hashA}" ]] && {
-    echo >&2 "Calculate $(@D9 md5) error for file $(@Y9 $1)"
-    return 1
-  }
-
-  hashB=$(md5sum "$2" | cut -d' ' -f1)
-  [[ $? != 0 || -z "${hashB}" ]] && {
-    echo >&2 "Calculate $(@D9 md5) error for file $(@Y9 $2)"
-    return 1
-  }
-
-  if [[ "${hashA}" != "${hashB}" ]]; then
-    echo >&2 "The $(@D9 MD5)-hash $(@R3 not) equal for $(@G9 $1) and $(@Y9 $2)"
-    return 1
-  fi
-
-  echo >&2 "The $(@D9 MD5)-hash $(@G3 equal) for $(@G9 $1) and $(@Y9 $2)"
 }
 
 alias to-upper1='@zeta:xsh:to-upper1'
