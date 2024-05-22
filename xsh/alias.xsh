@@ -196,6 +196,9 @@ function ls-x509-skid-ed25519() {
   openssl x509 -noout -pubkey -in $1 | openssl asn1parse -strparse 9 -noout -out - | openssl dgst -c -sha1
 }
 
+# 列表格式化显示 /etc/passwd
+alias ls-etc-passwd='column -t -s : /etc/passwd'
+
 # 显示系统配置的默认应用程序及相关库文件
 alias ls-alt-selections="update-alternatives --get-selections"
 
