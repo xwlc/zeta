@@ -1,4 +1,4 @@
-# Awesome & Memo
+# Awesome Application & Library
 
 - https://github.com/durgeshsamariya/awesome-github-profile-readme-templates
 - 首次运行 `sudo` 成功后创建 `~/.sudo_as_admin_successful` 文件, `man sudo_root`

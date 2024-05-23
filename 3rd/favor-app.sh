@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
+function has-cmd() {  command -v "$1" > /dev/null; }
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
 if [[ "$1" != "INSTALL" ]]; then
   DRY_RUN='--dry-run'
 fi
-
-function has-cmd() {  command -v "$1" > /dev/null; }
-function no-cmd() { ! command -v "$1" > /dev/null; }
 
 # apt show gcc clang
 # apt search ^gcc-[0-9][0-9]$
