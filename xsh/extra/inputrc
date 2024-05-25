@@ -1,0 +1,274 @@
+# SPDX-License-Identifier: Apache-2.0+ OR GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2023 Charlie WONG <charlie-wong@outlook.com>
+# Created By: Charlie WONG 2023-12-22T21:04:48+08:00 Asia/Shanghai
+# Repository: https://github.com/charlie-wong/charlie-wong
+
+# Configuration of key bindings for readline library, which is
+# used in all linux console to read input, see `man 3 readline`
+
+# 加载系统默认设置
+$include /etc/inputrc
+
+# NOTE Readline 按键序列绑定语法
+# =>Emacs-flavor
+#   \C-  Ctrl       \e  Escape Char   \"  双引号
+#   \M-  Meta       \\  Backslash     \'  单引号
+# =>\a   Bell       \d  Delete        \n  Newline
+#   \b   Backspace  \f  Form feed     \r  Carriage return
+#   \t   Hor tab    \nnn    八进制, 1~3个数字
+#   \v   Ver Tab    \xHH  十六进制, 1~2个数字
+#
+# ->键盘左侧 Alt 键 [通常] 被设置为 Meta 键
+# ->键盘右侧 Alt 键 [可能] 被设置为 Compose 键
+# \C-X      表示 Ctrl + X
+# \C-X\C-Y  表示 Ctrl + X + Y
+# \e\C-Y    表示 Ctrl + Alt + Y
+
+# NOTE ASCII 不可显示控制字符的 Caret-Notation 标记
+#      参见 doc/terminal/caret-notation.txt
+# -> Caret-Notation 标记形式, 即  ^大写字母  形式
+# -> `man ascii` 左侧 0 ~ 63 号字符, 右侧 64 ~ 127 号字符
+# -> 0 ~ 63 区间内控制字符翻转其二进制表示的左起第3位得到可显示大写字符
+# -> DEL 0x7F= 0111 1111 翻转左起第2位 => 0011 1111 -> ?
+# 注意: 当前 `cat -vte` 显示换行符 \n 时 使用 $ 标记, 而非 ^J
+
+# NOTE 当前终端转移序列 `infocmp -L1 > terminfo.log`
+# - ECMA-48 CSI 转移序列开始标志: ESC [  => \e[
+# - VT100  模式 转移序列开始标志: ESC O  => \eO
+# NOTE 查看按键转移序列: 执行 `showkeys -a` 命令后按键
+#
+# NOTE 当前文件有效设置语法 `set RlVarName Value`
+# - RlVarName 是 boolean 类型时, 启用若 Value 的值等于
+#   null or empty, on(不区分大小写), 1
+#   Value 之后添加 # 注释是合法有效的
+# - RlVarName 非布尔类型时, Value 之后不能出现 # 注释
+#
+# 显示当前变量名及其值 `bind -V`
+# 显示当前按键绑定设置 `bind -P`
+# - VI插入 & VI命令 两种模式下按键绑定不同!
+
+## NOTE This comes first, it will setup bind keys and other stuff
+## set it first here, thus the following setting will take effect
+set editing-mode vi
+
+## Allow UTF-8 input/output, instead of showing stuff like $'\0456'
+## Both three dependent on LC_CTYPE, and may change if locale changed
+set input-meta   on  # do not clear the 8-bit in characters
+set output-meta  on  # display chars with 8-bit set directly
+set convert-meta off # no convert characters with 8-bit set
+
+## NOTE Arrow Keys Codes
+## /usr/share/doc/bash/inputrc.arrows
+
+## Try to enable the application keypad when it is called
+#set enable-keypad on
+
+## Controls what happens when Readline wants to ring the terminal bell.
+## none     - never ring the bell
+## visible  - use visible bell if available
+## audible  - try to ring the bell, default
+set bell-style visible
+
+## 关于 Tab 补全
+## - 按 Tab 一次则仅尝试 partially complete 当前单词, 失败不显示任何东西
+## - 若一次 Tab 补全失败, 则两次连续的 Tab 按键则显示所有可能的补全内容
+#set show-all-if-unmodified on  # 按一次 Tab 键即显示所有可能的补全内容
+set show-all-if-ambiguous on    # 按一次 Tab 键执行两种内置补全策略
+## Make sure do not expand `~` to abs-path when completing
+set expand-tilde off
+## Case-insensitive completion, `cd ~/dow<Tab> => cd ~/Downloads/`
+set completion-ignore-case on
+## 补全目录名时末尾追加 /
+set mark-directories on
+## 补全指向目录的符号链接时末尾追加 /
+set mark-symlinked-directories on
+## The completion display columns
+set completion-display-width 120
+## Colored completions use LS_COLORS
+set colored-stats on
+## Color the common prefix, user typed chars
+set colored-completion-prefix on
+## Do not complete hidden files unless pattern explicitly begins with a dot
+set match-hidden-files off
+## Uses internal more-like pager to display
+set page-completions on
+## If has more than 50 possible completions, ask to show them all
+set completion-query-items 50
+## - Be more intelligent by also respect to text after the cursor.
+## - Active only when performing completion in the middle of a word.
+## - If current word match candidate, just move cursor, no duplicated.
+## For example, if enable, and the cursor just after letter `f` in the
+## word `Makefile`, and then press Tab, we got `Makefile` with cursor at
+## the end of `Makefile`, instead of `Makefileile` with `ile` after cursor.
+set skip-completed-text on
+
+## Make sure do not run any pasted text as commands
+set enable-bracketed-paste on
+
+# default for vi editing-mode
+# Ctrl + N => "\C-n": menu-complete
+# Ctrl + P => "\C-p": menu-complete-backward
+
+$if mode=vi
+  # Mode Prompt Indicator
+  set show-mode-in-prompt on
+  # 命令模式: 红色 [C]
+  set vi-cmd-mode-string  \1\e[90m\2[\1\e[31m\2C\1\e[90m\2]\1\e[0m\2
+  # 插入模式: 绿色 [I]
+  set vi-ins-mode-string  \1\e[90m\2[\1\e[32m\2I\1\e[90m\2]\1\e[0m\2
+
+  # Alt+字母  \e字母(区分大小写)
+  #
+  # F1 \eOP   F5 \e[15~    F9 \e[20~   方向上 \e[A   回车键 \eOM
+  # F2 \eOQ   F6 \e[17~   F10 \e[21~   方向下 \e[B
+  # F3 \eOR   F7 \e[18~   F11 \e[23~   方向左 \e[D
+  # F4 \eOS   F8 \e[19~   F12 \e[24~   方向右 \e[C
+
+  ############################
+  # VI [插入] 模式组合键动作 #
+  ############################
+  set keymap vi-insert
+
+  # Alt+Q 终止当前 Readline 操作
+  "\eq": abort
+  # Alt+A 选择当前候选项
+  "\ea": accept-line
+
+  # -> 使用 Alt+A 选择当前候选项而非直接执行
+  # -> 若直接按 Enter 键则当前候选命令会直接执行!!
+  # Alt+R [向后]搜索匹配(输入关键字)历史, 后续每次触发[向后]匹配一次
+  "\er": reverse-search-history
+  # Alt+S [向前]搜索匹配(输入关键字)历史, 后续每次触发[向前]匹配一次
+  "\es": forward-search-history
+
+  # VT100 方向键
+  "\eOA": history-search-backward
+  "\eOB": history-search-forward
+  "\eOC": forward-char
+  "\eOD": backward-char
+  # 方向键
+  "\e[A": history-search-backward
+  "\e[B": history-search-forward
+  "\e[C": forward-char
+  "\e[D": backward-char
+  # Ctrl + 方向键
+  "\e[1;5A": previous-history
+  "\e[1;5B": next-history
+  "\e[1;5C": forward-word
+  "\e[1;5D": backward-word
+
+  # PageUp 和 PageDown
+  "\e[5~": previous-history
+  "\e[6~": next-history
+
+  #      Home键  \e[H
+  # Ctrl+Home键  \e[1;5H
+  "\eOH": beginning-of-line
+  "\e[H": beginning-of-line
+  "\e[1;5H": backward-kill-line
+
+  #      End键  \e[F
+  # Ctrl+End键  \e[1;5F
+  "\eOF": end-of-line
+  "\e[F": end-of-line
+  "\e[1;5F": kill-line
+
+  #      Back键  \C-?
+  # Ctrl+Back键  \C-H
+  "\C-?": backward-delete-char
+  "\C-H": backward-kill-word
+
+  #      Del键   \e[3~
+  # Ctrl+Del键   \e[3;5~
+  "\e[3~": delete-char
+  "\e[3;5~": forward-kill-word
+
+  ############################
+  # VI [命令] 模式组合键动作 #
+  ############################
+  # 三者等同 vi, vi-move, vi-command
+  set keymap vi-command
+
+  # Alt+Q 终止当前 Readline 操作
+  "\eq": abort
+  # Alt+A 选择当前候选项
+  "\ea": accept-line
+
+  # -> 使用 Alt+A 选择当前候选项而非直接执行
+  # -> 若直接按 Enter 键则当前候选命令会直接执行!!
+  # Alt+R [向后]搜索匹配(输入关键字)历史, 后续每次触发[向后]匹配一次
+  "\er": reverse-search-history
+  # Alt+S [向前]搜索匹配(输入关键字)历史, 后续每次触发[向前]匹配一次
+  "\es": forward-search-history
+
+  # VT100 方向键
+  "\eOA": history-search-backward
+  "\eOB": history-search-forward
+  "\eOC": forward-char
+  "\eOD": backward-char
+  # 方向键
+  "\e[A": history-search-backward
+  "\e[B": history-search-forward
+  "\e[C": forward-char
+  "\e[D": backward-char
+  # Ctrl + 方向键
+  "\e[1;5A": previous-history
+  "\e[1;5B": next-history
+  "\e[1;5C": forward-word
+  "\e[1;5D": backward-word
+
+  # PageUp 和 PageDown
+  "\e[5~": previous-history
+  "\e[6~": next-history
+
+  #      Home键  \e[H
+  # Ctrl+Home键  \e[1;5H
+  "\eOH": beginning-of-line
+  "\e[H": beginning-of-line
+  "\e[1;5H": backward-kill-line
+
+  #      End键  \e[F
+  # Ctrl+End键  \e[1;5F
+  "\eOF": end-of-line
+  "\e[F": end-of-line
+  "\e[1;5F": kill-line
+
+  #      Back键  \C-?
+  # Ctrl+Back键  \C-H
+  "\C-?": backward-delete-char
+  "\C-H": backward-kill-word
+
+  #      Del键   \e[3~
+  # Ctrl+Del键   \e[3;5~
+  "\e[3~": delete-char
+  "\e[3;5~": forward-kill-word
+
+  # 快速清屏: 命令模式下 cs, 插入模式 c+Enter
+  "cs": clear-screen
+
+  #$if term=xterm
+  #$endif
+
+  #$if term=rxvt
+  #$endif
+$endif
+
+# -> Zsh use ZLE module instead of the GNU Readline
+# NOTE Bash search order, use the first one found
+# -> ${HOME}/.inputrc > /etc/inputrc
+
+# NOTE 参考链接
+# Bash Manual =>  8.3 Readline Init File
+# https://wiki.archlinux.org/title/Readline
+# https://datacadamia.com/lang/bash/edition/inputrc
+# https://man7.org/linux/man-pages/man3/readline.3.html
+#
+# https://ss64.com/bash/bind.html
+# https://datacadamia.com/lang/bash/edition/bind
+
+# 组合键修饰符码值
+# cat /usr/share/ibus/keymaps/modifiers
+# 29  左 Ctrl      97  右 Ctrl
+# 42  左 Shift     54  右 Shift
+# 56  左 Alt       100 右 Alt
+# 125 左 Super     126 右 Super     127 Menu

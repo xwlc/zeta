@@ -1,0 +1,14 @@
+# Ignore Everything
+*
+# Except .gitignore
+!.gitignore
+
+# ~/.local/share/fonts
+#
+# $ 7z l SarasaMonoSC-TTF-1.0.10.7z # 显示压缩包文件列表
+# $ 7z e SarasaTermSC-TTF-1.0.10.7z SarasaTermSC-Regular.ttf
+#
+# 预览 https://typeof.net/Iosevka
+# 镜像 https://mirrors.tuna.tsinghua.edu.cn/github-release/be5invis
+# https://github.com/be5invis/Iosevka/blob/main/doc/PACKAGE-LIST.md
+# https://github.com/be5invis/Sarasa-Gothic/blob/main/README.zh_CN.md
