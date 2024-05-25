@@ -84,7 +84,7 @@ function zeta@admin:mount-ntfs() {
 }
 
 function admin-eject-usb-disk() {
-  if ! command -v udisksctl > /dev/null; then
+  if @zeta:xsh:no-cmd udisksctl; then
     echo "$(@R3 udisksctl) command NOT found, exit."
     return 1
   fi
@@ -267,7 +267,7 @@ function admin-rm-all-system-logs() {
 }
 
 function admin-clean-system-trash() {
-  if command -v apt > /dev/null; then
+  if @zeta:xsh:has-cmd apt; then
     sudo apt autoclean # 删除无用包缓存 man apt-get
     sudo apt autoremove # 删除自动安装的不再需要的软件包
     if dpkg -l | grep '^rc'; then # 清理软件卸载后残留的配置文件

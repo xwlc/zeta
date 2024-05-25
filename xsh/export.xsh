@@ -10,9 +10,9 @@ source "${ZETA_DIR}/3rd/switch-to.xsh"
 export GPG_TTY=$(tty)
 
 # 优先级: GIT_EDITOR > core.editor > VISUAL > EDITOR > Git 编译时指定默认值 vi
-if command -v nvim > /dev/null; then
+if @zeta:xsh:has-cmd nvim; then
   export VISUAL=nvim
-elif command -v nano > /dev/null; then
+elif @zeta:xsh:has-cmd nano; then
   export VISUAL=nano
 fi
 
