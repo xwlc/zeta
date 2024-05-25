@@ -88,7 +88,7 @@
   # git 命令分页器，git 显示大段内容时进行分页展示
   # core.pager 分页器全局设置, pager.<cmd> 分页器子命令设置
   # 优先级: GIT_PAGER > core.pager > PAGER > 默认值 less
-  pager = less --no-init --quit-if-one-screen --RAW-CONTROL-CHARS
+  pager = less --quit-if-one-screen --RAW-CONTROL-CHARS --tabs=2
 # pager = "ov --quit-if-one-screen"
 
   # A comma separated list of common whitespace problems, prefix - to disable
@@ -100,33 +100,37 @@
   #   tab-in-indent         treat tab in initial indent part of line as an error
   #   indent-with-non-tab   treat indented with space instead of tabs as an error
   #   tabwidth=<n>          how many chars positions a tab occupies, default is 8
-  # whitespace=             default configuration values are OK
+  # whitespace=             默认配置很好
+
+# 交互式选择性添加 patch hunks(补丁块) git add --patch
+[interactive]
+  diffFilter = "diff-so-fancy --patch"
 
 # NOTE GIT_PAGER 覆盖 pager.<cmd> 配置
 [pager]
-  show = "ov -F --header 3"
-  diff = "ov -F --section-delimiter '^diff' --section-header"
+  show = "diff-so-fancy | ov -F --header 3"
   log  = "ov -F --section-delimiter '^commit' --section-header-num 3"
+  diff = "diff-so-fancy | ov -F --section-delimiter '^◯' --section-header-num 1"
 
-# => The Color Attributes
-# bold, dim, ul, blink, reverse, italic, strike
-# NOTE Attributes may be turned off by prefixing them with `no` or `no-`
+# NOTE => The Color Attributes
+#   bold, dim, ul, blink, reverse, italic, strike
+# Attributes may be turned off by prefixing them with `no` or `no-`
 #
-# => The Basic Colors
-# normal, black, red, green, yellow, blue, magenta, cyan, white, default
-# NOTE `normal` makes no change to the color, equivalent empty string
-# NOTE `default` explicitly resets the color to the terminal default
-# NOTE `reset` resets all colors and attributes before applying specified ones
-# NOTE except `normal` & `default`, others have bright variant, like 'brightred'
-# => Modern Terminal Colors
-# NOTE if terminal support 24-bit RGB(truecolor), html color codes is valid
-# NOTE if terminal support ANSI 256-color Mode, valid numbers between 0 and 255
+# NOTE => The Basic Colors
+#   black, red, green, yellow, blue, magenta, cyan, white
+#   normal   占位符号(常规格式)
+#   default  显示恢复终端默认格式    reset  重置全部的颜色及属性
+# 除 normal 和 default 外, 其它值有 bright 变体, 例如 brightred
+#
+# NOTE => Modern Terminal Colors
+#   if terminal support 24-bit RGB(truecolor), html color codes is valid
+#   if terminal support ANSI 256-color Mode, valid numbers between 0 and 255
 [color]
   # The default value for variables such as color.diff and color.grep
   # always      => not intended for machine consumption, all output use color
   # false/never => prefer git cmds not to use color unless enabled explicitly
   # true/auto   => prefer all to use color when written to terminal, default
-  ui = auto
+  ui = true
 
 # The attributes can have as many as you want, separated by spaces
 # The first color(argument) is foreground, and second is background if has
@@ -140,12 +144,25 @@
   remote = green
   current = blue reverse
 
+# https://talyian.github.io/ansicolors
+# https://ss64.com/nt/syntax-ansi.html
+
 [color "diff"]
-  old = red bold
-  new = green bold
-  meta = blue bold
-  frag = yellow bold
-  whitespace = magenta reverse
+  context    = 243           # 上下文(未修改行)        深灰色
+  meta       = yellow   bold # 文件名
+  commit     = yellow   bold # 补丁 commit header
+  frag       = 205   reverse # 修改位置/行号           粉红色
+  func       = cyan  reverse # 修改位置/未改部分
+  old        = red      bold # <修改前>内容
+  new        = green    bold # <修改后>内容
+  whitespace = red  reverse # 高亮空白字符错误
+
+# https://github.com/so-fancy/diff-so-fancy 专用差异颜色设置
+[color "diff-highlight"]
+  oldNormal    = red    bold     # <修改前>内容
+  oldHighlight = blue   reverse  # 高亮<修改前>差异
+  newNormal    = green  bold     # <修改后>内容
+  newHighlight = blue   reverse  # 高亮<修改后>差异
 
 [diff]
   tool = xcompare

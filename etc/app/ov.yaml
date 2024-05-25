@@ -1,25 +1,38 @@
 # Feature Rich Terminal Pager => https://github.com/noborus/ov
-# The configuration in descending order(first found one is valid)
+# => 按键绑定配置文件 $ ov --config ov.yaml ...
+# => 从上到下依次查找, 应用首先发现的存在的配置文件
 # => Linux                            => Windows
 # $XDG_CONFIG_HOME/ov/config.yaml     %USERPROFILE%/.config/ov/config.yaml
 # $HOME/.config/ov/config.yaml        %USERPROFILE%/.ov.yaml
 # $HOME/.ov.yaml
-# => 命令行执行按键绑定配置文件 $ ov --config ov.yaml ...
 
-# CaseSensitive: false
-# SmartCaseSensitive: false
-# RegexpSearch: false
-# Incsearch: true
-# BeforeWriteOriginal: 1000
-# AfterWriteOriginal: 0
-# MemoryLimit: 10000
-# Prompt:
-#   Normal:
-#     ShowFilename: true
-#     InvertColor: true
+# ViewMode: markdown  # 默认设置
+Debug: false          # 调试模式
+
+# QuitSmall: false        # Quit if file size is smaller than terminal size.
+# IsWriteOriginal: false  # Write original content when exiting.
+# BeforeWriteOriginal: 0  # Write number of lines before current location when exiting.
+# AfterWriteOriginal: 0   # Write number of lines after  current location when exiting.
+
+# CaseSensitive: false      # 搜索时区分大小写
+SmartCaseSensitive: true    # 搜索时区分大小写(仅当搜索内容包含大写字母时)
+# RegexpSearch: false       # 是否启用正则搜索模式
+# Incsearch: true           # Incremental search
+
+# MemoryLimit: -1       # 可加载到内存中的最大行数
+# MemoryLimitFile: 100  # 可加载到内存中的最大行数(打开文件时)
+
+DisableMouse: false       # 禁用鼠标
+DisableColumnCycle: false # Disable cycling when moving columns.
+
+Prompt:
+  Normal:
+    ShowFilename: true    # 显示文件名
+    InvertColor: true     # 反转提示符颜色
+    ProcessOfCount: true  # 显示进度百分比
 
 General:
-  TabWidth: 4
+  TabWidth: 2
   Header: 0
   AlternateRows: false
   ColumnMode: false
@@ -28,8 +41,9 @@ General:
   ColumnDelimiter: ","
   MarkStyleWidth: 1
 
-# Color Name String: Foreground, Background
-# Boolean: Bold, Blink, Dim, Italic, Underline
+# 颜色风格
+#   设置<字体/背景>颜色名 Foreground, Background
+#   布尔值   Bold, Blink, Dim, Italic, Underline
 StyleAlternate:
   Background: "gray"
 StyleHeader:
@@ -59,14 +73,12 @@ StyleMultiColorHighlight:
 StyleJumpTargetLine:
   Underline: true
 
-# Special Key
-#   "F1...F64", "Delete", "Insert"
-#   "Up", "Down", "Left", "Right", "Home", "End"
-#   "Enter", "Backspace", "Tab", "Backtab", "Esc"
-# Modifier Key
-#   "ctrl", "alt", "meta", "shift"
-# 组合按键
-#   "ctrl+c"
+# 快捷键设置
+#   F1...F64, Delete, Insert
+#   Up, Down, Left, Right, Home, End
+#   Enter, Backspace, Tab, Backtab, Esc
+# 修饰按键
+#   alt, ctrl, shift, meta
 KeyBind:
   exit:
     - "q"
@@ -82,11 +94,11 @@ KeyBind:
   sync:
     - "ctrl+l"
   reload:
-    - "F5"
     - "ctrl+alt+l"
+    - "F5"
   watch:
-    - "F4"
     - "ctrl+alt+w"
+    - "F4"
   watch_interval:
     - "ctrl+w"
   follow_mode:
@@ -103,14 +115,10 @@ KeyBind:
     - "ctrl+f2"
     - "ctrl+alt+e"
   down:
-    - "j"
-    - "J"
     - "Down"
     - "Enter"
     - "ctrl+n"
   up:
-    - "k"
-    - "K"
     - "Up"
     - "ctrl+p"
   top:
@@ -201,15 +209,11 @@ KeyBind:
     - "j"
 
 Mode:
-  Psql:
-    Header: 2
-    AlternateRows: true
-    ColumnMode: true
-    LineNumMode: false
+  markdown:
+    SectionDelimiter: "^#"
     WrapMode: true
-    ColumnDelimiter: "|"
-  Mysql:
-    Header: 3
+  psql:
+    Header: 2
     AlternateRows: true
     ColumnMode: true
     LineNumMode: false

@@ -2,27 +2,26 @@
 # up in the `author` and `committer` fields of commit objects
 [user]
   name  = "Charles Wong"
-  email = 1213charlie@163.com
-  email = 1213charlie@gmail.com
+  signingkey = 9A0B1E11A434FE86
+  email =  1213charlie@gmail.com
+  email =  1213charlie@163.com
+  email = charlie-xwlc@yandex.com
+  email = charlie-wong@mail.ru
   email = charlie-wong@foxmail.com
   email = charlie-wong@outlook.com
 
 [sendemail]
-  # Outlook SMTP Email Server
-  smtpServer = smtp.office365.com
-  smtpUser = charlie-wong@outlook.com
-  from = Charles Wong <charlie-wong@outlook.com>
-
   # Foxmail SMTP Email Server
   smtpServer = smtp.qq.com
   smtpUser = charlie-wong@foxmail.com
   from = Charles Wong <charlie-wong@foxmail.com>
 
-  # NOTE smtpPass => credential.helper
+  # Outlook SMTP Email Server
+  smtpServer = smtp.office365.com
+  smtpUser = charlie-wong@outlook.com
+  from = Charles Wong <charlie-wong@outlook.com>
 
-[user]
-  # gpg.program and gpg.format
-  signingkey = 9A0B1E11A434FE86
+  # NOTE smtpPass => credential.helper
 
 # https://git-scm.com/docs/git-config#_includes
 [include]

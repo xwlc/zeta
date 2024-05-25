@@ -64,6 +64,9 @@ for PKG in $(apt list --upgradable 2> /dev/null | grep / | cut -d/ -f1); do
     echo; continue
   fi
 
+  echo "Press $(@Y3 Enter) to skip, else others will $(@Y3 continue)"
+  read skip_to_next; [[ -z "${skip_to_next}" ]] && continue
+
   # => 原因四: 新版软件包依赖问题
   # https://www.baeldung.com/linux/apt-packages-kept-back
   # apt show <PKG>=<VERSION>
@@ -98,7 +101,7 @@ for PKG in $(apt list --upgradable 2> /dev/null | grep / | cut -d/ -f1); do
   echo; echo "=> 仔细检查软件包的依赖关系/版本/影响范围"
   echo "- 解决方式1 $(@G9 sudo apt install)   $(@C3 PKG)"
   echo "- 解决方式2 $(@G9 sudo apt-mark hold) $(@C3 PKG)"
-  echo "Press $(@G3 Enter) to continue, else other key-press will $(@R3 exit)"
+  echo "Press $(@Y3 Enter) to continue, else other key-press will $(@Y3 exit)"
   read enter_to_continue
   [[ -n "${enter_to_continue}" ]] && exit 0
 done
