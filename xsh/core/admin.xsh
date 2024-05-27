@@ -21,7 +21,7 @@ alias sudo-env-path='sudo env PATH=${PATH}'
 
 # https://docs.kernel.org/filesystems/vfat.html
 # https://docs.kernel.org/filesystems/ntfs3.html
-function zeta@admin:mount-partition() {
+function @zeta:admin:mount-partition() {
   local fstype=auto device="$2" mountpoint="$3" owner_only="$4" opts umask0077
   [[ -n "${owner_only}" ]] && umask0077=',umask=0077'
 
@@ -48,7 +48,7 @@ function zeta@admin:mount-partition() {
     --source "${device}" --target "${mountpoint}"
 }
 
-function zeta@admin:mount-ntfs() {
+function @zeta:admin:mount-ntfs() {
   local disk_label="$1" dir_name="$2" owner_only="$3" block_device
 
   block_device=$(realpath "/dev/disk/by-label/${disk_label}")
@@ -80,7 +80,7 @@ function zeta@admin:mount-ntfs() {
     chmod 0700 "${mount_point}"
   fi
 
-  zeta@admin:mount-partition NTFS ${block_device} "${mount_point}" "${owner_only}"
+  @zeta:admin:mount-partition NTFS ${block_device} "${mount_point}" "${owner_only}"
 }
 
 function admin-eject-usb-disk() {

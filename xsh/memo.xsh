@@ -50,7 +50,7 @@ function @zeta:memo:msgtj() {
   echo
 }
 
-function memo-date-time() {
+function memo-times() {
   echo
   @zeta:memo:msgrb Mon. 壹/一 Monday
   @zeta:memo:msgrb Tue. 贰/二 Tuesday
@@ -119,12 +119,12 @@ function memo-cultural() {
 
   local y01=" $(@G3 立春) " y02=" $(@G3 惊蛰) " y03=" $(@G3 清明) "
   local y04=" $(@R3 立夏) " y05=" $(@R3 芒种) " y06=" $(@R3 小暑) "
-  local y07=" $(@Y3 立秋) " y08=" $(@Y3 白露) " y09=" $(@Y3 寒露) "
+  local y07=" $(@B3 立秋) " y08=" $(@B3 白露) " y09=" $(@B3 寒露) "
   local y10=" $(@D9 立冬) " y11=" $(@D9 大雪) " y12=" $(@D9 小寒) "
 
   local z01=" $(@G3 雨水) " z02=" $(@G3 春分) " z03=" $(@G3 谷雨) "
   local z04=" $(@R3 小满) " z05=" $(@R3 夏至) " z06=" $(@R3 大暑) "
-  local z07=" $(@Y3 处暑) " z08=" $(@Y3 秋分) " z09=" $(@Y3 霜降) "
+  local z07=" $(@B3 处暑) " z08=" $(@B3 秋分) " z09=" $(@B3 霜降) "
   local z10=" $(@D9 小雪) " z11=" $(@D9 冬至) " z12=" $(@D9 大寒) "
 
   echo "┌────────────────────────────────────────────────────────────────────────────────────────┐"
@@ -146,8 +146,8 @@ printf "│         "
   echo "└────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘"
 }
 
-function memo-lunar-calendar-now() {
-  local YY YYgz MM MMgz DD
+function memo-lunar() {
+  local YY YYgz MM MMgz DD lcMM lcDD
   local hh hhN1 hhN2 hhN3 hhN4 hhN51 hhN52
   local mm mmN idx ss
   YY=$(date '+%Y'); MM=$(date '+%m'); DD=$(date '+%d')
@@ -165,51 +165,53 @@ function memo-lunar-calendar-now() {
 
   # 公元后年份的干支算法: 天干编号01-10，地支编号01-12
   # - 年份减 3 对 10 取余数即<天干>编号
-  (( idx = (YY -3)%10 )); [[ -n "${BASH_VERSION}" ]] && (( idx-- ))
-  YYgz="$(@G3 ${TianGan[${idx}]})"
-  MMgz=${YYgz} # 从年份的<天干>查表找月份<天干>
+  (( idx = (YY - 3)%10 )); [[ -n "${BASH_VERSION}" ]] && (( idx-- ))
+  YYgz="$(@G9 ${TianGan[${idx}]})"
+  MMgz=${TianGan[${idx}]} # 从年份的<天干>查表找月份<天干>
   # - 年份减 3 对 12 取余数即<地支>编号
-  (( idx = (YY -3)%12 )); [[ -n "${BASH_VERSION}" ]] && (( idx-- ))
+  (( idx = (YY - 3)%12 )); [[ -n "${BASH_VERSION}" ]] && (( idx-- ))
   YYgz="${YYgz}$(@R3 ${DiZhi[${idx}]})$(@Y3 ${ShengXiao[${idx}]})"
 
-  local gzjyFixed=( #  干支记月份表示法中月份的地支名称固定如下表
-    "寅"  "卯"  "辰"  "巳"  "午"  "未"  "申"  "酉"  "戌"  "亥"  "子"  "丑"
-  )
-
+  local gzJanIdx gzDayIdx
   # NOTE 月份的干支表示要用农历月份计算
+  lcMM=$(xcmd lunar-calendar -x | grep lcM | cut -d' ' -f3) # 农历月
+  lcDD=$(xcmd lunar-calendar -x | grep lcD | cut -d' ' -f3) # 农历日
+  # 甲/0  乙/1  丙/2  丁/3  戊/4  己/5  庚/6  辛/7  壬/8  癸/9  偏移
   case ${MMgz} in # 年份<天干> => 正月的起始<天干>
-    甲|己) MMgz= ;; # 正月<天干>起始于(丙)
-    乙|庚) ;; # 正月<天干>起始于(戊)
-    丙|辛) ;; # 正月<天干>起始于(庚)
-    丁|壬) ;; # 正月<天干>起始于(壬)
-    戊|癸) ;; # 正月<天干>起始于(甲)
+    甲|己) gzJanIdx=2 ;; # 正月<天干>起始于(丙)
+    乙|庚) gzJanIdx=4 ;; # 正月<天干>起始于(戊)
+    丙|辛) gzJanIdx=6 ;; # 正月<天干>起始于(庚)
+    丁|壬) gzJanIdx=8 ;; # 正月<天干>起始于(壬)
+    戊|癸) gzJanIdx=0 ;; # 正月<天干>起始于(甲)
   esac
+  (( idx = (lcMM + gzJanIdx)%10 )); [[ -n "${BASH_VERSION}" ]] && (( idx-- ))
+  MMgz="${TianGan[${idx}]}" # 月份的天干
 
-  case ${hh} in                         #   初        正
+  case ${hh} in                             #   初        正
     23|00) idx=0;  hhN3='夜半'; hhN4='三更' # 23:00 -> 00:00 -> 00:59
-      hhN51="困敦";   hhN52='混沌万物之初萌, 藏黄泉之下'   ;; # 子正
+      hhN51="困敦";   hhN52='混沌万物之初萌, 藏黄泉之下'   ;; # 子
     01|02) idx=1;  hhN3='鸡鸣'; hhN4='四更' # 01:00 -> 02:00 -> 02:59
-      hhN51="赤奋若"; hhN52='气运奋迅而起, 万物无不若其性' ;; # 丑正
+      hhN51="赤奋若"; hhN52='气运奋迅而起, 万物无不若其性' ;; # 丑
     03|04) idx=2;  hhN3='平旦'; hhN4='五更' # 03:00 -> 04:00 -> 04:59
-      hhN51="摄提格"; hhN52='万物承阳而起'                 ;; # 寅正
+      hhN51="摄提格"; hhN52='万物承阳而起'                 ;; # 寅
     05|06) idx=3;  hhN3='日出'; hhN4=''     # 05:00 -> 06:00 -> 06:59
-      hhN51="单阏";   hhN52='阳气推万物而起'               ;; # 卯正
+      hhN51="单阏";   hhN52='阳气推万物而起'               ;; # 卯
     07|08) idx=4;  hhN3='食时'; hhN4=''     # 07:00 -> 08:00 -> 08:59
-      hhN51="执徐";   hhN52='伏蛰之物, 而敷舒出'           ;; # 辰正
+      hhN51="执徐";   hhN52='伏蛰之物, 而敷舒出'           ;; # 辰
     09|10) idx=5;  hhN3='隅中'; hhN4=''     # 09:00 -> 10:00 -> 10:59
-      hhN51="大荒落"; hhN52='万物炽盛而出, 霍然落之'       ;; # 巳正
+      hhN51="大荒落"; hhN52='万物炽盛而出, 霍然落之'       ;; # 巳
     11|12) idx=6;  hhN3='日中'; hhN4=''     # 11:00 -> 12:00 -> 12:59
-      hhN51="敦牂";   hhN52='万物壮盛也'                   ;; # 午正
+      hhN51="敦牂";   hhN52='万物壮盛也'                   ;; # 午
     13|14) idx=7;  hhN3='日昳'; hhN4=''     # 13:00 -> 14:00 -> 14:59
-      hhN51="协洽";   hhN52='阴阳和合，万物化生'           ;; # 未正
+      hhN51="协洽";   hhN52='阴阳和合，万物化生'           ;; # 未
     15|16) idx=8;  hhN3='日晡'; hhN4=''     # 15:00 -> 16:00 -> 16:59
-      hhN51="涒滩";   hhN52='万物吐秀, 倾垂也'             ;; # 申正
+      hhN51="涒滩";   hhN52='万物吐秀, 倾垂也'             ;; # 申
     17|18) idx=9;  hhN3='日入'; hhN4=''     # 17:00 -> 18:00 -> 18:59
-      hhN51="作噩";   hhN52='万物皆芒枝起'                 ;; # 酉正
-    19|20) idx=10; hhN3='黄昏'; hhN4='一更' # 19:00 -> 20:00 -> 20:59
-      hhN51="阉茂";   hhN52='万物皆蔽冒也'                 ;; # 戌正
+      hhN51="作噩";   hhN52='万物皆芒枝起'                 ;; # 酉
+    19|20) idx=10; hhN3='日暮'; hhN4='一更' # 19:00 -> 20:00 -> 20:59
+      hhN51="阉茂";   hhN52='万物皆蔽冒也'                 ;; # 戌
     21|22) idx=11; hhN3='人定'; hhN4='二更' # 21:00 -> 22:00 -> 22:59
-      hhN51="大渊献"; hhN52='万物于天, 深盖藏也'           ;; # 亥正
+      hhN51="大渊献"; hhN52='万物于天, 深盖藏也'           ;; # 亥
   esac
 
   [[ -n "${ZSH_VERSION}" ]] && (( idx++ ))
@@ -222,20 +224,21 @@ function memo-lunar-calendar-now() {
   else                       mmN='四刻'
   fi
 
-  idx=${MM}; [[ -n "${BASH_VERSION}" ]] && (( idx-- ))
-  MMgz="$(@G3 x${MMgz}x)$(@Y3 ${gzjyFixed[${idx}]})"
+  local gzjyFixed=( #  干支记月份表示法中月份的地支名称固定如下表
+    "寅"  "卯"  "辰"  "巳"  "午"  "未"  "申"  "酉"  "戌"  "亥"  "子"  "丑"
+  )
 
-  echo "${YY}-${MM}-${DD}   ${YYgz}$(@D9 年)" #  - ${MMgz}$(@D9 月)
-  printf " ${hh}:${mm}:${ss}    "
-  @G9 ${hhN1}; @R9 ${hhN2}; @Y9 ${mmN}; printf " - "; @B9 ${hhN3}
-
+  idx=${lcMM}; [[ -n "${BASH_VERSION}" ]] && (( idx-- ))
+  MMgz="$(@G9 ${MMgz})$(@Y3 ${gzjyFixed[${idx}]})"
+  echo
+  echo "$(@G9 ${hhN51}) - $(@D9 "${hhN52}")"
+  echo
+  printf " ${hh}:${mm}:${ss}   $(@R3 ${hhN1})$(@G9 ${hhN2})$(@Y3 ${mmN}) - "
   if [[ -n "${hhN4}" ]]; then
-    printf "($(@D9 ${hhN4}))\n"
+    echo "$(@B9 ${hhN3})($(@D9 ${hhN4}))"
   else
-    echo
+    echo "$(@B9 ${hhN3})"
   fi
-
-  if (( hh%2 == 0 )); then
-    printf " $(@C9 %+6s)   $(@D9 "${hhN52}")\n" "${hhN51}"
-  fi
+  echo "${YY}-${MM}-${DD}  ${YYgz}$(@D9 年) - ${MMgz}$(@D9 月)"
+  echo
 }

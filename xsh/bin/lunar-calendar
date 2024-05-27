@@ -4,15 +4,19 @@
 // Created By: Charles Wong 2024-05-27T14:31:25+08:00 Asia/Shanghai
 // Repository: https://github.com/xwlc/zeta
 
-// 干支纪标记法以 60 为循环周期
-const Gan=[
+// 公历农历  https://www.wnl.cc
+// 北京时间  https://www.beijing-time.org
+
+// 十二时辰, 干支纪(日), 干支纪(月), 干支纪(年)
+// https://123.5ikfc.com/shichen
+
+const Gan=[ // 干支纪标记法以 60 为循环周期
   "甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"
 ];
 const Zhi=[
   "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"
 ];
 const Animals=[
-//"鼠", "牛", "虎", "兔", "龍", "蛇", "馬", "羊", "猴", "雞", "狗", "豬"
   "鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"
 ];
 const JieQi = [ // 数组索引编号从 0 开始, 小寒数字编号 01
@@ -232,70 +236,72 @@ function getSolarDaysOfMonth(Y, M) {
 function convTimeToGanZhi(hh, mm) {
   const SCT = {
     "00": { // 23:00 -> 00:00 -> 00:59
-      name: "子时", nick: "夜半", gen: "三更",
-      t1: { h: 23, n: "子初" }, t2: { h: 00, n: "子正" },
-      c: { n: "困敦", d: "混沌万物之初萌, 藏黄泉之下" }
+      name: "子", nick: "夜半", geng:"三更",
+      t1: { h: 23, n: "初" }, t2: { h: 00, n: "正" },
+      desc: { n: "困敦", d: "混沌万物之初萌, 藏黄泉之下" }
     },
     "02": { // 01:00 -> 02:00 -> 02:59
-      name: "丑时", nick: "鸡鸣", gen: "四更",
-      t1: { h: 01, n: "丑初" }, t2: { h: 02, n: "丑正" },
-      c: { n: "赤奋若", d: "气运奋迅而起, 万物无不若其性" }
+      name: "丑", nick: "鸡鸣", geng:"四更",
+      t1: { h: 01, n: "初" }, t2: { h: 02, n: "正" },
+      desc: { n: "赤奋若", d: "气运奋迅而起, 万物无不若其性" }
     },
     "04": { // 03:00 -> 04:00 -> 04:59
-      name: "寅时", nick: "平旦", gen: "五更",
-      t1: { h: 03, n: "寅初" }, t2: { h: 04, n: "寅正" },
-      c: { n: "摄提格", d: "万物承阳而起" }
+      name: "寅", nick: "平旦", geng:"五更",
+      t1: { h: 03, n: "初" }, t2: { h: 04, n: "正" },
+      desc: { n: "摄提格", d: "万物承阳而起" }
     },
     "06": { // 05:00 -> 06:00 -> 06:59
-      name: "卯时", nick: "日出", gen: "",
-      t1: { h: 05, n: "卯初" }, t2: { h: 06, n: "卯正" },
-      c: { n: "单阏", d: "阳气推万物而起" }
+      name: "卯", nick: "日出", geng:"",
+      t1: { h: 05, n: "初" }, t2: { h: 06, n: "正" },
+      desc: { n: "单阏", d: "阳气推万物而起" }
     },
     "08": { // 07:00 -> 08:00 -> 08:59
-      name: "辰时", nick: "食时", gen: "",
-      t1: { h: 07, n: "辰初" }, t2: { h: 08, n: "辰正" },
-      c: { n: "执徐", d: "伏蛰之物, 而敷舒出" }
+      name: "辰", nick: "食时", geng:"",
+      t1: { h: 07, n: "初" }, t2: { h: 08, n: "正" },
+      desc: { n: "执徐", d: "伏蛰之物, 而敷舒出" }
     },
     "10": { // 09:00 -> 10:00 -> 10:59
-      name: "巳时", nick: "隅中", gen: "",
-      t1: { h: 09, n: "巳初" }, t2: { h: 10, n: "巳正" },
-      c: { n: "大荒落", d: "万物炽盛而出, 霍然落之" }
+      name: "巳", nick: "隅中", geng:"",
+      t1: { h: 09, n: "初" }, t2: { h: 10, n: "正" },
+      desc: { n: "大荒落", d: "万物炽盛而出, 霍然落之" }
     },
     "12": { // 11:00 -> 12:00 -> 12:59
-      name: "午时", nick: "日中", gen: "",
-      t1: { h: 11, n: "午初" }, t2: { h: 12, n: "午正" },
-      c: { n: "敦牂", d: "万物壮盛也" }
+      name: "午", nick: "日中", geng:"",
+      t1: { h: 11, n: "初" }, t2: { h: 12, n: "正" },
+      desc: { n: "敦牂", d: "万物壮盛也" }
     },
     "14": { // 13:00 -> 14:00 -> 14:59
-      name: "未时", nick: "日昳", gen: "",
-      t1: { h: 13, n: "未初" }, t2: { h: 14, n: "未正" },
-      c: { n: "协洽", d: "阴阳和合，万物化生" }
+      name: "未", nick: "日昳", geng:"",
+      t1: { h: 13, n: "初" }, t2: { h: 14, n: "正" },
+      desc: { n: "协洽", d: "阴阳和合，万物化生" }
     },
     "16": { // 15:00 -> 16:00 -> 16:59
-      name: "申时", nick: "日晡", gen: "",
-      t1: { h: 15, n: "申初" }, t2: { h: 16, n: "申正" },
-      c: { n: "涒滩", d: "万物吐秀, 倾垂也" }
+      name: "申", nick: "日晡", geng:"",
+      t1: { h: 15, n: "初" }, t2: { h: 16, n: "正" },
+      desc: { n: "涒滩", d: "万物吐秀, 倾垂也" }
     },
     "18": { // 17:00 -> 18:00 -> 18:59
-      name: "酉时", nick: "日入", gen: "",
-      t1: { h: 17, n: "酉初" }, t2: { h: 18, n: "酉正" },
-      c: { n: "作噩", d: "万物皆芒枝起" }
+      name: "酉", nick: "日入", geng:"",
+      t1: { h: 17, n: "初" }, t2: { h: 18, n: "正" },
+      desc: { n: "作噩", d: "万物皆芒枝起" }
     },
     "20": { // 19:00 -> 20:00 -> 20:59
-      name: "戌时", nick: "日暮", gen: "一更",
-      t1: { h: 19, n: "戌初" }, t2: { h: 20, n: "戌正" },
-      c: { n: "阉茂", d: "万物皆蔽冒也" }
+      name: "戌", nick: "日暮", geng:"一更",
+      t1: { h: 19, n: "初" }, t2: { h: 20, n: "正" },
+      desc: { n: "阉茂", d: "万物皆蔽冒也" }
     },
     "22": { // 21:00 -> 22:00 -> 22:59
-      name: "亥时", nick: "人定", gen: "二更",
-      t1: { h: 21, n: "亥初" }, t2: { h: 22, n: "亥正" },
-      c: { n: "大渊献", d: "万物于天, 深盖藏也" }
+      name: "亥", nick: "人定", geng:"二更",
+      t1: { h: 21, n: "初" }, t2: { h: 22, n: "正" },
+      desc: { n: "大渊献", d: "万物于天, 深盖藏也" }
     },
   };
 
   const now=new Date();
-  if (!hh) hh = now.getHours();
-  if (!mm) mm = now.getMinutes();
+  if (!hh || !mm) {
+    hh = now.getHours();
+    mm = now.getMinutes();
+  }
 
   if (hh == 24) hh = 0;
   // 前一小时, 当前小时, 后一小时 => 方便查询时辰表
@@ -337,38 +343,56 @@ function convTimeToGanZhi(hh, mm) {
   }
   sci.mins = shiKeName(mm);
 
-  return { now: { h: hh, m: mm }, sci };
+  return { ok: 1, now: { h: hh, m: mm }, sci };
 }
 
-// 阳历 => 农历 https://www.beijing-time.org
-function convSolarToLunar(sYY, sMM, sDD) {
-  let y = parseInt(sYY); // 公历年
-  let m = parseInt(sMM); // 公历月
-  let d = parseInt(sDD); // 公历日
+// 阳历 => 农历
+function convSolarToLunar(sy, sm, sd) {
+  let sYY = parseInt(sy); // 公历年
+  let sMM = parseInt(sm); // 公历月
+  let sDD = parseInt(sd); // 公历日
 
-  if (y < MIN_YEAR || y > MAX_YEAR) { // 公历年上限
-    return -1;
+  if (sYY < MIN_YEAR || sYY > MAX_YEAR) { // 公历年上限
+    return { ok: 0 };
   }
-  if (y === MIN_YEAR && m === 1 && d < 31) { // 公历年下限
-    return -1;
+  if (sYY === MIN_YEAR && sMM === 1 && sDD < 31) { // 公历年下限
+    return { ok: 0 };
   }
 
-  let xdate, i, xtmp = 0;
-  if (!y) { // 空传参获得前日期
+  let xdate, istoday = false;
+  if (!sYY || !sMM || !sDD) { // 空传参获得前日期
+    istoday = true;
     xdate = new Date();
   } else {
-    xdate = new Date(y, parseInt(m) - 1, d);
+    xdate = new Date(sYY, parseInt(sMM) - 1, sDD);
   }
 
-  // 标准化格式转换
-  y = xdate.getFullYear();
-  m = xdate.getMonth() + 1;
-  d = xdate.getDate();
+  // 统一化<年/月/日>格式
+  sYY = xdate.getFullYear();  //  YYYY
+  sMM = xdate.getMonth() + 1; // 0 ~ 11
+  sDD = xdate.getDate();      // 1 ~ 31
 
-  let offset = Date.UTC(xdate.getFullYear(), xdate.getMonth(), xdate.getDate());
-  offset = (offset - Date.UTC(MIN_YEAR, 0, 31)) / 86400000;
+  let week = {};
+  week.id = xdate.getDay(); // 星期日=0, 星期六=6
+  if (week.id === 0) { week.id = 7; }
+  switch(week.id) {
+    case 1: week.zh = "周一"; week.abbr = "Mon."; week.en = "Monday";    break;
+    case 2: week.zh = "周二"; week.abbr = "Tue."; week.en = "Tuesday";   break;
+    case 3: week.zh = "周三"; week.abbr = "Wed."; week.en = "Wednesday"; break;
+    case 4: week.zh = "周四"; week.abbr = "Thu."; week.en = "Thursday";  break;
+    case 5: week.zh = "周五"; week.abbr = "Fri."; week.en = "Friday";    break;
+    case 6: week.zh = "周六"; week.abbr = "Sat."; week.en = "Saturday";  break;
+    case 7: week.zh = "周日"; week.abbr = "Sun."; week.en = "Sunday";    break;
+  }
 
-  for (i = MIN_YEAR; i < 2101 && offset > 0; i++) {
+  // 从 1970/01/01-00:00:00 UTC 开始的毫秒数
+  let offset = Date.UTC(sYY, sMM - 1, sDD);
+  const MSEC_PER_DAY = 86400000; // 24 小时的毫秒数
+  // 现在 offset 表示从 1970/01/31-00:00:00 起的天数
+  offset = (offset - Date.UTC(MIN_YEAR, 0, 31)) / MSEC_PER_DAY;
+
+  let i, xtmp = 0;
+  for (i = MIN_YEAR; i <= MAX_YEAR && offset > 0; i++) {
     xtmp = getDaysOfYear(i);
     offset -= xtmp;
   }
@@ -377,29 +401,21 @@ function convSolarToLunar(sYY, sMM, sDD) {
     i--;
   }
 
-  let today = new Date(), istoday = false; // 是否今天
-  if (today.getFullYear() === y && today.getMonth() + 1 === m && today.getDate() === d) {
-    istoday = true;
-  }
+  const lYY = i; // 农历年
 
-  let week = xdate.getDay(); // 星期日=0, 星期六=6
-  if (week === 0) { week = 7; }
-
-  const year = i; // 农历年
-  let leapMonth = getLeapMonth(i); // 闰哪个月
-  let isleap = false;
-
-  for (i = 1; i < 13 && offset > 0; i++) { // 效验闰月
-    if (leapMonth > 0 && i === (leapMonth + 1) && isleap === false) { // 闰月
+  // 闰月及验证
+  let isleap = false, leapMonth = getLeapMonth(i);
+  for (i = 1; i < 13 && offset > 0; i++) {
+    if (leapMonth > 0 && i === (leapMonth + 1) && isleap === false) {
       --i;
       isleap = true;
-      xtmp = getDaysOfLeapMonth(year); // 计算农历闰月天数
+      xtmp = getDaysOfLeapMonth(lYY); // 计算农历闰月天数
     } else {
-      xtmp = getDaysOfMonth(year, i); // 计算农历普通月天数
+      xtmp = getDaysOfMonth(lYY, i); // 计算农历普通月天数
     }
 
-    if (isleap === true && i === (leapMonth + 1)) { // 解除闰月
-      isleap = false;
+    if (isleap === true && i === (leapMonth + 1)) {
+      isleap = false; // 非闰月年
     }
     offset -= xtmp;
   }
@@ -418,56 +434,204 @@ function convSolarToLunar(sYY, sMM, sDD) {
     --i;
   }
 
-  const month = i;        // 农历月
-  const day = offset + 1; // 农历日
+  const lMM = i; // 农历月
+  const lDD = offset + 1; // 农历日
 
-  // 天干地支处理
-  const sm = m - 1;
+  // 月初为节, 月中为气: 返回当月的两个节气开始日期
+  const jday = getSolarMonthDayAtJieQi(sYY, (sMM * 2 - 1)); // 当月第1个节气
+  const qday = getSolarMonthDayAtJieQi(sYY, (sMM * 2));     // 当月第2个节气
 
-  // 返回当月的两个节气开始日期
-  const jday = getSolarMonthDayAtJieQi(y, (m * 2 - 1)); // 月初为节
-  const qday = getSolarMonthDayAtJieQi(y, (m * 2));     // 月中为气
+  let gzY, gzM, gzD; // 年月日的干支表示
+  gzY = getGanZhiYear(lYY);
 
-  // 依据12节气修正干支月
-  let gzM = toGanZhi((y - MIN_YEAR) * 12 + m + 11);
-  if (d >= jday) {
-    gzM = toGanZhi((y - MIN_YEAR) * 12 + m + 12);
+  // 依据节气修正干支月
+  gzM = toGanZhi((sYY - MIN_YEAR) * 12 + sMM + 11);
+  if (sDD >= jday) {
+    gzM = toGanZhi((sYY - MIN_YEAR) * 12 + sMM + 12);
   }
 
-  // 传入日期的节气
-  let jieqi = '';
-  if (jday === d) { jieqi = JieQi[m * 2 - 2]; }
-  if (qday === d) { jieqi = JieQi[m * 2 - 1]; }
+  // 当月的的节气信息
+  let jq = {}, jie = {}, qi = {};
+  // 数组下标索引从 0 开始, 故需要节气编号再减 1
+  jie.m = sMM; jie.d = jday; jie.n = JieQi[sMM * 2 - 2]; // 月初节
+   qi.m = sMM;  qi.d = qday;  qi.n = JieQi[sMM * 2 - 1]; // 月中气
+  jq.m = sMM; jq.d = sDD; // 当前公历的月和日
+  if (jday === sDD) { jq.n = JieQi[sMM * 2 - 2]; }
+  if (qday === sDD) { jq.n = JieQi[sMM * 2 - 1]; }
 
   // 日柱: 当月首日与 1900/1/1 相差天数
-  const dayCyclical = Date.UTC(y, sm, 1, 0, 0, 0, 0) / 86400000 + 25567 + 10;
-  const gzD = toGanZhi(dayCyclical + d - 1);
-
-  const solarDate = y + '-' + m + '-' + d;
-  const lunarDate = year + '-' + month + '-' + day;
+  offset = Date.UTC(sYY, sMM - 1, 1, 0, 0, 0, 0) / MSEC_PER_DAY + 25567 + 10;
+  gzD = toGanZhi(offset + sDD - 1);
 
   return {
-    is: { today: istoday, leap: isleap },
-    lunar: { y: year, m: month, d: day}, // 农历
-    solar: { y, m, d, week, jq: jieqi }, // 阳历
-    gz: { y: getGanZhiYear(year), m: gzM, d: gzD, },
-    iso8601: { solar: solarDate, lunar: lunarDate },
+    is: { ok: 1, today: istoday, leapYear: isleap }, week,
+    solar: { y: sYY, m: sMM, d: sDD }, // 阳历
+    lunar: { y: lYY, m: lMM, d: lDD }, // 农历
+       gz: { y: gzY, m: gzM, d: gzD }, // 干支
+       jq: { j: jie, q: qi, now: jq }, // 节气
+    iso8601: {
+      solar: sYY + '-' + sMM + '-' + sDD,
+      lunar: lYY + '-' + lMM + '-' + lDD
+    }
   };
 }
 
-// Solar, Lunar
-// console.log(getSolarMonthDayAtJieQi(2024,10))
-// process.exit(0)
+function padZero(strFixedLen, num) {
+  return num.toString().padStart(strFixedLen, "0");
+}
 
-const now=new Date();
+const now = new Date();
 
-const YY=now.getFullYear();
-const MM=now.getMonth() + 1;
-const DD=now.getDate();
+const YY = now.getFullYear();
+const MM = now.getMonth() + 1;
+const DD = now.getDate();
 
 const hh = now.getHours();
 const mm = now.getMinutes();
+const ss = now.getSeconds();
 
-console.log(YY + "-" + MM + "-" + DD + " " + hh + ":" + mm)
-console.log(convSolarToLunar())
-console.log(convTimeToGanZhi())
+const YMD = YY + "-" + padZero(2, MM) + "-" + padZero(2, DD);
+const HMS = padZero(2, hh) + ":" + padZero(2, mm) + ":" + padZero(2, ss);
+const sc = convTimeToGanZhi(), lc = convSolarToLunar();
+
+if (false) {
+  console.log("Now: " + YMD + " " + HMS)
+  console.log("");
+  console.log(sc); console.log(lc);
+  process.exit(0)
+}
+
+// 彩色显示方便阅读
+const xcolor = (C, msg) => {
+  const COLOR = {
+    reset: '\x1B[0m',
+    a: {
+      bold      : { on: '\x1B[1m', off: '\x1B[22m' },
+      italic    : { on: '\x1B[3m', off: '\x1B[23m' },
+      underline : { on: '\x1B[4m', off: '\x1B[24m' },
+      inverse   : { on: '\x1B[7m', off: '\x1B[27m' }
+    },
+    fg: {
+      reset     : '\x1B[39m',
+      n: {
+        black   : '\x1B[30m',
+        red     : '\x1B[31m',
+        green   : '\x1B[32m',
+        yellow  : '\x1B[33m',
+        blue    : '\x1B[34m',
+        magenta : '\x1B[35m',
+        cyan    : '\x1B[36m',
+        white   : '\x1B[37m',
+      },
+      b: {
+        grey    : '\x1B[90m',
+        red     : '\x1B[91m',
+        green   : '\x1B[92m',
+        yellow  : '\x1B[93m',
+        blue    : '\x1B[94m',
+        magenta : '\x1B[95m',
+        cyan    : '\x1B[96m',
+        white   : '\x1B[97m',
+      }
+    },
+    bg: {
+      reset     : '\x1B[49m',
+      n: {
+        black   : '\x1B[40m',
+        red     : '\x1B[41m',
+        green   : '\x1B[42m',
+        yellow  : '\x1B[43m',
+        blue    : '\x1B[44m',
+        magenta : '\x1B[45m',
+        cyan    : '\x1B[46m',
+        white   : '\x1B[47m',
+      }
+    }
+  };
+
+  switch(C) {
+    case 'R': return COLOR.fg.b.red      + msg + COLOR.reset;
+    case 'G': return COLOR.fg.b.green    + msg + COLOR.reset;
+    case 'Y': return COLOR.fg.b.yellow   + msg + COLOR.reset;
+    case 'B': return COLOR.fg.b.blue     + msg + COLOR.reset;
+    case 'M': return COLOR.fg.b.magenta  + msg + COLOR.reset;
+    case 'C': return COLOR.fg.b.cyan     + msg + COLOR.reset;
+    case 'X': return COLOR.fg.b.grey     + msg + COLOR.reset;
+  }
+}
+
+if (process.argv.length == 2) {
+  let outmsg = "";
+
+  outmsg += xcolor('G', sc.sci.desc.n);
+  outmsg += " - ";
+  outmsg += xcolor('X', sc.sci.desc.d);
+  outmsg += "\n\n";
+
+  outmsg += " " + HMS + "   ";
+  outmsg += xcolor('R', sc.sci.name);
+  if (sc.now.h == sc.sci.t1.h) {
+    outmsg += xcolor('G', sc.sci.t1.n);
+  } else {
+    outmsg += xcolor('G', sc.sci.t2.n);
+  }
+  outmsg += xcolor('Y', sc.sci.mins);
+  outmsg += " - ";
+  outmsg += xcolor('B', sc.sci.nick);
+  outmsg += "(";
+  outmsg += xcolor('X', sc.sci.geng);
+  outmsg += ")\n";
+
+  outmsg += YMD + '  ';
+  outmsg += xcolor('G', lc.gz.y.gan);
+  outmsg += xcolor('R', lc.gz.y.zhi);
+  outmsg += xcolor('Y', lc.gz.y.ani);
+  outmsg += xcolor('X', '年');
+  outmsg += " - ";
+  outmsg += xcolor('G', lc.gz.m.gan);
+  outmsg += xcolor('R', lc.gz.m.zhi);
+  outmsg += xcolor('X', '月');
+  outmsg += " - ";
+  outmsg += xcolor('G', lc.gz.d.gan);
+  outmsg += xcolor('R', lc.gz.d.zhi);
+  outmsg += xcolor('X', '日');
+  outmsg += "\n";
+
+  outmsg += xcolor('X', YY + "-" + padZero(2, lc.jq.j.m) + "-" + padZero(2, lc.jq.j.d));
+  outmsg += "  ";
+  outmsg += xcolor('B', lc.jq.j.n);
+  outmsg += "      ";
+  outmsg += xcolor('X', YY + "-" + padZero(2, lc.jq.q.m) + "-" + padZero(2, lc.jq.q.d));
+  outmsg += "  ";
+  outmsg += xcolor('B', lc.jq.q.n);
+
+  console.log("");
+  console.log(outmsg);
+  console.log("");
+  process.exit(0);
+}
+
+console.log("  scID: " + sc.sci.name);
+console.log("scNick: " + sc.sci.nick);
+if (sc.now.h == sc.sci.t1.h) {
+  console.log("scName: " + sc.sci.t1.n);
+} else {
+  console.log("scName: " + sc.sci.t2.n);
+}
+console.log("scGeng: " + sc.sci.geng);
+console.log("scMisc: " + sc.sci.mins);
+console.log("scDesN: " + sc.sci.desc.n);
+console.log("scDesD: " + sc.sci.desc.d);
+console.log("");
+console.log("week: " + lc.week.zh);
+
+console.log(" lcY: " + lc.lunar.y);
+console.log(" lcM: " + lc.lunar.m);
+console.log(" lcD: " + lc.lunar.d);
+console.log("Ygan: " + lc.gz.y.gan);
+console.log("Yzhi: " + lc.gz.y.zhi);
+console.log("Yani: " + lc.gz.y.ani);
+console.log("Mgan: " + lc.gz.m.gan);
+console.log("Mzhi: " + lc.gz.m.zhi);
+console.log("Dgan: " + lc.gz.d.gan);
+console.log("Dzhi: " + lc.gz.d.zhi);
