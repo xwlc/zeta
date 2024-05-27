@@ -47,10 +47,10 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US:C:zh_CN # NOTE 方式3: 禁止翻译[英文] -> [中文]
 
 # -F,--quit-if-one-screen  -R,--RAW-CONTROL-CHARS
-[ -z "${PAGER}" ] && export PAGER="less -FR --tabs=2"
+[ -z "${PAGER}" ] && export PAGER="less -R --tabs=2"
 
 # 优先级: GIT_PAGER > core.pager > PAGER > 默认值 less
 if @zeta:xsh:no-cmd ov && @zeta:xsh:no-cmd diff-so-fancy; then
   # NOTE 覆盖 git 全局配置 pager.<cmd> 选项
-  [ -z "${GIT_PAGER}" ] && export GIT_PAGER="less -FR --tabs=2"
+  [ -z "${GIT_PAGER}" ] && export GIT_PAGER="less -R --tabs=2"
 fi
