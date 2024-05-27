@@ -160,14 +160,19 @@ function getGanZhiYear(Y) {
   let zhi = (Y - 3) % 12;  // 天干/地支的索引从 0 开始
   if (gan === 0) gan = 10; // 余数为 0 则为最后一个天干
   if (zhi === 0) zhi = 12; // 余数为 0 则为最后一个地支
-  return { gan: Gan[gan - 1], zhi: Zhi[zhi - 1], ani: Animals[zhi -1]};
+  return { gan: Gan[gan - 1], zhi: Zhi[zhi - 1], ani: Animals[zhi -1] };
+}
+
+// 获取农历 Y 年的生肖属性(非精确)
+function getAnimalOfYear(Y) {
+  return getGanZhiYear(Y).ani;
 }
 
 // 相对<甲子>偏移量
 function toGanZhi(offset) {
   const gan = offset % 10;
   const zhi = offset % 12;
-  return { gan: Gan[gan], zhi: Zhi[zhi]};
+  return { gan: Gan[gan], zhi: Zhi[zhi] };
 }
 
 // 获取公历 Y 年的第 N个节气的公历日期
@@ -219,33 +224,120 @@ function getSolarDaysOfMonth(Y, M) {
   }
 }
 
-function getGanZhiShiJian(hh, mm) {
-  switch (hour) {
-    case 23: return  0; break;
-    case 00: return  0; break; // 子
-    case 01: return  1; break;
-    case 02: return  1; break; // 丑
-    case 03: return  2; break;
-    case 04: return  2; break; // 寅
-    case 05: return  3; break;
-    case 06: return  3; break; // 卯
-    case 07: return  4; break;
-    case 08: return  4; break; // 辰
-    case 09: return  5; break;
-    case 10: return  5; break; // 巳
-    case 11: return  6; break;
-    case 12: return  6; break; // 午
-    case 13: return  7; break;
-    case 14: return  7; break; // 未
-    case 15: return  8; break;
-    case 16: return  8; break; // 申
-    case 17: return  9; break;
-    case 18: return  9; break; // 酉
-    case 15: return 10; break;
-    case 20: return 10; break; // 戌
-    case 21: return 11; break;
-    case 22: return 11; break; // 亥
+// 夜半者子也  鸡鸣者丑也  平旦者寅也  日出者卯也
+// 食时者辰也  隅中者巳也  日中者午也  日佚者未也
+// 哺时者申也  日入者酉也  黄昏者戌也  人定者亥也
+
+// 获取 hh:mm 的干支时间(十二时辰)
+function convTimeToGanZhi(hh, mm) {
+  const SCT = {
+    "00": { // 23:00 -> 00:00 -> 00:59
+      name: "子时", nick: "夜半", gen: "三更",
+      t1: { h: 23, n: "子初" }, t2: { h: 00, n: "子正" },
+      c: { n: "困敦", d: "混沌万物之初萌, 藏黄泉之下" }
+    },
+    "02": { // 01:00 -> 02:00 -> 02:59
+      name: "丑时", nick: "鸡鸣", gen: "四更",
+      t1: { h: 01, n: "丑初" }, t2: { h: 02, n: "丑正" },
+      c: { n: "赤奋若", d: "气运奋迅而起, 万物无不若其性" }
+    },
+    "04": { // 03:00 -> 04:00 -> 04:59
+      name: "寅时", nick: "平旦", gen: "五更",
+      t1: { h: 03, n: "寅初" }, t2: { h: 04, n: "寅正" },
+      c: { n: "摄提格", d: "万物承阳而起" }
+    },
+    "06": { // 05:00 -> 06:00 -> 06:59
+      name: "卯时", nick: "日出", gen: "",
+      t1: { h: 05, n: "卯初" }, t2: { h: 06, n: "卯正" },
+      c: { n: "单阏", d: "阳气推万物而起" }
+    },
+    "08": { // 07:00 -> 08:00 -> 08:59
+      name: "辰时", nick: "食时", gen: "",
+      t1: { h: 07, n: "辰初" }, t2: { h: 08, n: "辰正" },
+      c: { n: "执徐", d: "伏蛰之物, 而敷舒出" }
+    },
+    "10": { // 09:00 -> 10:00 -> 10:59
+      name: "巳时", nick: "隅中", gen: "",
+      t1: { h: 09, n: "巳初" }, t2: { h: 10, n: "巳正" },
+      c: { n: "大荒落", d: "万物炽盛而出, 霍然落之" }
+    },
+    "12": { // 11:00 -> 12:00 -> 12:59
+      name: "午时", nick: "日中", gen: "",
+      t1: { h: 11, n: "午初" }, t2: { h: 12, n: "午正" },
+      c: { n: "敦牂", d: "万物壮盛也" }
+    },
+    "14": { // 13:00 -> 14:00 -> 14:59
+      name: "未时", nick: "日昳", gen: "",
+      t1: { h: 13, n: "未初" }, t2: { h: 14, n: "未正" },
+      c: { n: "协洽", d: "阴阳和合，万物化生" }
+    },
+    "16": { // 15:00 -> 16:00 -> 16:59
+      name: "申时", nick: "日晡", gen: "",
+      t1: { h: 15, n: "申初" }, t2: { h: 16, n: "申正" },
+      c: { n: "涒滩", d: "万物吐秀, 倾垂也" }
+    },
+    "18": { // 17:00 -> 18:00 -> 18:59
+      name: "酉时", nick: "日入", gen: "",
+      t1: { h: 17, n: "酉初" }, t2: { h: 18, n: "酉正" },
+      c: { n: "作噩", d: "万物皆芒枝起" }
+    },
+    "20": { // 19:00 -> 20:00 -> 20:59
+      name: "戌时", nick: "日暮", gen: "一更",
+      t1: { h: 19, n: "戌初" }, t2: { h: 20, n: "戌正" },
+      c: { n: "阉茂", d: "万物皆蔽冒也" }
+    },
+    "22": { // 21:00 -> 22:00 -> 22:59
+      name: "亥时", nick: "人定", gen: "二更",
+      t1: { h: 21, n: "亥初" }, t2: { h: 22, n: "亥正" },
+      c: { n: "大渊献", d: "万物于天, 深盖藏也" }
+    },
+  };
+
+  const now=new Date();
+  if (!hh) hh = now.getHours();
+  if (!mm) mm = now.getMinutes();
+
+  if (hh == 24) hh = 0;
+  // 前一小时, 当前小时, 后一小时 => 方便查询时辰表
+  let xh = { pre: "", now: hh.toString(), nxt: "" };
+
+  if ((hh + 1) < 24 ) {
+    xh.nxt = (hh + 1).toString();
+  } else {
+    xh.nxt = "00";
   }
+
+  if ((hh - 1) >= 0 ) {
+    xh.pre = (hh - 1).toString();
+  } else {
+    xh.pre = "23";
+  }
+
+  let sci = {};
+  xh.pre = xh.pre.padStart(2, "0");
+  xh.now = xh.now.padStart(2, "0");
+  xh.nxt = xh.nxt.padStart(2, "0");
+
+  if (SCT[xh.now]) {
+    sci = SCT[xh.now];
+  } else {
+    if (SCT[xh.pre].t1.h == hh || SCT[xh.pre].t2.h == hh) {
+      sci = SCT[xh.pre];
+    } else {
+      sci = SCT[xh.nxt] ;
+    }
+  }
+
+  // 十二时辰标(时刻)名
+  function shiKeName(mm) {
+    if      ( mm <= 15 )  return '一刻';
+    else if ( mm <= 30 )  return '二刻';
+    else if ( mm <= 45 )  return '三刻';
+    else                  return '四刻';
+  }
+  sci.mins = shiKeName(mm);
+
+  return { now: { h: hh, m: mm }, sci };
 }
 
 // 阳历 => 农历 https://www.beijing-time.org
@@ -368,11 +460,14 @@ function convSolarToLunar(sYY, sMM, sDD) {
 // process.exit(0)
 
 const now=new Date();
+
 const YY=now.getFullYear();
 const MM=now.getMonth() + 1;
 const DD=now.getDate();
 
-console.log(YY + "-" + MM + "-" + DD)
+const hh = now.getHours();
+const mm = now.getMinutes();
 
-const lunar = convSolarToLunar()
-console.log(lunar)
+console.log(YY + "-" + MM + "-" + DD + " " + hh + ":" + mm)
+console.log(convSolarToLunar())
+console.log(convTimeToGanZhi())
