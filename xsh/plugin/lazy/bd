@@ -29,29 +29,33 @@ function bd() {
   fi
   # echo "=> dec=[${is_decimal}], hlp=[${show_help}]"
 
-  local gitRHD # 快速切换到 git 仓库 root 目录
-  gitRHD="$(git rev-parse --show-toplevel 2> /dev/null)"
-  [[ $? -ne 0 ]] && unset -v gitRHD # 非 git 仓库
+  local VcsTopDir # 快速切换到 git 仓库 root 目录
+  VcsTopDir="$(git rev-parse --show-toplevel 2> /dev/null)"
+  [[ $? -ne 0 ]] && unset -v VcsTopDir # 非 git 仓库
 
   function bd±help() {
-    local fdr idx width=1 conter is_gitRHD
+    local fdr idx width=1 conter is_InVcsRepo is_NOWeqPWD
     (( depth >= 10 )) && width=2
     # 以数组下标逆序依次显示路径内容
-    builtin echo "$(@R3 ${depth}) $(@D9 '=>') $(@G3 /)"
+    builtin echo "$(@B3 ${depth}) $(@D9 '=>') $(@G3 /)"
     for (( idx=1; idx <= ${depth}; idx++ )); do
       (( conter = ${depth} - ${idx} ))
       fdr="${fdr}/${folders[${idx}]//␟/ }"
-      if [[ -n "${gitRHD:-}" && "${gitRHD}" == "${fdr}" ]]; then
-        is_gitRHD=1; builtin printf -v conter "%${width}s" '+'
-      elif (( conter )); then
-        is_gitRHD=0; builtin printf -v conter "%${width}d" "${conter}"
+      (( conter == 0 )) && is_NOWeqPWD=1
+      if [[ -n "${VcsTopDir:-}" && "${VcsTopDir}" == "${fdr}" ]]; then
+        is_InVcsRepo=1; builtin printf -v conter "%${width}s" 'X'
+      elif [[ -z "${is_NOWeqPWD}" ]]; then
+        is_InVcsRepo=0; builtin printf -v conter "%${width}d" "${conter}"
       else
-        is_gitRHD=0; builtin printf -v conter "%${width}s" ' '
+        is_InVcsRepo=0; builtin printf -v conter "%${width}s" ' '
       fi
-      if (( is_gitRHD )); then
-        builtin echo "$(@B3 "${conter}") $(@B3 '=>') $(@B3 ${fdr})"
+
+      if [[ -n "${is_NOWeqPWD}" ]]; then
+        builtin echo "$(@D9 "${conter}") $(@D9 '=>') $(@D9 ${fdr})"
+      elif (( is_InVcsRepo )); then
+        builtin echo "$(@R3 "${conter}") $(@D9 '=>') $(@R3 ${fdr})"
       else
-        builtin echo "$(@R3 "${conter}") $(@D9 '=>') $(@G3 ${fdr})"
+        builtin echo "$(@B3 "${conter}") $(@D9 '=>') $(@G3 ${fdr})"
       fi
     done
     unset -f bd±help
@@ -61,9 +65,9 @@ function bd() {
     echo; bd±help; echo; return
   fi
 
-  if [[ -n "${gitRHD:-}" && "${gitRHD}" != "${PWD}" ]]; then
+  if [[ -n "${VcsTopDir:-}" && "${VcsTopDir}" != "${PWD}" ]]; then
     case "$1" in
-      +|g|G) builtin cd "${gitRHD}"; unset -f bd±help; return ;;
+      x|X|+) builtin cd "${VcsTopDir}"; unset -f bd±help; return ;;
     esac
   fi
 
