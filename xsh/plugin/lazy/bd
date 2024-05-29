@@ -29,29 +29,29 @@ function bd() {
   fi
   # echo "=> dec=[${is_decimal}], hlp=[${show_help}]"
 
-  local repo # 快速切换到仓库 root 目录(如果是仓库)
-  repo="$(git rev-parse --show-toplevel 2> /dev/null)"
-  [[ $? -ne 0 ]] && unset -v repo
+  local gitRHD # 快速切换到 git 仓库 root 目录
+  gitRHD="$(git rev-parse --show-toplevel 2> /dev/null)"
+  [[ $? -ne 0 ]] && unset -v gitRHD # 非 git 仓库
 
   function bd±help() {
-    local fdr idx width=1 conter zero_or_repo
+    local fdr idx width=1 conter is_gitRHD
     (( depth >= 10 )) && width=2
     # 以数组下标逆序依次显示路径内容
-    builtin echo "$(@Y3 ${depth}) $(@D9 '=>') $(@C3 /)"
+    builtin echo "$(@R3 ${depth}) $(@D9 '=>') $(@G3 /)"
     for (( idx=1; idx <= ${depth}; idx++ )); do
       (( conter = ${depth} - ${idx} ))
       fdr="${fdr}/${folders[${idx}]//␟/ }"
-      if [[ -n "${repo:-}" && "${repo}" == "${fdr}" ]]; then
-        zero_or_repo=1; builtin printf -v conter "%${width}s" '+'
+      if [[ -n "${gitRHD:-}" && "${gitRHD}" == "${fdr}" ]]; then
+        is_gitRHD=1; builtin printf -v conter "%${width}s" '+'
       elif (( conter )); then
-        zero_or_repo=0; builtin printf -v conter "%${width}d" "${conter}"
+        is_gitRHD=0; builtin printf -v conter "%${width}d" "${conter}"
       else
-        zero_or_repo=1; builtin printf -v conter "%${width}s" ' '
+        is_gitRHD=0; builtin printf -v conter "%${width}s" ' '
       fi
-      if (( zero_or_repo )); then
-        builtin echo "$(@R3 "${conter}") $(@R3 '=>') $(@C3 ${fdr})"
+      if (( is_gitRHD )); then
+        builtin echo "$(@B3 "${conter}") $(@B3 '=>') $(@B3 ${fdr})"
       else
-        builtin echo "$(@Y3 "${conter}") $(@D9 '=>') $(@C3 ${fdr})"
+        builtin echo "$(@R3 "${conter}") $(@D9 '=>') $(@G3 ${fdr})"
       fi
     done
     unset -f bd±help
@@ -59,6 +59,12 @@ function bd() {
 
   if [[ $# -eq 0 || $# -ne 1 || ${show_help} -ne 0 ]]; then
     echo; bd±help; echo; return
+  fi
+
+  if [[ -n "${gitRHD:-}" && "${gitRHD}" != "${PWD}" ]]; then
+    case "$1" in
+      +|g|G) builtin cd "${gitRHD}"; unset -f bd±help; return ;;
+    esac
   fi
 
   local -i upcnt # 向上层级数
@@ -78,10 +84,6 @@ function bd() {
       }
     fi
   done
-
-  if [[ "$1" == '+' && -n "${repo:-}" && "${repo}" != "${PWD}" ]]; then
-    builtin cd "${repo}"; unset -f bd±help; return
-  fi
 
   builtin echo; builtin echo "NO Parent Folder Named $(@R3 "$1")"
   builtin echo; bd±help; builtin echo
