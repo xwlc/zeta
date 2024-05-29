@@ -3,6 +3,64 @@
 # Created By: Charles Wong 2023-11-24T20:01:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
+function zman() {
+  local cmkMAN  jsMAN  rustMAN  javaMAN
+
+  if [[ -h "${ZETA_DIR}/3rd/bin/cmk" ]]; then
+    cmkMAN="$(realpath "${ZETA_DIR}/3rd/bin/cmk/../man")"
+  fi
+  if [[ -h "${ZETA_DIR}/3rd/bin/js" ]]; then
+    jsMAN="$(realpath "${ZETA_DIR}/3rd/bin/js/../share/man")"
+  fi
+  if [[ -h "${ZETA_DIR}/3rd/bin/java" ]]; then
+    javaMAN="$(realpath "${ZETA_DIR}/3rd/bin/java/../man")"
+  fi
+  if [[ -h "${ZETA_DIR}/3rd/bin/rust" ]]; then
+    rustMAN="$(realpath "${ZETA_DIR}/3rd/bin/rust/../share/man")"
+  fi
+
+  if [[ $# -eq 3 ]]; then
+    local xMAN
+    case "$1" in
+      c|C|cmake) xMAN="${cmkMAN}"  ;;
+      j|J|java)  xMAN="${javaMAN}" ;;
+      r|R|rust)  xMAN="${rustMAN}" ;;
+      *) return ;;
+    esac
+    if [[ -f "${xMAN}/man$2/$3.$2" ]]; then
+      man -l "${xMAN}/man$2/$3.$2"
+    fi
+    return
+  fi
+
+  case "$1" in
+    node)  man -l "${jsMAN}/man1/node.1"    ;; # NodeJS
+    cmake) man -l "${cmkMAN}/man1/cmake.1"  ;; # CMake
+    cpack) man -l "${cmkMAN}/man1/cpack.1"  ;;
+    ctest) man -l "${cmkMAN}/man1/ctest.1"  ;;
+    jar)   man -l "${javaMAN}/man1/jar.1"   ;; # Java
+    java)  man -l "${javaMAN}/man1/java.1"  ;;
+    javac) man -l "${javaMAN}/man1/javac.1" ;;
+    cargo) man -l "${rustMAN}/man1/cargo.1" ;; # Rust
+    rustc) man -l "${rustMAN}/man1/rustc.1" ;;
+    *)
+      echo
+      echo "Usage: $(@C3 zman) $(@Y3 '<C|R|J>') $(@R3 '<1-8>') $(@B3 '<XXX>')"
+      echo
+      echo "$(@G3 cmake) $(@D9 'Manual Pages')"
+      command ls "${cmkMAN}/man1/"
+      command ls "${cmkMAN}/man7/"
+      echo
+      echo "$(@G3 rust) $(@D9 'Manual Pages')"
+      command ls "${rustMAN}/man1/"
+      echo
+      echo "$(@G3 java) $(@D9 'Manual Pages')"
+      command ls "${javaMAN}/man1/"
+      echo
+    ;;
+  esac
+}
+
 # Cherry pick toolchain & tools, ignore if not exist
 path-head-add "${ZETA_DIR}/3rd/bin/java"  # OpenJDK/bin
 path-head-add "${ZETA_DIR}/3rd/bin/gems"  # GEM_HOME/bin
