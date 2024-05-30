@@ -62,28 +62,31 @@ function zman() {
 }
 
 # Cherry pick toolchain & tools, ignore if not exist
-path-head-add "${ZETA_DIR}/3rd/bin/java"  # OpenJDK/bin
-path-head-add "${ZETA_DIR}/3rd/bin/gems"  # GEM_HOME/bin
-path-head-add "${ZETA_DIR}/3rd/bin/rust"  # rust/core/bin
-path-head-add "${ZETA_DIR}/3rd/bin/cmk"   # CMake/bin
-path-head-add "${ZETA_DIR}/3rd/bin/js"    # NodeJS/bin
+path-head-add "${ZETA_DIR}/3rd/bin/gems"  #     GEM_HOME/bin
+path-head-add "${ZETA_DIR}/3rd/bin/java"  #   Java/X.Y.Z/bin
+path-head-add "${ZETA_DIR}/3rd/bin/rust"  #   Rust/X.Y.Z/bin
+path-head-add "${ZETA_DIR}/3rd/bin/nim"   #    Nim/X.Y.Z/bin
+path-head-add "${ZETA_DIR}/3rd/bin/cmk"   #  CMake/X.Y.Z/bin
+path-head-add "${ZETA_DIR}/3rd/bin/js"    # NodeJS/X.Y.Z/bin
 path-head-add "${ZETA_DIR}/3rd/bin"
 
-# `go env` 显示当前 Go 环境变量设置
+# NOTE `go env` 显示当前 Go 环境变量
 if @zeta:xsh:has-cmd go; then
-  GOROOT="$(realpath "${ZETA_DIR}/3rd/bin/go")"
-  export GOROOT="${GOROOT%/bin/go}" # 安装目录
-
-  # 第三方依赖模块下载保存位置
-  export GOPATH="${GOROOT%/*}/xspace"
+  GOROOT="$(realpath "${ZETA_DIR}/3rd/bin/go")" # => go/X.Y.Z/bin/go
+  export GOROOT="${GOROOT%/bin/go}" # 安装目录  # => go/X.Y.Z
 
   # 启用 module-aware 模式
   export GO111MODULE=on
+  # 模块包下载及安装, 目录结构 bin/ + pkg/ + src/
+  export GOPATH="${GOROOT%/*}/modules"
 
   # Go 模块代理下载地址(国内加速镜像)
 # export GOPROXY="https://goproxy.io,direct" # 官方地址
   export GOPROXY="https://goproxy.cn,direct" # 七牛 CDN
 # export GOPROXY="https://mirrors.aliyun.com/goproxy,direct" # 阿里云
+
+  # export GOCACHE="" # 编译缓存, 默认值 ~/.cache/go-build
+  # export GOENV=""   # 用户配置, 默认值 ~/.config/go/env
 fi
 
 if @zeta:xsh:has-cmd npm; then
@@ -151,7 +154,7 @@ function @zeta:3rd:switch-to() {
 }
 
 function @zeta:3rd:usage-help() {
-  local _PkgName_=( go  rust  cmake  java  nodejs )
+  local _PkgName_=( cmake  go  nim  rust  nodejs  java )
   echo
   echo -e "-> $(@C3 switch-to) $(@R3 'sys-default')"
   echo
@@ -170,7 +173,7 @@ function switch-to() {
   case "$1" in
     sys-default)
       local bin="${ZETA_DIR}/3rd/bin" sln
-      local SymLinkNames=( js cmk rust gems java go gofmt )
+      local SymLinkNames=( gems  cmk  go gofmt  js  nim  rust  java )
       for sln in ${SymLinkNames}; do
         [[ -h "${bin}/${sln}" ]] && {
           printf "Remove $(@Y3 ${sln}) $(@D9 '->') "
@@ -179,21 +182,20 @@ function switch-to() {
         }
       done
       ;;
+    cmake)
+      @zeta:3rd:switch-to cmake   "$2"  cmk   ;;  # cmake/$2/bin
     go)
-      @zeta:3rd:switch-to go "$2"  go  gofmt
+      @zeta:3rd:switch-to go      "$2"  go  gofmt
       export GOROOT="${ZETA_DIR}/3rd/vendor/$1/$2"
       ;;
+    nim)
+      @zeta:3rd:switch-to nim     "$2"  nim   ;;  #  nim/$2/bin
     rust)
-      @zeta:3rd:switch-to rust "$2" rust    # rust/$2/bin
-      ;;
-    cmake)
-      @zeta:3rd:switch-to cmake "$2" cmk    # cmake/$2/bin
-      ;;
+      @zeta:3rd:switch-to rust    "$2"  rust  ;;  # rust/$2/bin
     java)
-      @zeta:3rd:switch-to java "$2" java    # java/$2/bin
-      ;;
+      @zeta:3rd:switch-to java    "$2"  java  ;;  # java/$2/bin
     nodejs)
-      @zeta:3rd:switch-to nodejs "$2" js    # nodejs/$2/bin
+      @zeta:3rd:switch-to nodejs  "$2"  js      # nodejs/$2/bin
       export NODE_PATH="${ZETA_DIR}/3rd/vendor/$1/$2/lib/node_modules"
       ;;
     *)
@@ -208,7 +210,7 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
     local context state state_descr line
 
     function @zeta:once±top-cmds() {
-      local -a apps=( sys-default  cmake  go  rust  nodejs  java )
+      local -a apps=( sys-default  cmake  go  nim  rust  nodejs  java )
       _describe 'command' apps
     }
 
@@ -224,7 +226,7 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
   compdef @zeta:comp:switch-to switch-to
 elif [[ -n "${BASH_VERSION:-}" ]]; then
   function @zeta:comp:switch-to() {
-    local -a apps=( sys-default  cmake  go  rust  nodejs  java )
+    local -a apps=( sys-default  cmake  go  nim  rust  nodejs  java )
     if [[ "switch-to" == "$3" ]]; then
       COMPREPLY=($(compgen -W "${apps[*]}" -- "$2"))
     else
