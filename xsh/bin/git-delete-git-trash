@@ -12,36 +12,38 @@ fi
 
 function no-cmd() { ! command -v "$1" > /dev/null; }
 
-# 同时重定向标准输出和标准错误
-# &> /dev/null         Bash/ZSH shortcut
-#  > /dev/null 2>&1    POSIX-compatible shell
-function is-inside-git-work-tree() {
-  no-cmd git && return 1
-  git rev-parse --is-inside-work-tree &> /dev/null
-}
-
-! is-inside-git-work-tree && exit 1
-
-DOT_GIT_DIR="$(git rev-parse --show-toplevel)/.git"
-echo "$(@G3 '(Meta)') $(@Y3 ${DOT_GIT_DIR})"
-
 function delete-meta-trash() {
-  echo "$(@R3 delete) $(@D9 "${DOT_GIT_DIR}/")$(@P3 $1)"
-
   if [[ -f "${DOT_GIT_DIR}/$1" ]]; then
+    echo "$(@R3 delete) $(@D9 "${DOT_GIT_DIR}/")$(@P3 $1)"
     rm --force "${DOT_GIT_DIR}/$1"
   elif [[ -d "${DOT_GIT_DIR}/$1" ]]; then
+    echo "$(@R3 delete) $(@D9 "${DOT_GIT_DIR}/")$(@P3 "$1/")"
     rm --force --recursive "${DOT_GIT_DIR}/$1"
   fi
 }
+
+no-cmd git && exit 1
+
+# 同时重定向标准输出和标准错误
+# &> /dev/null         Bash/ZSH shortcut
+#  > /dev/null 2>&1    POSIX-compatible shell
+isInsideGitWorkTree="$(git rev-parse --is-inside-work-tree 2> /dev/null)"
+(( $? != 0 )) && { exit 1; } # 非 work-tree 或 bare 仓库
+
+DOT_GIT_DIR="${PWD}" # bare 库
+if ${isInsideGitWorkTree}; then
+  DOT_GIT_DIR="$(git rev-parse --show-toplevel)/.git"
+fi
+
+echo "$(@G3 '(Meta)') $(@Y3 ${DOT_GIT_DIR})"
 
 delete-meta-trash ORIG_HEAD
 delete-meta-trash FETCH_HEAD
 delete-meta-trash COMMIT_EDITMSG
 
-delete-meta-trash hooks/      # 仓库级 hooks 脚本
-delete-meta-trash logs/       # 本地 commit 历史记录
-delete-meta-trash branches/   # 历史遗留目录(已废弃)
+delete-meta-trash hooks      # 仓库级 hooks 脚本
+delete-meta-trash logs       # 本地 commit 历史记录
+delete-meta-trash branches   # 历史遗留目录(已废弃)
 echo
 @D9 'delete all unreachable/trash objects then do compress'
 echo
