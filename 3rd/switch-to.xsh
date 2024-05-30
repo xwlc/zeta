@@ -3,6 +3,60 @@
 # Created By: Charles Wong 2023-11-24T20:01:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
+# Cherry pick toolchain & tools, ignore if not exist
+path-head-add "${ZETA_DIR}/3rd/bin/gems"  #     GEM_HOME/bin
+path-head-add "${ZETA_DIR}/3rd/bin/java"  #   Java/X.Y.Z/bin
+path-head-add "${ZETA_DIR}/3rd/bin/rust"  #   Rust/X.Y.Z/bin
+path-head-add "${ZETA_DIR}/3rd/bin/nim"   #    Nim/X.Y.Z/bin
+path-head-add "${ZETA_DIR}/3rd/bin/cmk"   #  CMake/X.Y.Z/bin
+path-head-add "${ZETA_DIR}/3rd/bin/js"    # NodeJS/X.Y.Z/bin
+path-head-add "${ZETA_DIR}/3rd/bin"
+
+# RubyGems Package Install Location GEM_HOME
+# https://jekyllrb.com/docs/installation/ubuntu
+if [[ -d "${ZETA_DIR}/3rd/vendor/gems" ]]; then
+  export GEM_HOME="${ZETA_DIR}/3rd/vendor/gems"
+fi
+
+# 终端显示 NodeJS 安装位置 $ npm config get prefix
+if @zeta:xsh:has-cmd npm; then
+  NODE_PATH="$(readlink "${ZETA_DIR}/3rd/bin/js")"
+  export NODE_PATH="${NODE_PATH%/*}/lib/node_modules"
+fi
+
+# 终端显示当前 Go 环境变量 $ go env
+if @zeta:xsh:has-cmd go; then
+  GOROOT="$(realpath "${ZETA_DIR}/3rd/bin/go")" # => go/X.Y.Z/bin/go
+  export GOROOT="${GOROOT%/bin/go}" # 安装目录  # => go/X.Y.Z
+
+  # 启用 module-aware 模式
+  export GO111MODULE=on
+  # 模块包下载及安装, 目录结构 bin/ + pkg/ + src/
+  export GOPATH="${GOROOT%/*}/modules"
+
+  # Go 模块代理下载地址(国内加速镜像)
+# export GOPROXY="https://goproxy.io,direct" # 官方地址
+  export GOPROXY="https://goproxy.cn,direct" # 七牛 CDN
+# export GOPROXY="https://mirrors.aliyun.com/goproxy,direct" # 阿里云
+
+  # export GOCACHE="" # 编译缓存, 默认值 ~/.cache/go-build
+  # export GOENV=""   # 用户配置, 默认值 ~/.config/go/env
+fi
+
+# Rust 编译器的安装及升级(多版本管理)
+# 默认值 ~/.rustup 或 %USERPROFILE%/.rustup
+# https://rust-lang.github.io/rustup/environment-variables.html
+if [[ -d "${ZETA_DIR}/3rd/vendor/rust/rustup" ]]; then
+  export RUSTUP_HOME="${ZETA_DIR}/3rd/vendor/rust/rustup"
+fi
+
+# 依赖包的下载及构建缓存 => 提升效率
+# 默认值 ~/.cargo 或 %USERPROFILE%/.cargo
+# https://doc.rust-lang.org/stable/cargo/reference/environment-variables.html
+if [[ -d "${ZETA_DIR}/3rd/vendor/rust/cargo" ]]; then
+  export CARGO_HOME="${ZETA_DIR}/3rd/vendor/rust/cargo"
+fi
+
 function zman() {
   local cmkMAN  jsMAN  rustMAN  javaMAN
 
@@ -60,60 +114,6 @@ function zman() {
     ;;
   esac
 }
-
-# Cherry pick toolchain & tools, ignore if not exist
-path-head-add "${ZETA_DIR}/3rd/bin/gems"  #     GEM_HOME/bin
-path-head-add "${ZETA_DIR}/3rd/bin/java"  #   Java/X.Y.Z/bin
-path-head-add "${ZETA_DIR}/3rd/bin/rust"  #   Rust/X.Y.Z/bin
-path-head-add "${ZETA_DIR}/3rd/bin/nim"   #    Nim/X.Y.Z/bin
-path-head-add "${ZETA_DIR}/3rd/bin/cmk"   #  CMake/X.Y.Z/bin
-path-head-add "${ZETA_DIR}/3rd/bin/js"    # NodeJS/X.Y.Z/bin
-path-head-add "${ZETA_DIR}/3rd/bin"
-
-# NOTE `go env` 显示当前 Go 环境变量
-if @zeta:xsh:has-cmd go; then
-  GOROOT="$(realpath "${ZETA_DIR}/3rd/bin/go")" # => go/X.Y.Z/bin/go
-  export GOROOT="${GOROOT%/bin/go}" # 安装目录  # => go/X.Y.Z
-
-  # 启用 module-aware 模式
-  export GO111MODULE=on
-  # 模块包下载及安装, 目录结构 bin/ + pkg/ + src/
-  export GOPATH="${GOROOT%/*}/modules"
-
-  # Go 模块代理下载地址(国内加速镜像)
-# export GOPROXY="https://goproxy.io,direct" # 官方地址
-  export GOPROXY="https://goproxy.cn,direct" # 七牛 CDN
-# export GOPROXY="https://mirrors.aliyun.com/goproxy,direct" # 阿里云
-
-  # export GOCACHE="" # 编译缓存, 默认值 ~/.cache/go-build
-  # export GOENV=""   # 用户配置, 默认值 ~/.config/go/env
-fi
-
-if @zeta:xsh:has-cmd npm; then
-  # 获取 NODE 安装位置 $ npm config get prefix
-  NODE_PATH="$(readlink "${ZETA_DIR}/3rd/bin/js")"
-  export NODE_PATH="${NODE_PATH%/*}/lib/node_modules"
-fi
-
-# RubyGems Package Install Location GEM_HOME
-# https://jekyllrb.com/docs/installation/ubuntu
-if [[ -d "${ZETA_DIR}/3rd/vendor/gems" ]]; then
-  export GEM_HOME="${ZETA_DIR}/3rd/vendor/gems"
-fi
-
-# 保存已安装的 toolchain 及 config
-# 默认值 ~/.rustup 或 %USERPROFILE%/.rustup
-# https://rust-lang.github.io/rustup/environment-variables.html
-if [[ -d "${ZETA_DIR}/3rd/vendor/rust/rustup" ]]; then
-  export RUSTUP_HOME="${ZETA_DIR}/3rd/vendor/rust/rustup"
-fi
-
-# 保存项目下载的依赖包(缓存)
-# 默认值 ~/.cargo 或 %USERPROFILE%/.cargo
-# https://doc.rust-lang.org/stable/cargo/reference/environment-variables.html
-if [[ -d "${ZETA_DIR}/3rd/vendor/rust/cargo" ]]; then
-  export CARGO_HOME="${ZETA_DIR}/3rd/vendor/rust/cargo"
-fi
 
 function @zeta:3rd:get-pkg-version() {
   local app="${ZETA_DIR}/3rd/vendor/$1"
