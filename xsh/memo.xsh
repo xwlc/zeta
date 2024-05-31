@@ -43,14 +43,18 @@ function @zeta:memo:msgtj() {
         # 十二地支 => 十二小时
         printf "[Δ-1, Δ+1]" # 例如 子时 => [23:00, 01:00]
       else
-        printf "$(@R9 ${it})${space}"
+        printf "$(@R3 ${it})${space}"
       fi
     fi
   done
   echo
 }
 
-function memo-times() {
+function memo-cs() { # 基本常识为啥总是混淆 ~_~
+  echo
+  printf "               $(@B3 dʒiː) $(@D9 '<-') $(@G3 G)"
+  echo   "     $(@G3 J) $(@D9 '->') $(@B3 dʒeɪ)"
+  @zeta:memo:msgtj '字母序' A B C D E, F G H I J, K L M N O, P Q R S T, U V W X Y, Z
   echo
   @zeta:memo:msgrb Mon. 壹/一 Monday
   @zeta:memo:msgrb Tue. 贰/二 Tuesday
@@ -75,13 +79,13 @@ function memo-times() {
   echo
 }
 
-function memo-cultural() {
+function memo-zhc() {
+  echo
   echo "易经八卦 => ☯  阳数($(@R3 奇数)) & 阴数($(@D9 偶数))"
   @zeta:memo:msgtj '天干' 甲  乙  丙  丁  戊  己  庚  辛  壬  癸
   @zeta:memo:msgtj '地支' 子  丑  寅  卯  辰  巳  午  未  申  酉  戌  亥
   @zeta:memo:msgtj '生肖' 鼠  牛  虎  兔  龙  蛇  马  羊  猴  鸡  狗  猪
   @zeta:memo:msgtj '时间' 00  02  04  06  08  10  12  14  16  18  20  22 Δ
-  @zeta:memo:msgtj '字母' A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
   echo
 
   echo -n "干支纪法(组合规律) => ☯  "
@@ -144,6 +148,7 @@ printf "│         "
   echo "├────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┼──────┤"
   echo "│ 气 │${z01}│${z02}│${z03}│${z04}│${z05}│${z06}│${z07}│${z08}│${z09}│${z10}│${z11}│${z12}│"
   echo "└────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┴──────┘"
+  echo
 }
 
 function memo-lunar() {
