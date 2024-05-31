@@ -136,6 +136,32 @@ function @zeta:3rd:update-symlink() {
 
 function @zeta:3rd:switch-to() {
   local pkg="$1" selected="$2" version
+
+  if [[ "$2" == "reset" ]]; then
+    local binEXE=$1 pkgBIN
+    case $1 in
+        rust) binEXE=rustc ;;
+      nodejs) binEXE=node  ;;
+    esac
+
+    pkgBIN="$(command -v ${binEXE})"
+    pkgBIN="$(realpath "${pkgBIN}")"
+    pkgBIN="${pkgBIN%/*}"
+    if ! @zeta:3rd:is-vendor-app "${pkgBIN}"; then
+      return
+    fi
+
+    local pickDIR="${ZETA_DIR}/3rd/pick"
+    for binEXE in $(ls "${pkgBIN}"); do
+      [[ -h "${pickDIR}/${binEXE}" ]] && {
+          printf "Delete $(@D9 '3rd/pick/')$(@Y3 %-12s) $(@D9 '->') " ${binEXE}
+          echo "$(@G3 "$(realpath "${pickDIR}/${binEXE}")")"
+          rm -f "${pickDIR}/${binEXE}"
+      }
+    done
+    return
+  fi
+
   for version in $(@zeta:3rd:get-pkg-version ${pkg}); do
     [[ "${selected}" == "${version}" ]] && {
       local pkgBIN="${pkg}/${version}/bin" binEXE
@@ -212,7 +238,7 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
     _arguments ':app:@zeta:once±top-cmds' ':version:->todo'
     if [[ "todo" == "${state[1]}" ]]; then
       local -a verlist
-      verlist=( $(@zeta:3rd:get-pkg-version ${line[1]}) )
+      verlist=( reset $(@zeta:3rd:get-pkg-version ${line[1]}) )
       _describe 'command' verlist
     fi
 
@@ -225,7 +251,7 @@ elif [[ -n "${BASH_VERSION:-}" ]]; then
     if [[ "switch-to" == "$3" ]]; then
       COMPREPLY=($(compgen -W "${apps[*]}" -- "$2"))
     else
-      COMPREPLY=($(compgen -W "$(@zeta:3rd:get-pkg-version "$3")" -- "$2"))
+      COMPREPLY=($(compgen -W "reset $(@zeta:3rd:get-pkg-version "$3")" -- "$2"))
     fi
   }
   complete -o nosort -F @zeta:comp:switch-to switch-to
