@@ -1,4 +1,4 @@
-# Shell
+# Terminal Shell
 
 - https://wiki.archlinux.org/title/Command-line_shell
 
