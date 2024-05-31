@@ -130,7 +130,7 @@ function @zeta:3rd:update-symlink() {
   local app="${ZETA_DIR}/3rd/vendor/$2"
   if [[ -f "${app}" || -h "${app}" ]]; then
     ln -sTf "${app}" "${sym}"
-    printf "Create $(@G3 "%-12s") $(@D9 '->') $(@Y3 "${app}")\n" "$1"
+    printf "Create $(@D9 '3rd/pick/')$(@G3 "%-12s") $(@D9 '->') $(@Y3 "${app}")\n" "$1"
   fi
 }
 
