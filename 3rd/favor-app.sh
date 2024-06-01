@@ -3,19 +3,35 @@
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
 
+no-cmd apt && exit 1
+
 if [[ "$1" != "INSTALL" ]]; then
   DRY_RUN='--dry-run'
 fi
 
-# apt show gcc clang
 # apt search ^gcc-[0-9][0-9]$
 # apt search ^clang-[0-9][0-9]$
+sudo apt install ${DRY_RUN} gcc clang git
 sudo apt install ${DRY_RUN} build-essential
 
 # APT 包文件搜索/显示工具
-# apt-show-versions
 sudo apt install ${DRY_RUN} apt-file
 [[ -z "${DRY_RUN}" ]] && sudo apt-file update # 更新缓存
+
+IS_DEFAULT_ZSH="$(cat /etc/passwd | grep ${USER} | grep zsh)"
+if [[ -z "${IS_DEFAULT_ZSH}" ]]; then
+  sudo apt install ${DRY_RUN} zsh # 默认终端 ZSH
+  [[ -z "${DRY_RUN}" ]] && chsh --shell /usr/bin/zsh
+fi
+
+if false; then # 备份操作系统
+  # https://github.com/linuxmint/timeshift
+  sudo apt install ${DRY_RUN} timeshift
+
+  # https://github.com/scop/bash-completion
+  # https://github.com/zsh-users/zsh-completions
+  sudo apt install ${DRY_RUN} bash-completion
+fi
 
 # https://www.rodsbooks.com/gdisk
 # https://sourceforge.net/projects/gptfdisk/files/gptfdisk
@@ -23,30 +39,11 @@ sudo apt install ${DRY_RUN} gdisk
 # https://github.com/storaged-project
 # https://www.freedesktop.org/wiki/Software/udisks
 sudo apt install ${DRY_RUN} udisks2
-# https://www.smartmontools.org
-sudo apt install ${DRY_RUN} smartmontools
 # https://nvmexpress.org
 # https://github.com/linux-nvme/nvme-cli
 sudo apt install ${DRY_RUN} nvme-cli
-
-if false; then
-  # https://github.com/linuxmint/timeshift
-  sudo apt install ${DRY_RUN} timeshift # 操作系统备份
-fi
-
-IS_DEFAULT_ZSH="$(cat /etc/passwd | grep ${USER} | grep zsh)"
-if [[ -z "${IS_DEFAULT_ZSH}" ]]; then
-  sudo apt install ${DRY_RUN} git zsh
-  # 用户默认终端设置为 ZSH
-  [[ -z "${DRY_RUN}" ]] && chsh --shell /usr/bin/zsh
-fi
-
-# https://github.com/scop/bash-completion
-# https://github.com/zsh-users/zsh-completions
-sudo apt install ${DRY_RUN} bash-completion
-
-# LF/CRLF/CR 换行符转换
-sudo apt install ${DRY_RUN} dos2unix
+# https://www.smartmontools.org
+sudo apt install ${DRY_RUN} smartmontools
 
 if true; then
   sudo apt install ${DRY_RUN} bcompare
@@ -55,6 +52,7 @@ else
 fi
 
 sudo apt install ${DRY_RUN} neovim
+sudo apt install ${DRY_RUN} dos2unix
 sudo apt install ${DRY_RUN} curl wget
 sudo apt install ${DRY_RUN} asciidoctor
 sudo apt install ${DRY_RUN} 7zip 7zip-rar
@@ -106,6 +104,14 @@ no-cmd cppcheck && sudo apt install ${DRY_RUN} cppcheck
 
 # https://sourceware.org/elfutils
 # sudo apt install ${DRY_RUN} elfutils
+
+# https://tracker.debian.org/pkg/qtcreator
+# https://tracker.debian.org/pkg/qt6-base
+# https://tracker.debian.org/pkg/qtbase-opensource-src
+if false; then
+  sudo apt install ${DRY_RUN} qtcreator
+  sudo apt install ${DRY_RUN} qtbase5-dev
+fi
 
 ######################
 # 手动下载/解压/配置 #
