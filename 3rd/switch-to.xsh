@@ -58,18 +58,17 @@ fi
 function zman() {
   local cmkMAN  jsMAN  rustMAN  javaMAN
 
-  if [[ -h "${ZETA_DIR}/3rd/bin/cmk" ]]; then
-    cmkMAN="$(realpath "${ZETA_DIR}/3rd/bin/cmk/../man")"
-  fi
-  if [[ -h "${ZETA_DIR}/3rd/bin/js" ]]; then
-    jsMAN="$(realpath "${ZETA_DIR}/3rd/bin/js/../share/man")"
-  fi
-  if [[ -h "${ZETA_DIR}/3rd/bin/java" ]]; then
-    javaMAN="$(realpath "${ZETA_DIR}/3rd/bin/java/../man")"
-  fi
-  if [[ -h "${ZETA_DIR}/3rd/bin/rust" ]]; then
-    rustMAN="$(realpath "${ZETA_DIR}/3rd/bin/rust/../share/man")"
-  fi
+  cmkMAN="$(@zeta:3rd:get-app-vendor-path cmake)"
+  [[ -n "${cmkMAN}" ]] && cmkMAN="$(realpath "${cmkMAN}/../man")"
+
+  jsMAN="$(@zeta:3rd:get-app-vendor-path node)"
+  [[ -n "${jsMAN}" ]] && jsMAN="$(realpath "${jsMAN}/../share/man")"
+
+  javaMAN="$(@zeta:3rd:get-app-vendor-path java)"
+  [[ -n "${javaMAN}" ]] && javaMAN="$(realpath "${javaMAN}/../man")"
+
+  rustMAN="$(@zeta:3rd:get-app-vendor-path rustc)"
+  [[ -n "${rustMAN}" ]] && rustMAN="$(realpath "${rustMAN}/../share/man")"
 
   if [[ $# -eq 3 ]]; then
     local xMAN
@@ -99,22 +98,40 @@ function zman() {
       echo
       echo "Usage: $(@C3 zman) $(@Y3 '<C|R|J>') $(@R3 '<1-8>') $(@B3 '<XXX>')"
       echo
-      echo "$(@G3 cmake) $(@D9 'Manual Pages')"
-      command ls "${cmkMAN}/man1/"
-      command ls "${cmkMAN}/man7/"
-      echo
-      echo "$(@G3 rust) $(@D9 'Manual Pages')"
-      command ls "${rustMAN}/man1/"
-      echo
-      echo "$(@G3 java) $(@D9 'Manual Pages')"
-      command ls "${javaMAN}/man1/"
-      echo
+
+      if [[ -n "${cmkMAN}" ]]; then
+        echo "$(@G3 cmake) $(@D9 'Manual Pages')"
+        command ls "${cmkMAN}/man1/"
+        command ls "${cmkMAN}/man7/"
+      fi
+
+      if [[ -n "${rustMAN}" ]]; then
+        echo
+        echo "$(@G3 rust) $(@D9 'Manual Pages')"
+        command ls "${rustMAN}/man1/"
+        echo
+      fi
+
+      if [[ -n "${javaMAN}" ]]; then
+        echo "$(@G3 java) $(@D9 'Manual Pages')"
+        command ls "${javaMAN}/man1/"
+        echo
+      fi
     ;;
   esac
 }
 
 function @zeta:3rd:is-vendor-app() {
   [[ "$1" =~ "^${ZETA_DIR}/3rd/vendor/*" ]]
+}
+
+function @zeta:3rd:get-app-vendor-path() {
+  local avpath="$(command -v $1)"
+  avpath="$(realpath "${avpath}")"
+  avpath="${avpath%/*}"
+  if @zeta:3rd:is-vendor-app "${avpath}"; then
+    echo "${avpath}"
+  fi
 }
 
 function @zeta:3rd:get-pkg-version() {
@@ -144,12 +161,8 @@ function @zeta:3rd:switch-to() {
       nodejs) binEXE=node  ;;
     esac
 
-    pkgBIN="$(command -v ${binEXE})"
-    pkgBIN="$(realpath "${pkgBIN}")"
-    pkgBIN="${pkgBIN%/*}"
-    if ! @zeta:3rd:is-vendor-app "${pkgBIN}"; then
-      return
-    fi
+    pkgBIN="$(@zeta:3rd:get-app-vendor-path ${binEXE})"
+    [[ -z "${pkgBIN}" ]] && return
 
     local pickDIR="${ZETA_DIR}/3rd/pick"
     for binEXE in $(ls "${pkgBIN}"); do
