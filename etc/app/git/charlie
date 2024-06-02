@@ -37,3 +37,6 @@
 # https://git-scm.com/docs/git-config#_example
 # includeIf hasconfig:remote.*.url: was added in git version 2.36.0
 # https://github.com/git/git/commit/399b198489a041e2842fb4b257bea5adb02d28d1
+
+#[url "https://140.82.113.3/"]
+#  insteadOf = https://github.com/

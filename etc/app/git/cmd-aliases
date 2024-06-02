@@ -367,14 +367,18 @@ aliases = "!git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /'"
 
 # Initalize a repo and immediately add an empty rebaseable commit. This makes
 # later rebase easier, because it can go all the way back to the first commit.
+#
+# MD5     哈希值 16 字节   SHA256    哈希值 32 字节
+# SHA1    哈希值 20 字节   SHA384    哈希值 49 字节
+# SHA224  哈希值 28 字节   SHA512    哈希值 64 字节
 init-repo1 = "!f() { \
     git init --object-format=sha1; \
-    git commit --allow-empty --message 'Init Commit'; \
+    git commit --allow-empty --message 'init: repo none commit'; \
   }; f"
 
 init-repo2 = "!f() { \
     git init --object-format=sha256; \
-    git commit --allow-empty --message 'Init Commit'; \
+    git commit --allow-empty --message 'init: repo none commit'; \
   }; f"
 
 # list all the branches, local & remote both included
