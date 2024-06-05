@@ -578,9 +578,10 @@ if (process.argv.length == 2) {
   outmsg += xcolor('Y', sc.sci.mins);
   outmsg += " - ";
   outmsg += xcolor('B', sc.sci.nick);
-  outmsg += "(";
-  outmsg += xcolor('X', sc.sci.geng);
-  outmsg += ")\n";
+  if(sc.sci.geng) {
+    outmsg += "(" + xcolor('X', sc.sci.geng) + ")";
+  }
+  outmsg += "\n";
 
   outmsg += YMD + '  ';
   outmsg += xcolor('G', lc.gz.y.gan);
