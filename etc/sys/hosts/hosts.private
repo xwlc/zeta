@@ -1,0 +1,29 @@
+# See `man hosts` for detail file format infomation
+# https://man7.org/linux/man-pages/man5/hosts.5.html
+# 格式 IpAddress  CanonicalName  Alias1  Alias2  ...
+
+# LY9KH is the name from /etc/hostname file
+# Debian Hostname Workaround, See section 5.1.1
+# https://www.debian.org/doc/manuals/debian-reference
+127.0.1.1                 LY9KH
+127.0.1.2                 is.me
+# https://simpledns.plus/private-ipv6
+fd8d:8a3d:fe50:b84d::1    LY9KH
+fd8d:8a3d:fe50:b84d::2    is.me
+
+# IPv4 broadcast is superseded by IPv6 multicast
+255.255.255.255           broadcasthost
+# Local Loopback Address
+127.0.0.1                 localhost  ip4-loopback  ip4-localhost
+::1                       localhost  ip6-loopback  ip6-localhost
+
+# https://www.iana.org/assignments/ipv6-address-space
+# https://www.iana.org/assignments/ipv6-multicast-addresses
+ff02::1                   ip6-allnodes
+ff02::2                   ip6-allrouters
+
+# BUG -> https://github.com/systemd/systemd/issues/22178
+# systemd-resolved crash by invalid address -> fe80::1%lo
+# 内核日志 -> $ journalctl --no-pager -u systemd-resolved
+# Link-Local Unicast
+#fe80::1%lo               localhost
