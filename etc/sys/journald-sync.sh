@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ "$0" == "journald.xsh" ]]; then
+if [[ "$0" == "journald-sync.sh" ]]; then
   THIS_DIR="${PWD}"
 else
   THIS_DIR="$(realpath "${0%/*}")"

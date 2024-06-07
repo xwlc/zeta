@@ -5,7 +5,12 @@
 # Repository: https://github.com/xwlc/zeta
 
 THIS_FNAME="$(basename "$0")"
-THIS_DIR="$(realpath "${0%/*}")"
+if [[ "$0" == "status.sh" ]]; then
+  THIS_DIR="${PWD}"
+else
+  THIS_DIR="$(realpath "${0%/*}")"
+fi
+
 ZETA_DIR="$(realpath "${THIS_DIR}/..")"
 # ${0%/*}  仅删除 $0 结尾文件名(匹配最短)
 # ${0##*/} 仅保留 $0 结尾文件名(匹配最长)
@@ -27,6 +32,7 @@ fi
 
 function tree-like-status() {
   local xDIR="$2" orgSRC="$3" dstSYS="$4" MAX=$5 hashZ hashS
+  [[ ! -f "${ZETA_DIR}/etc/${xDIR}/${orgSRC}" ]] && return
 
   hashZ=$(md5sum "${ZETA_DIR}/etc/${xDIR}/${orgSRC}" | cut -d' ' -f1)
   [[ -f "${dstSYS}" ]] && hashS=$(md5sum "${dstSYS}" | cut -d' ' -f1)
@@ -110,11 +116,17 @@ function etc-sys-fstab() {
   echo
 }
 
+function etc-sys-hosts() {
+  echo "$(@D9 ${ZETA_DIR}/etc/)$(@B3 sys/hosts)"
+  tree-like-status ONE "sys/hosts" hosts "/etc/hosts"
+  echo
+}
+
 function ect-sys-files() {
   echo "$(@D9 ${ZETA_DIR}/etc/)$(@B3 'sys/*.*')"
   local orgSRC dstSYS
 
-  orgSRC="fcitx5-punc.ini"
+  orgSRC="fcitx5.punc"
   dstSYS="/usr/share/fcitx5/punctuation/punc.mb.zh_CN"
   tree-like-status BEG "sys" "${orgSRC}" "${dstSYS}"
 
@@ -139,12 +151,13 @@ function show-home-symlink() {
     linksrc="$(readlink "${HOME}/${symlink}")"
     printf "$(@R3 "${HOME}")/$(@G3 ${symlink}) -> $(@Y3 "${linksrc}")\n"
   else
-      echo "$(@R3 "${HOME}")/$(@D9 ${symlink})"
+    echo "$(@R3 "${HOME}")/$(@D9 ${symlink})"
   fi
 }
 
 etc-sys-apt
 etc-sys-fstab
+etc-sys-hosts
 ect-sys-files
 
 show-home-symlink ".ssh"

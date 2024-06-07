@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ "$0" == "updatedb.xsh" ]]; then
+if [[ "$0" == "updatedb-sync.sh" ]]; then
   THIS_DIR="${PWD}"
 else
   THIS_DIR="$(realpath "${0%/*}")"
