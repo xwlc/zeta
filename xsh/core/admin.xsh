@@ -166,9 +166,9 @@ function admin-show-boot-log() {
   esac
 }
 
-alias admin-journalctl-rm-all-logs='sudo journalctl --rotate --vacuum-time=1s'
+alias admin-rm-system-logs='sudo journalctl --rotate --vacuum-time=1s'
 
-function admin-rm-all-system-logs() {
+function @zeta:admin:del-all-sys-logs() {
   local xlog
 
   function once±clean-reset-system-logs() {
@@ -296,7 +296,7 @@ function admin-clean-system-trash() {
   # 关于 /tmp 和 /var/tmp 目录
   # https://systemd.io/TEMPORARY_DIRECTORIES/
 
-  admin-rm-all-system-logs # 清空系统日志文件
+  @zeta:admin:del-all-sys-logs # 清空系统日志文件
   [[ -z "${is_enable_nullglob}" ]] && @zeta:zsh:opt:disable nullglob
 
   echo "Clean/Reset home trash => $(@G3 ~/.xsession-errors)"
