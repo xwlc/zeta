@@ -3,10 +3,10 @@ CursorShape=1
 
 [General]
 InvertSelectionColors=false
-LocalTabTitleFormat=[L:%#:%n] %u
+LocalTabTitleFormat=%n: %u
 Name=Charles Wong
 Parent=FALLBACK/
-RemoteTabTitleFormat=[R:%#:%n] %u
+RemoteTabTitleFormat=%n: %u
 
 [Scrolling]
 HistorySize=3000
