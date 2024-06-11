@@ -57,15 +57,15 @@ function print-version-info() {
 
 # https://github.com/beyondgrep/ack3
 function check-bin/ack() {
-  if [[ -x "${THIS_DIR}/bin/ack" ]]; then
-    local new_version="$(github-latest-tag-of beyondgrep/ack3)"
-    local old_version=$(ack --version | head -1 | cut -d' ' -f2)
-    print-version-info ack "${old_version}" "${new_version}"
-  fi
+  [[ ! -x "${THIS_DIR}/bin/ack" ]] && return
+  local new_version="$(github-latest-tag-of beyondgrep/ack3)"
+  local old_version=$(ack --version | head -1 | cut -d' ' -f2)
+  print-version-info ack "${old_version}" "${new_version}"
 }
 
 # https://gitlab.com/saalen/astyle
 function check-bin/astyle() {
+  [[ ! -x "${THIS_DIR}/bin/astyle" ]] && return
   local old_version=$(astyle --version | cut -d' ' -f4)
   local noteHTML=https://astyle.sourceforge.net/notes.html
   local new_version=$(curl --silent ${noteHTML} | head -17 | tail -1)
@@ -76,65 +76,58 @@ function check-bin/astyle() {
 
 # https://github.com/ccache/ccache
 function check-bin/ccache() {
-  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
-    local new_version="$(github-latest-release-of ccache/ccache)"
-    local old_version=$(ccache --version | head -1 | cut -d' ' -f3)
-    print-version-info ccache "v${old_version}" "${new_version}"
-  fi
+  [[ ! -x "${THIS_DIR}/bin/ccache" ]] && return
+  local new_version="$(github-latest-release-of ccache/ccache)"
+  local old_version=$(ccache --version | head -1 | cut -d' ' -f3)
+  print-version-info ccache "v${old_version}" "${new_version}"
 }
 
 # https://github.com/junegunn/fzf
 function check-bin/fzf() {
-  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
-    local new_version="$(github-latest-release-of junegunn/fzf)"
-    local old_version=$(fzf --version | cut -d' ' -f1)
-    print-version-info fzf "${old_version}" "${new_version}"
-  fi
+  [[ ! -x "${THIS_DIR}/bin/fzf" ]] && return
+  local new_version="$(github-latest-release-of junegunn/fzf)"
+  local old_version=$(fzf --version | cut -d' ' -f1)
+  print-version-info fzf "${old_version}" "${new_version}"
 }
 
 # https://github.com/sharkdp/hexyl
 function check-bin/hexyl() {
-  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
-    local new_version="$(github-latest-release-of sharkdp/hexyl)"
-    local old_version=$(hexyl --version | cut -d' ' -f2)
-    print-version-info hexyl "v${old_version}" "${new_version}"
-  fi
+  [[ ! -x "${THIS_DIR}/bin/hexyl" ]] && return
+  local new_version="$(github-latest-release-of sharkdp/hexyl)"
+  local old_version=$(hexyl --version | cut -d' ' -f2)
+  print-version-info hexyl "v${old_version}" "${new_version}"
 }
 
 # https://github.com/gohugoio/hugo
 function check-bin/hugo() {
-  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
-    local new_version="$(github-latest-release-of gohugoio/hugo)"
-    local old_version=$(hugo version | cut -d'-' -f1 | cut -d' ' -f2)
-    print-version-info hugo "${old_version}" "${new_version}"
-  fi
+  [[ ! -x "${THIS_DIR}/bin/hugo" ]] && return
+  local new_version="$(github-latest-release-of gohugoio/hugo)"
+  local old_version=$(hugo version | cut -d'-' -f1 | cut -d' ' -f2)
+  print-version-info hugo "${old_version}" "${new_version}"
 }
 
 # https://github.com/Tomas-M/iotop
 function check-bin/iotop() {
-  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
-    local new_version="$(github-latest-release-of Tomas-M/iotop)"
-    local old_version=$(iotop --version | cut -d' ' -f2)
-    print-version-info iotop "v${old_version}" "${new_version}"
-  fi
+  [[ ! -x "${THIS_DIR}/bin/iotop" ]] && return
+  local new_version="$(github-latest-release-of Tomas-M/iotop)"
+  local old_version=$(iotop --version | cut -d' ' -f2)
+  print-version-info iotop "v${old_version}" "${new_version}"
 }
 
 # https://github.com/jesseduffield/lazygit
 function check-bin/lazygit() {
-  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
-    local new_version="$(github-latest-release-of jesseduffield/lazygit)"
-    local old_version=$(lazygit --version | cut -d',' -f4 | cut -d'=' -f2)
-    print-version-info lazygit "v${old_version}" "${new_version}"
-  fi
+  [[ ! -x "${THIS_DIR}/bin/lazygit" ]] && return
+  local new_version="$(github-latest-release-of jesseduffield/lazygit)"
+  local old_version=$(lazygit --version | cut -d',' -f4 | cut -d'=' -f2)
+  print-version-info lazygit "v${old_version}" "${new_version}"
 }
 
 # https://github.com/nxtrace/NTrace-core
 function check-bin/nxtrace() {
-  if [[ -x "${THIS_DIR}/bin/nxtrace" ]]; then
-    local new_version="$(github-latest-release-of nxtrace/NTrace-core)"
-    local old_version=$(nxtrace --version | head -1 | cut -d' ' -f2)
-    print-version-info nxtrace "${old_version}" "${new_version}"
-  fi
+  [[ ! -x "${THIS_DIR}/bin/nxtrace" ]] && return
+  local new_version="$(github-latest-release-of nxtrace/NTrace-core)"
+  local old_version=$(nxtrace --version | head -1 | cut -d' ' -f2)
+  print-version-info nxtrace "${old_version}" "${new_version}"
 }
 
 check-bin/ack
