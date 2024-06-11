@@ -128,6 +128,15 @@ function check-bin/lazygit() {
   fi
 }
 
+# https://github.com/nxtrace/NTrace-core
+function check-bin/nxtrace() {
+  if [[ -x "${THIS_DIR}/bin/nxtrace" ]]; then
+    local new_version="$(github-latest-release-of nxtrace/NTrace-core)"
+    local old_version=$(nxtrace --version | head -1 | cut -d' ' -f2)
+    print-version-info nxtrace "${old_version}" "${new_version}"
+  fi
+}
+
 check-bin/ack
 check-bin/astyle
 check-bin/ccache
@@ -136,3 +145,4 @@ check-bin/hexyl
 check-bin/hugo
 check-bin/iotop
 check-bin/lazygit
+check-bin/nxtrace
