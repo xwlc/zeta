@@ -86,18 +86,25 @@ function find-dirs-regex() {
 # 1,3 -> 第五列 Major 设备号, 第六列 Minor 次设备号
 
 # https://www.baeldung.com/linux/ls-ignore-hide-files
-_hide_files_='--hide="System Volume Information"' # NTFS 格式系统卷信息
-_hide_files_="${_hide_files_} --hide=\""'\$RECYCLE.BIN''"' # NTFS 回收站
-_hide_files_="${_hide_files_} --hide=\"lost+found\"" # EXT4 数据恢复元数据
-alias ls='/usr/bin/ls --color=auto --time-style=+%FT%T'" ${_hide_files_}"
+_x_args_="--hide='System Volume Information'" # NTFS 格式系统卷信息
+_x_args_="${_x_args_} --hide='\$RECYCLE.BIN'" # NTFS 回收站
+_x_args_="${_x_args_} --hide='lost+found'" # EXT4 数据恢复元数据
+alias ls="/usr/bin/ls --color=auto --time-style=+%FT%T ${_x_args_}"
 if @zeta:xsh:has-cmd eza; then
-  _eza_cmd_=$(command -v eza)
-  _hide_files_="--ignore-glob='System Volume Information"
-  _hide_files_="${_hide_files_}|\$RECYCLE.BIN"
-  _hide_files_="${_hide_files_}|lost+found'"
-  alias eza="${_eza_cmd_} --color=auto --time-style=+%FT%T ${_hide_files_}"
+  _x_cmd_=$(command -v eza) # 忽略 glob 分割符 |
+  _x_args_="--ignore-glob='System Volume Information"
+  _x_args_="${_x_args_}|\$RECYCLE.BIN|lost+found'"
+  alias eza="${_x_cmd_} --color=auto --time-style=+%FT%T ${_x_args_}"
 fi
-unset -v  _eza_cmd_  _hide_files_
+if @zeta:xsh:has-cmd lsd; then
+  _x_cmd_=$(command -v lsd)
+  _x_args_="--ignore-glob='System Volume Information'"
+  _x_args_="${_x_args_} --ignore-glob='\$RECYCLE.BIN'"
+  _x_args_="${_x_args_} --ignore-glob='lost+found'"
+  _x_args_="${_x_args_} --icon=always --icon-theme=unicode"
+  alias lsd="${_x_cmd_} --color=auto --date=+%FT%T ${_x_args_}"
+fi
+unset -v  _x_cmd_  _x_args_
 # https://unix.stackexchange.com/questions/50377
 #alias dir='command dir --color=auto' # compatibility
 # https://unix.stackexchange.com/questions/217757
