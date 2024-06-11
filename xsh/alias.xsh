@@ -39,8 +39,8 @@ unset -v _list_
 # https://dystroy.org/broot/install-br
 @zeta:xsh:has-cmd broot && BR_INSTALL=no
 
-@zeta:xsh:no-cmd duf && alias duf='du -sh *'
-@zeta:xsh:no-cmd dud && alias dud='du -d 1 -h'
+@zeta:xsh:no-cmd zduf && alias zduf='du -sh *'
+@zeta:xsh:no-cmd zdud && alias zdud='du -d 1 -h'
 
 # https://www.baeldung.com/linux/find-command-regex
 # 显示 find 有效的正则表达式名称 => find -regextype help
@@ -53,8 +53,8 @@ unset -v _list_
 # NOTE Shell Glob Special Char
 # .   represents a literal period
 # *   zero or more of any characters
-@zeta:xsh:no-cmd ff && alias ff='find . -type f -name'
-@zeta:xsh:no-cmd fd && alias fd='find . -type d -name'
+@zeta:xsh:no-cmd zff && alias zff='find . -type f -name'
+@zeta:xsh:no-cmd zfd && alias zfd='find . -type d -name'
 
 # 示例命令 touch ok > 'it ok'; echo "it ok" | esc-space | xargs cat
 alias esc-space='sed -e "s/ /\\\\ /g"' # 反斜杠数目: 四 -> 二 -> 一
