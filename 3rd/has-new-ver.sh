@@ -260,6 +260,15 @@ function check-version/jq() { # apt show jq
   print-version-info jq "${old_version}" "${new_version}"
 }
 
+# https://github.com/orf/gping
+function check-version/gping() { # apt show gping
+  no-cmd gping && return # 下载 musl 静态链接版
+  local new_version="$(github-latest-release-of orf/gping)"
+  new_version=$(echo ${new_version} | cut -d'-' -f2)
+  local old_version=$(gping --version | head -1 | cut -d' ' -f2)
+  print-version-info gping "v${old_version}" "${new_version}"
+}
+
 check-version/ninja
 check-version/astyle
 check-version/ccache
@@ -283,6 +292,7 @@ check-version/lsd       # ls  取代者(彩色)         Rust
 check-version/xcat      # cat 取代者(语法高亮)     Rust
 
 check-version/jq        # 终端 JSON 解析           C
+check-version/gping     # 终端 ping 图形化         Rust
 check-version/hexyl     # 十六进制查看工具         Rust
 check-version/lazygit   # 命令行 git 工具          Go
 
