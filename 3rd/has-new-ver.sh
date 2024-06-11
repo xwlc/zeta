@@ -41,10 +41,10 @@ function github-latest-release-of() {
     -H "X-GitHub-Api-Version: ${ApiVersion}" \
     -H "Authorization: Bearer ${GITHUB_ACCESS_TOKEN}" \
     -L  https://api.github.com/repos/${OwnerRepo}/releases/latest | \
-    head -30 | tail -1
+    head -28 | tail -1
   )
   [[ $? -ne 0 ]] && return
-  echo "${xdata}" | sed 's/[",:]//g' | sed 's/name//' | sed 's/ //g'
+  echo "${xdata}" | sed 's/[",:]//g' | sed 's/tag_name//' | sed 's/ //g'
 }
 
 function print-version-info() {
@@ -79,7 +79,7 @@ function check-bin/ccache() {
   if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
     local new_version="$(github-latest-release-of ccache/ccache)"
     local old_version=$(ccache --version | head -1 | cut -d' ' -f3)
-    print-version-info ccache "${old_version}" "${new_version}"
+    print-version-info ccache "v${old_version}" "${new_version}"
   fi
 }
 
@@ -110,9 +110,19 @@ function check-bin/hugo() {
   fi
 }
 
+# https://github.com/Tomas-M/iotop
+function check-bin/iotop() {
+  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
+    local new_version="$(github-latest-release-of Tomas-M/iotop)"
+    local old_version=$(iotop --version | cut -d' ' -f2)
+    print-version-info iotop "v${old_version}" "${new_version}"
+  fi
+}
+
 check-bin/ack
 check-bin/astyle
 check-bin/ccache
 check-bin/fzf
 check-bin/hexyl
 check-bin/hugo
+check-bin/iotop
