@@ -130,6 +130,14 @@ function check-bin/nxtrace() {
   print-version-info nxtrace "${old_version}" "${new_version}"
 }
 
+# https://github.com/ninja-build/ninja
+function check-bin/ninja() {
+  [[ ! -x "${THIS_DIR}/bin/ninja" ]] && return
+  local new_version="$(github-latest-release-of ninja-build/ninja)"
+  local old_version=$(ninja --version)
+  print-version-info ninja "v${old_version}" "${new_version}"
+}
+
 check-bin/ack
 check-bin/astyle
 check-bin/ccache
@@ -138,4 +146,5 @@ check-bin/hexyl
 check-bin/hugo
 check-bin/iotop
 check-bin/lazygit
+check-bin/ninja
 check-bin/nxtrace
