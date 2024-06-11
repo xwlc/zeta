@@ -119,6 +119,15 @@ function check-bin/iotop() {
   fi
 }
 
+# https://github.com/jesseduffield/lazygit
+function check-bin/lazygit() {
+  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
+    local new_version="$(github-latest-release-of jesseduffield/lazygit)"
+    local old_version=$(lazygit --version | cut -d',' -f4 | cut -d'=' -f2)
+    print-version-info lazygit "v${old_version}" "${new_version}"
+  fi
+}
+
 check-bin/ack
 check-bin/astyle
 check-bin/ccache
@@ -126,3 +135,4 @@ check-bin/fzf
 check-bin/hexyl
 check-bin/hugo
 check-bin/iotop
+check-bin/lazygit
