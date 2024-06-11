@@ -10,6 +10,7 @@ fi
 
 source "${THIS_DIR}/../xsh/colors.xsh"
 function has-cmd() { command -v "$1" > /dev/null; }
+function no-cmd() { ! command -v "$1" > /dev/null; }
 
 if [[ -z "${GITHUB_ACCESS_TOKEN}" ]]; then
   @D9 '################################### -> '; @G9 'https://docs.github.com/en/rest'; echo
@@ -56,16 +57,16 @@ function print-version-info() {
 }
 
 # https://github.com/beyondgrep/ack3
-function check-bin/ack() {
-  [[ ! -x "${THIS_DIR}/bin/ack" ]] && return
+function check-version/ack() {
+  no-cmd ack && return
   local new_version="$(github-latest-tag-of beyondgrep/ack3)"
   local old_version=$(ack --version | head -1 | cut -d' ' -f2)
   print-version-info ack "${old_version}" "${new_version}"
 }
 
 # https://gitlab.com/saalen/astyle
-function check-bin/astyle() {
-  [[ ! -x "${THIS_DIR}/bin/astyle" ]] && return
+function check-version/astyle() {
+  no-cmd astyle && return
   local old_version=$(astyle --version | cut -d' ' -f4)
   local noteHTML=https://astyle.sourceforge.net/notes.html
   local new_version=$(curl --silent ${noteHTML} | head -17 | tail -1)
@@ -75,24 +76,24 @@ function check-bin/astyle() {
 }
 
 # https://github.com/ccache/ccache
-function check-bin/ccache() {
-  [[ ! -x "${THIS_DIR}/bin/ccache" ]] && return
+function check-version/ccache() {
+  no-cmd ccache && return
   local new_version="$(github-latest-release-of ccache/ccache)"
   local old_version=$(ccache --version | head -1 | cut -d' ' -f3)
   print-version-info ccache "v${old_version}" "${new_version}"
 }
 
 # https://github.com/junegunn/fzf
-function check-bin/fzf() {
-  [[ ! -x "${THIS_DIR}/bin/fzf" ]] && return
+function check-version/fzf() {
+  no-cmd fzf && return
   local new_version="$(github-latest-release-of junegunn/fzf)"
   local old_version=$(fzf --version | cut -d' ' -f1)
   print-version-info fzf "${old_version}" "${new_version}"
 }
 
 # https://github.com/sharkdp/hexyl
-function check-bin/hexyl() {
-  [[ ! -x "${THIS_DIR}/bin/hexyl" ]] && return
+function check-version/hexyl() {
+  no-cmd hexyl && return
   local new_version="$(github-latest-release-of sharkdp/hexyl)"
   local old_version=$(hexyl --version | cut -d' ' -f2)
   print-version-info hexyl "v${old_version}" "${new_version}"
@@ -100,24 +101,24 @@ function check-bin/hexyl() {
 
 # https://github.com/gohugoio/hugo
 # https://www.newbe.pro/Mirrors/Mirrors-Hugo
-function check-bin/hugo() {
-  [[ ! -x "${THIS_DIR}/bin/hugo" ]] && return
+function check-version/hugo() {
+  no-cmd hugo && return
   local new_version="$(github-latest-release-of gohugoio/hugo)"
   local old_version=$(hugo version | cut -d'-' -f1 | cut -d' ' -f2)
   print-version-info hugo "${old_version}" "${new_version}"
 }
 
 # https://github.com/Tomas-M/iotop
-function check-bin/iotop() {
-  [[ ! -x "${THIS_DIR}/bin/iotop" ]] && return
+function check-version/iotop() {
+  no-cmd iotop && return
   local new_version="$(github-latest-release-of Tomas-M/iotop)"
   local old_version=$(iotop --version | cut -d' ' -f2)
   print-version-info iotop "v${old_version}" "${new_version}"
 }
 
 # https://github.com/jesseduffield/lazygit
-function check-bin/lazygit() {
-  [[ ! -x "${THIS_DIR}/bin/lazygit" ]] && return
+function check-version/lazygit() {
+  no-cmd lazygit && return
   local new_version="$(github-latest-release-of jesseduffield/lazygit)"
   local old_version=$(lazygit --version | cut -d',' -f4 | cut -d'=' -f2)
   print-version-info lazygit "v${old_version}" "${new_version}"
@@ -125,39 +126,52 @@ function check-bin/lazygit() {
 
 # https://www.nxtrace.org/downloads
 # https://github.com/nxtrace/NTrace-core
-function check-bin/nxtrace() {
-  [[ ! -x "${THIS_DIR}/bin/nxtrace" ]] && return
+function check-version/nxtrace() {
+  no-cmd nxtrace && return
   local new_version="$(github-latest-release-of nxtrace/NTrace-core)"
   local old_version=$(nxtrace --version | head -1 | cut -d' ' -f2)
   print-version-info nxtrace "${old_version}" "${new_version}"
 }
 
 # https://github.com/ninja-build/ninja
-function check-bin/ninja() {
-  [[ ! -x "${THIS_DIR}/bin/ninja" ]] && return
+function check-version/ninja() {
+  no-cmd ninja && return
   local new_version="$(github-latest-release-of ninja-build/ninja)"
   local old_version=$(ninja --version)
   print-version-info ninja "v${old_version}" "${new_version}"
 }
 
 # https://github.com/Syllo/nvtop
-function check-bin/nvtop() {
-  [[ ! -x "${THIS_DIR}/bin/nvtop" ]] && return
+function check-version/nvtop() {
+  no-cmd nvtop && return
   local new_version="$(github-latest-release-of Syllo/nvtop)"
   local old_version=$(nvtop --version | cut -d' ' -f3)
   print-version-info nvtop "${old_version}" "${new_version}"
 }
 
+# https://htop.dev
+# https://github.com/htop-dev/htop
+function check-version/htop() {
+  no-cmd htop && return
+  local new_version="$(github-latest-release-of htop-dev/htop)"
+  local old_version=$(htop --version | cut -d' ' -f2)
+  print-version-info htop "${old_version}" "${new_version}"
+}
+
 # https://github.com/ymattw/ydiff/blob/master/ydiff.py
 
-check-bin/ack
-check-bin/astyle
-check-bin/ccache
-check-bin/fzf
-check-bin/hexyl
-check-bin/hugo
-check-bin/iotop
-check-bin/lazygit
-check-bin/ninja
-check-bin/nvtop
-check-bin/nxtrace
+check-version/hugo
+
+check-version/ack
+check-version/fzf
+check-version/hexyl
+check-version/lazygit
+
+check-version/ninja
+check-version/astyle
+check-version/ccache
+
+check-version/htop
+check-version/nvtop
+check-version/iotop
+check-version/nxtrace
