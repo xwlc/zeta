@@ -133,8 +133,3 @@ fi
 # https://nodejs.org/dist
 # https://mirrors.ustc.edu.cn/golang
 # https://forge.rust-lang.org/infra/other-installation-methods.html
-
-# 网络调试      https://www.nxtrace.org/downloads
-# 解压扩展版    https://github.com/gohugoio/hugo/releases
-# TUI 工具      https://github.com/jesseduffield/lazygit/releases
-# 二进制比较    https://github.com/ymattw/ydiff/blob/master/ydiff.py

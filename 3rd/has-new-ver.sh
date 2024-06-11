@@ -99,6 +99,7 @@ function check-bin/hexyl() {
 }
 
 # https://github.com/gohugoio/hugo
+# https://www.newbe.pro/Mirrors/Mirrors-Hugo
 function check-bin/hugo() {
   [[ ! -x "${THIS_DIR}/bin/hugo" ]] && return
   local new_version="$(github-latest-release-of gohugoio/hugo)"
@@ -122,6 +123,7 @@ function check-bin/lazygit() {
   print-version-info lazygit "v${old_version}" "${new_version}"
 }
 
+# https://www.nxtrace.org/downloads
 # https://github.com/nxtrace/NTrace-core
 function check-bin/nxtrace() {
   [[ ! -x "${THIS_DIR}/bin/nxtrace" ]] && return
@@ -138,6 +140,16 @@ function check-bin/ninja() {
   print-version-info ninja "v${old_version}" "${new_version}"
 }
 
+# https://github.com/Syllo/nvtop
+function check-bin/nvtop() {
+  [[ ! -x "${THIS_DIR}/bin/nvtop" ]] && return
+  local new_version="$(github-latest-release-of Syllo/nvtop)"
+  local old_version=$(nvtop --version | cut -d' ' -f3)
+  print-version-info nvtop "${old_version}" "${new_version}"
+}
+
+# https://github.com/ymattw/ydiff/blob/master/ydiff.py
+
 check-bin/ack
 check-bin/astyle
 check-bin/ccache
@@ -147,4 +159,5 @@ check-bin/hugo
 check-bin/iotop
 check-bin/lazygit
 check-bin/ninja
+check-bin/nvtop
 check-bin/nxtrace
