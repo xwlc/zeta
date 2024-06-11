@@ -228,3 +228,16 @@
   # also listen to port 587, or the common SSL smtp port 465
   # The default value for --smtp-server-port=<port>
   smtpServerPort = 587
+
+# => Speed Up Work-Tree
+[feature]
+  # git update-index --show-index-version   显示 .git/index 文件版本
+  # git update-index --index-version  4     更新仓库 .git/index 版本
+  manyFiles = true # index.version 默认值 4 减小 .git/index 文本大小
+
+# => Speed Up Log/History
+[core]
+  commitgraph = true
+  untrackedcache = true # 文件系统需要支持 mtime 特性
+[fetch]
+  writeCommitGraph = true
