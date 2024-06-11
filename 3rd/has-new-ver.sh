@@ -192,26 +192,35 @@ function check-version/xcat() { # apt show bat
   print-version-info xcat "v${old_version}" "${new_version}"
 }
 
+# https://github.com/eza-community/eza
+function check-version/eza() { # apt show eza
+  no-cmd eza && return # 主页 https://eza.rocks
+  local new_version="$(github-latest-tag-of eza-community/eza)"
+  local old_version=$(eza --version | head -2 | tail -1 | cut -d' ' -f1)
+  print-version-info eza "${old_version}" "${new_version}"
+}
+
 check-version/ninja
 check-version/astyle
 check-version/ccache
 
-check-version/htop      # 进程 CPU/MEM 状态监控
-check-version/nvtop     # 监控 GPU 状态
-check-version/iotop     # 磁盘 IO 监控
-check-version/nxtrace   # 类似 ping 带地图(详情)
+check-version/htop      # 进程 CPU/MEM 状态监控    C
+check-version/nvtop     # 监控 GPU 状态            C
+check-version/iotop     # 磁盘 IO 监控             C
+check-version/nxtrace   # 类似 ping 带地图(详情)   Go
 
 check-version/hugo
 
-check-version/ack       # grep 取代者
-check-version/tree      # 显示树状目录结构
-check-version/xcat      # cat 取代者(语法高亮)
+check-version/ack       # grep 取代者              perl
+check-version/tree      # 显示树状目录结构         C
+check-version/eza       # ls 取代者(彩色)          Rust
+check-version/xcat      # cat 取代者(语法高亮)     Rust
 
-check-version/hexyl     # 十六进制查看工具
-check-version/lazygit   # 命令行 git 工具
+check-version/hexyl     # 十六进制查看工具         Rust
+check-version/lazygit   # 命令行 git 工具          Go
 
-check-version/fzf       # 模糊搜索匹配
-# https://github.com/dandavison/delta
-check-version/ov        # 命令行分页器
-# https://github.com/so-fancy/diff-so-fancy
-check-version/ydiff     # diff 带语法高亮
+check-version/fzf       # 模糊搜索匹配             Go
+# https://github.com/dandavison/delta              Rust
+check-version/ov        # 命令行分页器             Go
+# https://github.com/so-fancy/diff-so-fancy        perl
+check-version/ydiff     # diff 带语法高亮          python3
