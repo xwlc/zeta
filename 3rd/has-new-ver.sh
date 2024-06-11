@@ -92,7 +92,17 @@ function check-bin/fzf() {
   fi
 }
 
+# https://github.com/sharkdp/hexyl
+function check-bin/hexyl() {
+  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
+    local new_version="$(github-latest-release-of sharkdp/hexyl)"
+    local old_version=$(hexyl --version | cut -d' ' -f2)
+    print-version-info hexyl "v${old_version}" "${new_version}"
+  fi
+}
+
 check-bin/ack
 check-bin/astyle
 check-bin/ccache
 check-bin/fzf
+check-bin/hexyl
