@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 
 # 检查 3rd/bin/* 应用是否有新版本
+# https://github.com/ibraheemdev/modern-unix
 
 if [[ "$0" == "has-new-ver.sh" ]]; then
   THIS_DIR="${PWD}"
@@ -183,21 +184,34 @@ function check-version/ydiff() {
   print-version-info ydiff "${old_version}" "${new_version}"
 }
 
-check-version/hugo
-
-check-version/ov
-check-version/ack
-check-version/fzf
-check-version/tree
-check-version/ydiff
-check-version/hexyl
-check-version/lazygit
+# https://github.com/sharkdp/bat
+function check-version/xcat() { # apt show bat
+  no-cmd xcat && return # 下载 musl 静态链接版
+  local new_version="$(github-latest-tag-of sharkdp/bat)"
+  local old_version=$(xcat --version | cut -d' ' -f2)
+  print-version-info xcat "v${old_version}" "${new_version}"
+}
 
 check-version/ninja
 check-version/astyle
 check-version/ccache
 
-check-version/htop
-check-version/nvtop
-check-version/iotop
-check-version/nxtrace
+check-version/htop      # 进程 CPU/MEM 状态监控
+check-version/nvtop     # 监控 GPU 状态
+check-version/iotop     # 磁盘 IO 监控
+check-version/nxtrace   # 类似 ping 带地图(详情)
+
+check-version/hugo
+
+check-version/ack       # grep 取代者
+check-version/tree      # 显示树状目录结构
+check-version/xcat      # cat 取代者(语法高亮)
+
+check-version/hexyl     # 十六进制查看工具
+check-version/lazygit   # 命令行 git 工具
+
+check-version/fzf       # 模糊搜索匹配
+# https://github.com/dandavison/delta
+check-version/ov        # 命令行分页器
+# https://github.com/so-fancy/diff-so-fancy
+check-version/ydiff     # diff 带语法高亮
