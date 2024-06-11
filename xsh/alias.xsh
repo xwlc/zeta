@@ -36,6 +36,9 @@ alias  egrep="egrep --color=auto --exclude-dir={${_list_}}" # grep -E extend reg
 alias  fgrep="fgrep --color=auto --exclude-dir={${_list_}}" # grep -F fixed strings
 unset -v _list_
 
+# https://dystroy.org/broot/install-br
+@zeta:xsh:has-cmd broot && BR_INSTALL=no
+
 @zeta:xsh:no-cmd duf && alias duf='du -sh *'
 @zeta:xsh:no-cmd dud && alias dud='du -d 1 -h'
 
