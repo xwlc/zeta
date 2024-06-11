@@ -41,10 +41,10 @@ function github-latest-release-of() {
     -H "X-GitHub-Api-Version: ${ApiVersion}" \
     -H "Authorization: Bearer ${GITHUB_ACCESS_TOKEN}" \
     -L  https://api.github.com/repos/${OwnerRepo}/releases/latest | \
-    head -28 | tail -1
+    head -30 | tail -1
   )
   [[ $? -ne 0 ]] && return
-  echo "${xdata}" | sed 's/[",:]//g' | sed 's/tag_name//' | sed 's/ //g'
+  echo "${xdata}" | sed 's/[",:]//g' | sed 's/name//' | sed 's/ //g'
 }
 
 function print-version-info() {
@@ -79,10 +79,20 @@ function check-bin/ccache() {
   if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
     local new_version="$(github-latest-release-of ccache/ccache)"
     local old_version=$(ccache --version | head -1 | cut -d' ' -f3)
-    print-version-info ccache "v${old_version}" "${new_version}"
+    print-version-info ccache "${old_version}" "${new_version}"
+  fi
+}
+
+# https://github.com/junegunn/fzf
+function check-bin/fzf() {
+  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
+    local new_version="$(github-latest-release-of junegunn/fzf)"
+    local old_version=$(fzf --version | cut -d' ' -f1)
+    print-version-info fzf "${old_version}" "${new_version}"
   fi
 }
 
 check-bin/ack
 check-bin/astyle
 check-bin/ccache
+check-bin/fzf

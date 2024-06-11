@@ -113,17 +113,25 @@ if false; then
   sudo apt install ${DRY_RUN} qtbase5-dev
 fi
 
-######################
-# 手动下载/解压/配置 #
-######################
+#######################
+# 下载/解压/编译/配置 #
+#######################
 
+# 硬件检查
+# https://www.cpuid.com                       CPU-Z
+# https://github.com/klauspost/cpuid          Go 语言版
+# https://www.etallen.com/cpuid.html          C  语言版
+# https://www.sandpile.org/x86/cpuid.htm      信息/整理
+# https://github.com/InstLatx64/InstLatx64    信息/整理
+
+# 图片/图像
 # https://gif.ski  优化 gif 图片(压缩)
 # https://github.com/ImageOptim/gifski
 # https://docs.rs/gifski/latest/gifski
 
+# 编程语言
 # https://nodejs.org/dist
 # https://mirrors.ustc.edu.cn/golang
-# https://github.com/ninja-build/ninja/releases
 # https://forge.rust-lang.org/infra/other-installation-methods.html
 
 # 网络调试      https://www.nxtrace.org/downloads
