@@ -213,12 +213,12 @@ gx = -c color.grep.match='dim yellow' \
 # NOTE --topo-order option for big repo, like kernel, make it very slow!
 
 ll = log1-author-date-relative
-lll = log2-author-date
-llll = log3-both-date
+l2 = log2-author-date
+l3 = log3-both-date
 
 # log with one line per commit: <hash> <title>
 # --oneline shorthand for `--pretty=oneline --abbrev-commit`
-lo   = log --oneline # reverse chronological order, newest first, default
+lo   = log --oneline # reverse chronological order, newest first
 lor  = log --oneline --reverse # chronological order, the oldest first
 
 log-simple = log --boundary \
