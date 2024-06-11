@@ -235,6 +235,14 @@ function check-version/broot() {
   print-version-info broot "v${old_version}" "${new_version}"
 }
 
+# https://github.com/chmln/sd
+function check-version/sd() { # apt show sd
+  no-cmd sd && return # 下载 musl 静态链接版
+  local new_version="$(github-latest-release-of chmln/sd)"
+  local old_version=$(sd --version | cut -d' ' -f2)
+  print-version-info sd "v${old_version}" "${new_version}"
+}
+
 check-version/ninja
 check-version/astyle
 check-version/ccache
@@ -246,6 +254,7 @@ check-version/nxtrace   # 类似 ping 带地图(详情)   Go
 
 check-version/hugo
 
+check-version/sd        # sed 取代者               Rust
 check-version/ack       # grep 取代者              perl
 check-version/broot     # 终端交互式树状导航       Rust
 check-version/tree      # 显示树状目录结构         C
