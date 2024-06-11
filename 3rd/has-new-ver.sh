@@ -99,7 +99,7 @@ function check-version/hexyl() {
   print-version-info hexyl "v${old_version}" "${new_version}"
 }
 
-# https://github.com/gohugoio/hugo
+# https://github.com/gohugoio/hugo    扩展版
 # https://www.newbe.pro/Mirrors/Mirrors-Hugo
 function check-version/hugo() {
   no-cmd hugo && return
@@ -166,6 +166,15 @@ function check-version/ov() {
   print-version-info ov "v${old_version}" "${new_version}"
 }
 
+# https://github.com/Old-Man-Programmer/tree
+# https://oldmanprogrammer.net/source.php?dir=projects/tree
+function check-version/tree() {
+  no-cmd tree && return
+  local new_version="$(github-latest-tag-of Old-Man-Programmer/tree)"
+  local old_version=$(tree --version | cut -d' ' -f2)
+  print-version-info tree "${old_version}" "v${new_version}"
+}
+
 # https://github.com/ymattw/ydiff
 
 check-version/hugo
@@ -173,6 +182,7 @@ check-version/hugo
 check-version/ov
 check-version/ack
 check-version/fzf
+check-version/tree
 check-version/hexyl
 check-version/lazygit
 
