@@ -158,10 +158,19 @@ function check-version/htop() {
   print-version-info htop "${old_version}" "${new_version}"
 }
 
-# https://github.com/ymattw/ydiff/blob/master/ydiff.py
+# https://github.com/noborus/ov
+function check-version/ov() {
+  no-cmd ov && return
+  local new_version="$(github-latest-release-of noborus/ov)"
+  local old_version=$(ov --version | cut -d' ' -f3)
+  print-version-info ov "v${old_version}" "${new_version}"
+}
+
+# https://github.com/ymattw/ydiff
 
 check-version/hugo
 
+check-version/ov
 check-version/ack
 check-version/fzf
 check-version/hexyl
