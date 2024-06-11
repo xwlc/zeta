@@ -208,6 +208,15 @@ function check-version/lsd() { # apt show lsd
   print-version-info lsd "v${old_version}" "${new_version}"
 }
 
+# https://github.com/bootandy/dust
+# https://www.gnu.org/software/coreutils/du
+function check-version/dust() {
+  no-cmd dust && return # 下载 musl 静态链接版
+  local new_version="$(github-latest-release-of bootandy/dust)"
+  local old_version=$(dust --version | cut -d' ' -f2)
+  print-version-info dust "v${old_version}" "${new_version}"
+}
+
 check-version/ninja
 check-version/astyle
 check-version/ccache
@@ -221,8 +230,9 @@ check-version/hugo
 
 check-version/ack       # grep 取代者              perl
 check-version/tree      # 显示树状目录结构         C
-check-version/eza       # ls 取代者(彩色)          Rust
-check-version/lsd       # ls 取代者(彩色)          Rust
+check-version/dust      # 图形化磁盘文件占比       Rust
+check-version/eza       # ls  取代者(彩色)         Rust
+check-version/lsd       # ls  取代者(彩色)         Rust
 check-version/xcat      # cat 取代者(语法高亮)     Rust
 
 check-version/hexyl     # 十六进制查看工具         Rust
