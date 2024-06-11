@@ -187,7 +187,7 @@ function check-version/ydiff() {
 # https://github.com/sharkdp/bat
 function check-version/xcat() { # apt show bat
   no-cmd xcat && return # 下载 musl 静态链接版
-  local new_version="$(github-latest-tag-of sharkdp/bat)"
+  local new_version="$(github-latest-release-of sharkdp/bat)"
   local old_version=$(xcat --version | cut -d' ' -f2)
   print-version-info xcat "v${old_version}" "${new_version}"
 }
@@ -195,9 +195,17 @@ function check-version/xcat() { # apt show bat
 # https://github.com/eza-community/eza
 function check-version/eza() { # apt show eza
   no-cmd eza && return # 主页 https://eza.rocks
-  local new_version="$(github-latest-tag-of eza-community/eza)"
+  local new_version="$(github-latest-release-of eza-community/eza)"
   local old_version=$(eza --version | head -2 | tail -1 | cut -d' ' -f1)
   print-version-info eza "${old_version}" "${new_version}"
+}
+
+# https://github.com/lsd-rs/lsd
+function check-version/lsd() { # apt show lsd
+  no-cmd lsd && return # 下载 musl 静态链接版
+  local new_version="$(github-latest-release-of lsd-rs/lsd)"
+  local old_version=$(lsd --version | cut -d' ' -f2)
+  print-version-info lsd "v${old_version}" "${new_version}"
 }
 
 check-version/ninja
@@ -214,6 +222,7 @@ check-version/hugo
 check-version/ack       # grep 取代者              perl
 check-version/tree      # 显示树状目录结构         C
 check-version/eza       # ls 取代者(彩色)          Rust
+check-version/lsd       # ls 取代者(彩色)          Rust
 check-version/xcat      # cat 取代者(语法高亮)     Rust
 
 check-version/hexyl     # 十六进制查看工具         Rust
