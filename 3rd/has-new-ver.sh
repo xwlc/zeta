@@ -269,10 +269,19 @@ function check-version/gping() { # apt show gping
   print-version-info gping "v${old_version}" "${new_version}"
 }
 
+# https://github.com/ClementTsang/bottom
+function check-version/btm() {
+  no-cmd btm && return # 下载 musl 静态链接版
+  local new_version="$(github-latest-release-of ClementTsang/bottom)"
+  local old_version=$(btm --version | cut -d' ' -f2)
+  print-version-info btm "${old_version}" "${new_version}"
+}
+
 check-version/ninja
 check-version/astyle
 check-version/ccache
 
+check-version/btm       # 终端系统监控(图形化)     Rust
 check-version/htop      # 进程 CPU/MEM 状态监控    C
 check-version/nvtop     # 监控 GPU 状态            C
 check-version/iotop     # 磁盘 IO 监控             C
