@@ -86,11 +86,18 @@ function find-dirs-regex() {
 # 1,3 -> 第五列 Major 设备号, 第六列 Minor 次设备号
 
 # https://www.baeldung.com/linux/ls-ignore-hide-files
-_ls_hide_dirs_='--hide="System Volume Information"' # NTFS 格式系统卷信息
-_ls_hide_dirs_="${_ls_hide_dirs_} --hide=\""'\$RECYCLE.BIN''"' # NTFS 回收站
-_ls_hide_dirs_="${_ls_hide_dirs_} --hide=\"lost+found\"" # EXT4 数据恢复元数据
-alias ls='/usr/bin/ls --color=auto --time-style=+%FT%T'" ${_ls_hide_dirs_}"
-unset -v _ls_hide_dirs_
+_hide_files_='--hide="System Volume Information"' # NTFS 格式系统卷信息
+_hide_files_="${_hide_files_} --hide=\""'\$RECYCLE.BIN''"' # NTFS 回收站
+_hide_files_="${_hide_files_} --hide=\"lost+found\"" # EXT4 数据恢复元数据
+alias ls='/usr/bin/ls --color=auto --time-style=+%FT%T'" ${_hide_files_}"
+if @zeta:xsh:has-cmd eza; then
+  _eza_cmd_=$(command -v eza)
+  _hide_files_="--ignore-glob='System Volume Information"
+  _hide_files_="${_hide_files_}|\$RECYCLE.BIN"
+  _hide_files_="${_hide_files_}|lost+found'"
+  alias eza="${_eza_cmd_} --color=auto --time-style=+%FT%T ${_hide_files_}"
+fi
+unset -v  _eza_cmd_  _hide_files_
 # https://unix.stackexchange.com/questions/50377
 #alias dir='command dir --color=auto' # compatibility
 # https://unix.stackexchange.com/questions/217757
