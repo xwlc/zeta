@@ -251,6 +251,15 @@ function check-version/fd() { # apt show fd-find
   print-version-info fd "v${old_version}" "${new_version}"
 }
 
+# https://github.com/jqlang/jq
+function check-version/jq() { # apt show jq
+  no-cmd jq && return # 下载 musl 静态链接版
+  local new_version="$(github-latest-release-of jqlang/jq)"
+  new_version=$(echo ${new_version} | cut -d'-' -f2)
+  local old_version=$(jq --version  | cut -d'-' -f2)
+  print-version-info jq "${old_version}" "${new_version}"
+}
+
 check-version/ninja
 check-version/astyle
 check-version/ccache
@@ -273,6 +282,7 @@ check-version/eza       # ls  取代者(彩色)         Rust
 check-version/lsd       # ls  取代者(彩色)         Rust
 check-version/xcat      # cat 取代者(语法高亮)     Rust
 
+check-version/jq        # 终端 JSON 解析           C
 check-version/hexyl     # 十六进制查看工具         Rust
 check-version/lazygit   # 命令行 git 工具          Go
 
