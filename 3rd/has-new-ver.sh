@@ -176,6 +176,12 @@ function check-version/tree() {
 }
 
 # https://github.com/ymattw/ydiff
+function check-version/ydiff() {
+  no-cmd ydiff && return
+  local new_version="$(github-latest-tag-of ymattw/ydiff)"
+  local old_version=$(ydiff --version | cut -d' ' -f2)
+  print-version-info ydiff "${old_version}" "${new_version}"
+}
 
 check-version/hugo
 
@@ -183,6 +189,7 @@ check-version/ov
 check-version/ack
 check-version/fzf
 check-version/tree
+check-version/ydiff
 check-version/hexyl
 check-version/lazygit
 
