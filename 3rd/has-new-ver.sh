@@ -277,10 +277,22 @@ function check-version/btm() {
   print-version-info btm "${old_version}" "${new_version}"
 }
 
+# https://github.com/dalance/procs
+function check-version/procs() {
+  no-cmd procs && return # 下载 musl 静态链接版
+  local new_version="$(github-latest-release-of dalance/procs)"
+  local old_version=$(procs --version | cut -d' ' -f2 | sed 's/"//')
+  print-version-info procs "v${old_version}" "${new_version}"
+  # 生成 man 手册页
+  # 转换工具 => sudo apt install asciidoctor
+  # $ asciidoctor --backend=manpage procs.1.adoc
+}
+
 check-version/ninja
 check-version/astyle
 check-version/ccache
 
+check-version/procs     # ps 替代品(彩色及高亮)    Rust
 check-version/btm       # 终端系统监控(图形化)     Rust
 check-version/htop      # 进程 CPU/MEM 状态监控    C
 check-version/nvtop     # 监控 GPU 状态            C
@@ -289,16 +301,16 @@ check-version/nxtrace   # 类似 ping 带地图(详情)   Go
 
 check-version/hugo
 
-check-version/fd        # find 取代者              Rust
-check-version/sd        # sed 取代者               Rust
-check-version/ack       # grep 取代者              perl
+check-version/fd        # find 替代品              Rust
+check-version/sd        # sed  替代品              Rust
+check-version/ack       # grep 替代品              perl
 check-version/broot     # 终端交互式树状导航       Rust
 check-version/tree      # 显示树状目录结构         C
 check-version/duf       # Disk Usage/Free          Go
 check-version/dust      # 图形化磁盘文件占比       Rust
-check-version/eza       # ls  取代者(彩色)         Rust
-check-version/lsd       # ls  取代者(彩色)         Rust
-check-version/xcat      # cat 取代者(语法高亮)     Rust
+check-version/eza       # ls  替代品(彩色)         Rust
+check-version/lsd       # ls  替代品(彩色)         Rust
+check-version/xcat      # cat 替代品(语法高亮)     Rust
 
 check-version/jq        # 终端 JSON 解析           C
 check-version/gping     # 终端 ping 图形化         Rust
