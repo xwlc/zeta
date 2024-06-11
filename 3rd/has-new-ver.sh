@@ -101,8 +101,18 @@ function check-bin/hexyl() {
   fi
 }
 
+# https://github.com/gohugoio/hugo
+function check-bin/hugo() {
+  if [[ -x "${THIS_DIR}/bin/ccache" ]]; then
+    local new_version="$(github-latest-release-of gohugoio/hugo)"
+    local old_version=$(hugo version | cut -d'-' -f1 | cut -d' ' -f2)
+    print-version-info hugo "${old_version}" "${new_version}"
+  fi
+}
+
 check-bin/ack
 check-bin/astyle
 check-bin/ccache
 check-bin/fzf
 check-bin/hexyl
+check-bin/hugo
