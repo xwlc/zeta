@@ -277,6 +277,14 @@ function check-version/gping() { # apt show gping
   print-version-info gping "v${old_version}" "${new_version}"
 }
 
+# https://github.com/schweikert/fping
+function check-version/fping() { # apt show fping
+  no-cmd fping && return # 下载源码包编译  https://www.fping.org
+  local new_version="$(github-latest-release-of schweikert/fping)"
+  local old_version=$(fping --version | cut -d' ' -f3)
+  print-version-info fping "v${old_version}" "${new_version}"
+}
+
 # https://github.com/ClementTsang/bottom
 function check-version/btm() {
   no-cmd btm && return # 下载 musl 静态链接版
@@ -350,6 +358,7 @@ check-version/lazygit   # 命令行 git 工具          Go
 check-version/jq        # 终端 JSON 解析           C
 check-version/xh        # HTTP/HTTPS 请求/调试     Rust
 check-version/xcurl     # curl 前端(语法高亮)      Go
+check-version/fping     # 发送 ICMP 包(高性能)     C
 check-version/gping     # 终端 ping 图形化         Rust
 check-version/dog       # 终端 DNS 查询(JSON)      Rust
 
