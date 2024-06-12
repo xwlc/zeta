@@ -1,0 +1,53 @@
+# https://github.com/Koihik/LuaFormatter
+# https://github.com/Koihik/LuaFormatter/blob/master/docs/Style-Config.md
+column_limit: 120
+
+tab_width: 2
+use_tab: false
+indent_width: 2
+continuation_indent_width: 2
+
+align_args: false
+align_parameter: false
+chop_down_parameter: false
+
+spaces_before_call: 1
+spaces_inside_functioncall_parens: false
+spaces_inside_functiondef_parens: false
+
+break_after_functiondef_lp: false
+break_before_functiondef_rp: false
+break_after_functioncall_lp: false
+break_before_functioncall_rp: false
+
+line_breaks_after_function_body: 1
+keep_simple_function_one_line: true
+keep_simple_control_block_one_line: true
+
+table_sep: ","
+
+align_table_field: false
+break_after_table_lb: true
+break_before_table_rb: true
+
+chop_down_table: false
+chop_down_kv_table: true
+
+column_table_limit: 0
+column_table_limit_kv: 0
+
+extra_sep_at_table_end: false
+spaces_inside_table_braces: false
+
+break_after_operator: true
+spaces_around_equals_in_field: true
+
+# lf      Use Unix Style          "\n"
+# cr      Use classic Mac Style   "\r"
+# crlf    Use Windows Style       "\r\n"
+# os      Determine line separator by the operating system
+# input   Determine line separator by the input content, default
+line_separator: input
+
+double_quote_to_single_quote: false
+single_quote_to_double_quote: false

@@ -1,0 +1,81 @@
+# Artistic Style https://astyle.sourceforge.net
+# The file content is v3.2 astyle OPTIONS for C/C++
+
+# Run following command to convet source files in current directory and below
+# $ astyle --recursive --options=astylerc '*.c' '*.h'
+# $ astyle --recursive --options=astylerc '*.cpp' '*.h'
+#
+# The default --options file is .astylerc or astylerc of project top directory
+# The default --project file is .astylerc or _astylerc of project top directory
+
+################################################################################
+# => Disable Blocks for astyle
+#
+#    // *INDENT-OFF*
+#    #define FOO_DECLARE_int32_(name) \
+#      FOO_API_ extern ::Int32 FOO_FLAG(name)
+#    // *INDENT-ON*
+#
+# => Disable Single Line for astyle
+#    size_t foo = (unsigned int) -1; // *NOPAD*
+
+################################################################################
+# Allow processing to continue if there are errors in the exclude option
+--ignore-exclude-errors
+# Specify files or subdirectories to be excluded from processing
+--exclude="build cmake docs contrib scripts temp todo .deps .git"
+
+################################################################################
+#--dry-run # Perform a trial run with no changes made to the files
+--verbose # Verbose display mode, display extra optional information
+#--recursive # For each directory, process all subdirectories recursively
+--formatted # Display only the formatted files, do not show the unchanged ones
+--preserve-date # Preserve file's date and time, invalid if rename the file
+
+################################################################################
+# !!NOTE!! Before formating the code, there should have a way to restore the
+# code, if not, it is better to set the following line to a value, like '.bak'
+--suffix=none # Do not retain a backup of the original file
+
+###########
+# C files #
+###########
+--mode=c # for C, C++, C++/CLI, and Objective-C
+--convert-tabs # Converts tabs into spaces
+--indent=spaces=2 # Each level of indent is 2-spaces
+--style=kr # Kernighan & Ritchie style uses linux braces
+--lineend=linux # Force use of the specified line end style
+
+--delete-empty-lines # Delete empty lines within a function or method
+--max-code-length=100 # Break a line if the code exceeds 100 characters
+
+--remove-comment-prefix # Remove preceding '*' in a multi-line comments
+--add-braces # Add braces to unbraced one line conditional statements
+--break-one-line-headers # Break one line headers for statement on the same line
+--attach-return-type # Attach return type to function name for function definitions
+--attach-return-type-decl # Attach return type to function name for function declarations
+
+--indent-preproc-block # Indent the preprocessor blocks
+--indent-preproc-define # Indent multi-line preprocessor blocks
+--indent-preproc-cond # Indent preprocessor conditional to the same level as source code
+--indent-after-parens # Indent continuation lines for opening ( or assignment =
+--indent-continuation=1 # The number of continuous indents
+
+--attach-closing-while # Attach closing 'while' of 'do-while' to closing brace
+--min-conditional-indent=0 # Indent multi conditional blocks to the preceding line
+--max-continuation-indent=40 # The max spaces number to indent for continuation line
+
+--pad-oper # Insert space padding around operators
+--pad-comma # Insert space padding after commas
+--unpad-paren # Remove extra space padding around parens on the inside and outside
+
+--align-pointer=name # Attach a operator(*, &, or ^) to variable name
+--align-reference=name # Attach reference operator(&) to variable name
+
+#############
+# C++ files #
+#############
+--attach-namespaces # Attach braces to a namespace statement
+--attach-classes # Attach braces to a class statement
+--attach-inlines # Attach braces to class and struct inline function
+--attach-extern-c # Attach braces to a braced extern "C" statement
