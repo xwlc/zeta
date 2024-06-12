@@ -288,6 +288,16 @@ function check-version/procs() {
   # $ asciidoctor --backend=manpage procs.1.adoc
 }
 
+# https://github.com/rs/curlie
+function check-version/xcurl() {
+  no-cmd xcurl && return # https://curlie.io
+  local new_version="$(github-latest-release-of rs/curlie)"
+  local old_version=$(xcurl version | cut -d' ' -f2)
+  print-version-info xcurl "v${old_version}" "${new_version}"
+}
+
+# https://github.com/ducaale/xh
+
 check-version/ninja
 check-version/astyle
 check-version/ccache
@@ -312,10 +322,12 @@ check-version/eza       # ls  替代品(彩色)         Rust
 check-version/lsd       # ls  替代品(彩色)         Rust
 check-version/xcat      # cat 替代品(语法高亮)     Rust
 
-check-version/jq        # 终端 JSON 解析           C
-check-version/gping     # 终端 ping 图形化         Rust
 check-version/hexyl     # 十六进制查看工具         Rust
 check-version/lazygit   # 命令行 git 工具          Go
+
+check-version/jq        # 终端 JSON 解析           C
+check-version/xcurl     # curl 前端(语法高亮)      Go
+check-version/gping     # 终端 ping 图形化         Rust
 
 check-version/fzf       # 模糊搜索匹配             Go
 # https://github.com/dandavison/delta              Rust
