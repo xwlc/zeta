@@ -16,7 +16,7 @@
 # NOTE zeta/xsh Only Support for Bash Shell and Zsh Shell
 # https://gitlab.gnome.org/GNOME/vte/-/blob/master/src/vte.sh.in
 if [[ -z "${ZSH_VERSION:-}" && -z "${BASH_VERSINFO[*]:-}" ]]; then
-  return
+  return # => ${BASH_VERSION:-} 和 ${BASH_VERSINFO[*]:-}
 fi
 
 # 保存 ZSH 启动日志(查看组件模块加载时间)
@@ -61,7 +61,7 @@ else
   # https://git.savannah.gnu.org/cgit/bash.git/tree/CHANGES
   (( BASH_VERSINFO[0] < 5 )) && return
 
-  # Bash 的 $0 变量
+  # 关于 Bash 的 $0 变量
   # => https://unix.stackexchange.com/questions/144514
   #    /bin/bash -c 'echo "[$0] [$1]"' foo bar xyz
   #    /bin/bash -c 'echo "[$0] [$@]"' foo bar xyz
@@ -69,9 +69,13 @@ else
   export ZETA_DIR="$(dirname "${BASH_SOURCE[0]}")"
 fi
 
-ZETA_REPO="https://github.com/xwlc/zeta"
+# echo "${LINENO}: BS=[${BASH_SOURCE[@]}] \$0=[$0] \$@=[$@]"
+# echo "${LINENO}: PID=$$, UID=${UID}, GID=${GID}, PWD=${PWD}"
+
+ZETA_REPO_URL="https://github.com/xwlc/zeta"
 if command -v git > /dev/null && [ -d "${ZETA_DIR}/.git" ]; then
-  ZETA_COMMIT="$(cd "${ZETA_DIR}" && git rev-parse HEAD 2> /dev/null)"
+  ZETA_COMMIT="$(cd "${ZETA_DIR}" && git rev-parse HEAD)"
+  ZETA_REPO_DIR="$(cd "${ZETA_DIR}" && git rev-parse --show-toplevel)"
 fi
 
 source "${ZETA_DIR}/xsh/inits.xsh"
@@ -101,3 +105,18 @@ if [[ -n "${ZETA_ENABLE_STARTUP_LOG}" ]]; then
   unsetopt xtrace
   exec  2>&3  3>&-
 fi
+
+alias lsz-once='ls-sh-func-names | grep once±'
+alias lsz-bugs='ls-sh-func-names | grep bugs±'
+alias lsz-todo='ls-sh-func-names | grep todo±'
+
+alias lsz-vars='ls-sh-vars | grep -i zeta'     # 环境变量
+alias lsz-func='ls-sh-func-names | grep zeta:' # 函数列表
+
+alias lsz-util='ls-sh-func-names | grep util:' # 通用函数
+alias lsz-auto='ls-sh-func-names | grep auto:' # 自动加载
+alias lsz-lazy='ls-sh-func-names | grep lazy:' # 延迟加载
+
+alias lsz-comp='ls-sh-func-names | grep comp:' # 命令补全
+alias lsz-hook='ls-sh-func-names | grep hook:' # 回调函数
+alias lsz-priv='ls-sh-func-names | grep priv:' # 内部函数
