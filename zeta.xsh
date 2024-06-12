@@ -20,7 +20,7 @@ if [[ -z "${ZSH_VERSION:-}" && -z "${BASH_VERSINFO[*]:-}" ]]; then
 fi
 
 # 保存 ZSH 启动日志(查看组件模块加载时间)
-if [[ -n "${ZETA_ENABLE_STARTUP_LOG}" ]]; then
+if [[ -n "${ZSH_VERSION:-}" && -n "${ZETA_ENABLE_STARTUP_LOG}" ]]; then
   # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
   if false; then
     PS4=$'%D{%H:%M:%S-%N} %N:%i -> '

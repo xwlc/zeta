@@ -1,0 +1,9 @@
+# BASH_ENV or ~/.zshenv
+
+[[ -n "${ZSH_VERSION:-}" ]] && {
+  # 系统默认启动配置文件 /etc/zsh/*
+  #echo "skip_global_compinit=1" >> ~/.zshenv
+
+  # /etc/zsh/{ zprofile, zshrc, zlogin, zlogout }
+  unsetopt global_rcs # 跳过系统默认 ZSH 配置文件
+}

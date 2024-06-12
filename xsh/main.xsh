@@ -36,12 +36,14 @@ if [ -x /usr/bin/dircolors ]; then
   fi
 fi
 
-# Shell 查询帮助快捷工具函数
-source "${ZETA_DIR}/xsh/core/help.xsh"
+_xsh_=zsh
+[[ -n "${BASH_VERSION:-}" ]] && _xsh_=bash
+for _it_ in "${ZETA_DIR}/xsh/core/${_xsh_}/"*; do
+  source "${_it_}" # 先更新 fpath 然后执行 compinit 命令
+done; unset -v  _xsh_  _it_
 
 # Lazy Loading Just for Simple Plugins
 source "${ZETA_DIR}/xsh/core/lazy.xsh"
-
 @zeta:lazy:register bd
 @zeta:lazy:register goto
 @zeta:lazy:register replace
@@ -49,13 +51,11 @@ source "${ZETA_DIR}/xsh/core/lazy.xsh"
 @zeta:lazy:register cursor-style
 @zeta:lazy:register ssh-add-keys
 @zeta:lazy:register xcmd $(command ls "${ZETA_DIR}/xsh/bin")
+[[ -n "${BASH_VERSION:-}" ]] && @zeta:lazy:register repeat
 
-if [[ -n "${BASH_VERSION:-}" ]]; then
-  @zeta:lazy:register repeat
-  source "${ZETA_DIR}/xsh/core/bash/utils.sh"
-else
-  source "${ZETA_DIR}/xsh/core/zsh/utils.zsh"
-fi
-
+# Shell 查询帮助快捷工具函数
+source "${ZETA_DIR}/xsh/core/help.xsh"
 # 需 ROOT 权限的系统管理快捷工具函数
 source "${ZETA_DIR}/xsh/core/admin.xsh"
+# 管理 3rd/pick 目录的软连接(版本切换)
+source "${ZETA_DIR}/3rd/switch-to.xsh"

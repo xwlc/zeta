@@ -3,6 +3,8 @@
 # Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
+source "${ZETA_DIR}/xsh/core/path.xsh"
+
 # NOTE `which` can not found alias or shell function
 function @zeta:xsh:has-cmd() {  command -v "$1" > /dev/null; }
 function @zeta:xsh:no-cmd() { ! command -v "$1" > /dev/null; }
