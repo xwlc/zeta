@@ -167,6 +167,14 @@ function check-version/ov() {
   print-version-info ov "v${old_version}" "${new_version}"
 }
 
+# https://github.com/dandavison/delta
+function check-version/delta() {
+  no-cmd delta && return # apt show git-delta
+  local new_version="$(github-latest-release-of dandavison/delta)"
+  local old_version=$(delta --version | cut -d' ' -f2)
+  print-version-info delta "${old_version}" "${new_version}"
+}
+
 # https://github.com/Old-Man-Programmer/tree
 # https://oldmanprogrammer.net/source.php?dir=projects/tree
 function check-version/tree() {
@@ -346,7 +354,8 @@ check-version/gping     # 终端 ping 图形化         Rust
 check-version/dog       # 终端 DNS 查询(JSON)      Rust
 
 check-version/fzf       # 模糊搜索匹配             Go
-# https://github.com/dandavison/delta              Rust
-check-version/ov        # 命令行分页器             Go
 # https://github.com/so-fancy/diff-so-fancy        perl
 check-version/ydiff     # diff 带语法高亮          python3
+
+check-version/ov        # 终端分页器(语法高亮)     Go
+check-version/delta     # 分页器(git/diff/grep)    Rust
