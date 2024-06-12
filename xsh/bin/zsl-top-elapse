@@ -1,0 +1,167 @@
+#!/usr/bin/env zsh
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2023 Charlie WONG <charlie-wong@outlook.com>
+# Created By: Charlie WONG 2023-11-29T20:13:29+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+# - ~/.zshrc 添加 ZETA_ENABLE_STARTUP_LOG=ON 生成启动日志 ~/zsh-launch-*.log
+# - $ xcmd zsl-top-elapse    分析启动日志, 彩色显示各个组件加载/启动耗时信息
+
+# 分析 ZSH 启动日志(显示耗时最久的模块)
+# https://esham.io/2018/02/zsh-profiling
+# https://kevin.burke.dev/kevin/profiling-zsh-startup-time
+
+# How to Reload Shell After Making Changes
+# -> do NOT use `source ~/.zshrc` to reload config
+# -> `exec zsh` or `exec bash` is prefred than `source`
+# https://github.com/ohmyzsh/ohmyzsh/wiki/FAQ#how-do-i-reload-the-zshrc-file
+
+declare -i IsAllColored=0
+declare -i  MIN_ms=-1  MIN_us=-1  MIN_ns=-1
+declare OPTIND=1  OPTERR=0  OPTARG=''  _xopt_
+
+while getopts ":m:M:u:U:n:N:Aa" _xopt_; do
+  case "${_xopt_}" in # 命令参数列表  -m, -u, -n, -a
+    a|A) IsAllColored=1; break ;; # 彩色化显示所有记录
+    m|M) [[ -z "${OPTARG//[0-9]/}" ]] && MIN_ms=${OPTARG} ;; # 毫秒
+    u|U) [[ -z "${OPTARG//[0-9]/}" ]] && MIN_us=${OPTARG} ;; # 微秒
+    n|N) [[ -z "${OPTARG//[0-9]/}" ]] && MIN_ns=${OPTARG} ;; # 纳秒
+    *.log) XLOG="$(realpath ${OPTARG})" ;;
+  esac
+done
+
+# 默认生产的 ZSH 启动日志文件(当前会话父级 Shell 的 PID)
+[[ -z "${XLOG}" ]] && XLOG="${HOME}/zsh-launch-${PPID}.log"
+[[ ! -f "${XLOG}" ]] && { echo "No Zsh startup log file -> ${XLOG}"; exit 1; }
+echo
+printf "\e[0;90m${XLOG}\e[0m\n"
+echo
+(( MIN_ns < 0 )) && unset -v MIN_ns
+(( MIN_us < 0 )) && unset -v MIN_us
+(( MIN_ms < 0 )) && MIN_ms=1
+
+typeset -a XLINES
+declare -i iLineNum=0
+typeset xPrevCmd xThisCmd xLineNum xTimeFmt xData
+typeset -i xPrevTime=0 xThisTime xTotal=0 xElapse
+
+while read line; do
+  if [[ ${line} =~ '^([0-9]{10})\.([0-9]{9})[0-9] .* -> (.+)' ]]; then
+    # 前10位 xxx,zzz,xxx,z   后10位 xxx(ms) zzz(us) xxx(ns) x
+    xThisTime=${match[1]}${match[2]} # 第二个模式匹配前九位数
+
+    (( iLineNum++ )); printf -v xLineNum '%05d' ${iLineNum}
+
+    if [[ ${xPrevTime} -gt 0 ]]; then
+      (( xElapse = xThisTime - xPrevTime ))
+      (( xElapse > 0 )) && {
+        (( xTotal += xElapse ))
+
+        rl3="${xElapse%[0-9][0-9][0-9]}"
+        ns="${xElapse#${rl3}}"
+        if (( ${#rl3} >= 3 )); then
+          ms="${rl3%[0-9][0-9][0-9]}"
+          us="${rl3#${ms}}"
+        else
+          ms=""
+          us="${rl3}"
+        fi
+
+        if (( IsAllColored )); then
+          printf -v ms '\e[34m%03d\e[0m' ${ms} # 蓝色
+          printf -v us '\e[35m%03d\e[0m' ${us} # 紫色
+          printf -v ns '\e[36m%03d\e[0m' ${ns} # 青色
+
+          printf -v xTimeFmt '%09d' ${xElapse}
+          xData="\e[31m${xTimeFmt}\e[0m" # 命令耗时(红色)
+          xData="${xData} ${ms}ms ${us}μs ${ns}ns"
+          xData="${xData} [\e[32m${xLineNum}\e[0m] -> ${xPrevCmd}" # 行号(绿色)
+        else
+          printf -v ms '%03d' ${ms}
+          printf -v us '%03d' ${us}
+          printf -v ns '%03d' ${ns}
+
+          printf -v xTimeFmt '%09d' ${xElapse}
+          xData="${xTimeFmt} ${ms}ms ${us}μs ${ns}ns"
+          xData="${xData} [\e[0;32m${xLineNum}\e[0m] -> ${xPrevCmd}"
+        fi
+
+        XLINES+="${xData}"
+      }
+    fi
+
+    xPrevTime=${xThisTime}
+
+    local xThisCmd=$match[3]
+    if [[ ${#xThisCmd} -le 60 ]]; then
+      xPrevCmd=${xThisCmd}
+    else
+      xPrevCmd="${xThisCmd:0:59}..."
+    fi
+  fi
+done < ${XLOG:-/dev/stdin}
+
+(( IsAllColored )) && {
+  print -l ${(@On)XLINES}
+  exit
+}
+
+for line in ${(@On)XLINES}; do
+  #printf '%s\n' "${line}"
+  [[ ${line} =~ "^([0-9]*) ([0-9]{3})ms ([0-9]{3})μs ([0-9]{3})ns (.*)" ]] && {
+    ms=${match[2]}; us=${match[3]}; ns=${match[4]}
+    #echo "=[$ms] [$us] [$ns]"
+    printf -v xms '%d' ${ms}
+    printf -v xus '%d' ${us}
+    printf -v xns '%d' ${ns}
+    #echo "[${MIN_ms}]=[${ms}] [${MIN_us}]=[${us}] [${MIN_ns}]=[${ns}]"
+
+    printf -v ms '\e[34m%s\e[0m' ${ms}
+    printf -v us '\e[35m%s\e[0m' ${us}
+    printf -v ns '\e[36m%s\e[0m' ${ns}
+    xData="\e[31m${match[1]}\e[0m ${ms}ms ${us}μs ${ns}ns ${match[5]}"
+
+    if [[ -v MIN_ms && ! -v MIN_us && ! -v MIN_ns ]]; then
+      (( xms >= MIN_ms )) && {
+        echo "${xData}"
+      }
+    elif [[ -v MIN_ms && -v MIN_us && ! -v MIN_ns ]]; then
+      if (( xms >= MIN_ms )); then
+        echo "${xData}"
+      elif (( xus >= MIN_us )); then
+        echo "${xData}"
+      fi
+    elif [[ -v MIN_ms && -v MIN_us && -v MIN_ns ]]; then
+      if (( xms >= MIN_ms )); then
+        echo "${xData}"
+      elif (( xus >= MIN_us )); then
+        echo "${xData}"
+      elif (( xns >= MIN_ns )); then
+        echo "${xData}"
+      fi
+    fi
+  }
+done
+
+rl3="${xTotal%[0-9][0-9][0-9]}"
+ ns="${xTotal#${rl3}}"
+
+if (( ${#rl3} >= 3 )); then
+  ms="${rl3%[0-9][0-9][0-9]}"
+  us="${rl3#${ms}}"
+else
+  ms=""
+  us="${rl3}"
+fi
+
+echo
+printf "\e[0;90m显示控制值 =>\e[0m " # 显示耗时大于 min_* 的
+[[ -v MIN_ms ]] && printf 'ms >= %s'     "${MIN_ms}"
+[[ -v MIN_us ]] && printf ' || μs >= %s' "${MIN_us}"
+[[ -v MIN_ns ]] && printf ' || ns >= %s' "${MIN_ns}"
+echo
+printf "\e[0;90m启动总耗时 =>\e[0m "
+printf "\e[0;31m%s\e[0m ms "  ${ms}
+printf "\e[0;32m%s\e[0m μs "  ${us}
+printf "\e[0;33m%s\e[0m ns\n" ${ns}
+echo

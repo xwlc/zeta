@@ -3,11 +3,9 @@
 # Created By: Charles Wong 2023-11-24T20:01:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
-# Only Support Bash or Zsh Shell
-# https://gitlab.gnome.org/GNOME/vte/-/blob/master/src/vte.sh.in
-if [[ -z "${ZSH_VERSION:-}" && -z "${BASH_VERSINFO[*]:-}" ]]; then
-  return
-fi
+# shellcheck shell=bash
+# NOTE https://www.shellcheck.net/wiki
+# Install `sudo apt install shellcheck`
 
 # `$-` 表示当前 SHELL 启动参数
 # Zsh/Bash 启动参数若包含 i 则表示 Interactive Shell
@@ -15,10 +13,45 @@ fi
 # but it works well in ZSH for none function or sourced script
 [[ $- == *i* ]] || return # Interactive or NOT
 
+# NOTE zeta/xsh Only Support for Bash Shell and Zsh Shell
+# https://gitlab.gnome.org/GNOME/vte/-/blob/master/src/vte.sh.in
+if [[ -z "${ZSH_VERSION:-}" && -z "${BASH_VERSINFO[*]:-}" ]]; then
+  return
+fi
+
+# 保存 ZSH 启动日志(查看组件模块加载时间)
+if [[ -n "${ZETA_ENABLE_STARTUP_LOG}" ]]; then
+  # https://zsh.sourceforge.io/Doc/Release/Prompt-Expansion.html
+  if false; then
+    PS4=$'%D{%H:%M:%S-%N} %N:%i -> '
+  else # `zmodload` 显示已加载模块列表
+    zmodload zsh/datetime
+    PS4=$'${EPOCHREALTIME} %N:%i -> '
+  fi
+  # https://tldp.org/LDP/abs/html/io-redirection.html
+  # `exec` with no cmd, redirection for current shell
+  exec 3>&2  2> ${HOME}/zsh-launch-$$.log
+  setopt xtrace prompt_subst
+fi
+
+# => zsh -xv # 启用 (x)traceing 和 (v)erbose output
+# => time zsh -i -c exit 和 time zsh --no-rcs -i -c exit
+_xnow1_=$(date +%s%N) # 简单计算 Shell 大概的启动加载耗时
+
 if [[ -n "${ZSH_VERSION:-}" ]]; then
   # https://zsh.sourceforge.io/releases.html
   # https://sourceforge.net/p/zsh/code/ref/master/tags/
   autoload is-at-least && { is-at-least 5.8.0 || return; }
+
+  # NOTE Z-Shell Benchmark -> About `zprof` Output
+  # https://wiki.zshell.dev/zh-Hans/docs/guides/benchmark
+  # ZSH 内置性能分析模块, 执行 zporf 命令显示性能分析报告
+  # => 查看 Zsh 源码 => zsh/Src/Modules/zprof.c
+  # => num  calls  time/1 time/2 time/3  self/1 self/2 self/3  函数名=F
+  # num=序号; calls=F函数调用的次数
+  # time/1=F总的执行时间(毫秒)     self/1=F自身代码总执行时间(不含调用F执行时间)
+  # time/2=F平均执行时间(毫秒)     self/2=F函数自身代码的平均行时间
+  # time/3=F总的执行时间/启动耗时  self/3=F自身代码总执行时间/启动耗时
   zmodload zsh/zprof
 
   # ZSH 的 $0 动态变化, 函数中表示函数名
@@ -51,4 +84,20 @@ source "${ZETA_DIR}/xsh/main.xsh"
 
 if [[ -f "/me/priv/${USER}/${USER}.xsh" ]]; then
   source "/me/priv/${USER}/${USER}.xsh"
+fi
+
+# 1s = 1000ms, 1ms = 1000μs, 1us = 1000ns, 1ns = 1000ps
+# ms(millisecond), μs(microsecond), ns(nanosecond), ps(picosecond)
+_xnow2_=$(date +%s%N) # 简单计算 Shell 大概的启动加载耗时
+_xused_=" => $(@R3 $(( (${_xnow2_} - ${_xnow1_}) / 1000000 )))$(@D9 ms)"
+echo
+echo "$(@D9 '#################################')"
+echo "$(@D9 '#') 👽 $(@Y9 莫道君行早) · $(@G9 更有早行人) 👽 $(@D9 '#')${_xused_}"
+echo "$(@D9 '#################################')"
+echo
+unset -v _xnow1_  _xnow2_  _xused_
+
+if [[ -n "${ZETA_ENABLE_STARTUP_LOG}" ]]; then
+  unsetopt xtrace
+  exec  2>&3  3>&-
 fi
