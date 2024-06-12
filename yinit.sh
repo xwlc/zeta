@@ -72,6 +72,10 @@ ZSH_COMPDUMP="${ZETA_DIR}/xsh/assets/zsh-compdump"
 
 # ZETA_ENABLE_STARTUP_LOG=ON # 保存 ZSH 启动日志(分析性能)
 [ -f "${ZETA_DIR}/zeta.xsh" ] && source "${ZETA_DIR}/zeta.xsh"
+
+###### 主题风格 ######
+# 自带集成主题 /usr/share/zsh/functions/Prompts
+#autoload -Uz promptinit; promptinit; prompt adam1
 EOF
 }
 
