@@ -193,11 +193,11 @@ function check-version/ydiff() {
 }
 
 # https://github.com/sharkdp/bat
-function check-version/xcat() { # apt show bat
-  no-cmd xcat && return # 下载 musl 静态链接版
+function check-version/bat() { # apt show bat
+  no-cmd bat && return # 下载 musl 静态链接版
   local new_version="$(github-latest-release-of sharkdp/bat)"
-  local old_version=$(xcat --version | cut -d' ' -f2)
-  print-version-info xcat "v${old_version}" "${new_version}"
+  local old_version=$(bat --version | cut -d' ' -f2)
+  print-version-info bat "v${old_version}" "${new_version}"
 }
 
 # https://github.com/eza-community/eza
@@ -350,7 +350,7 @@ check-version/duf       # Disk Usage/Free          Go
 check-version/dust      # 图形化磁盘文件占比       Rust
 check-version/eza       # ls  替代品(彩色)         Rust
 check-version/lsd       # ls  替代品(彩色)         Rust
-check-version/xcat      # cat 替代品(语法高亮)     Rust
+check-version/bat      # cat 替代品(语法高亮)     Rust
 
 check-version/hexyl     # 十六进制查看工具         Rust
 check-version/lazygit   # 命令行 git 工具          Go
