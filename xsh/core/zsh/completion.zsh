@@ -46,10 +46,13 @@ if (( zcd_refresh )); then
 
   zrecompile -q -p "${ZSH_COMPDUMP}"
   command rm -f "${ZSH_COMPDUMP}.zwc.old"
-
-  if @zeta:xsh:has-cmd md5sum; then
-    md5sum "${ZSH_COMPDUMP}" | cut -d' ' -f1 > "${ZSH_COMPDUMP}.md5"
-  fi
 fi
 
-unset -v zcd_{fpath,rhash,times,md5old,md5new,last2,refresh}
+if @zeta:xsh:has-cmd md5sum; then
+  zcd_md5now=$(md5sum "${ZSH_COMPDUMP}" | cut -d' ' -f1)
+  [[ "${zcd_md5now}" != "${zcd_md5new}" ]] && {
+    echo "${zcd_md5now}" > "${ZSH_COMPDUMP}.md5"
+  }
+fi
+
+unset -v zcd_{fpath,rhash,times,md5old,md5new,md5now,last2,refresh}

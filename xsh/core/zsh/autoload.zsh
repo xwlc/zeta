@@ -17,7 +17,7 @@ fi
 # -z  ZSH 风格: 首次加载不执行 hello() 函数
 # hello() { autoload -X; } 效果类似于 autoload -Uk hello
 
-for _it_ in "${ZETA_PLUGINS[@]}"; do
+for _it_ in "${ZETA_ENABLE_PLUGINS[@]}"; do
   [[ ${_it_} == lazy ]] && continue
   if [[ -f "${ZETA_DIR}/xsh/plugin/${_it_}/${_it_}" ]]; then
     autoload -Uz "${ZETA_DIR}/xsh/plugin/${_it_}/${_it_}"

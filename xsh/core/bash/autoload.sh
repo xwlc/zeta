@@ -24,10 +24,10 @@ fi
 
 function @zeta:auto:loader() {
   # no plugin enabled for autoload
-  [[ ${#ZETA_PLUGINS[@]} -eq 0 ]] && return 3
+  [[ ${#ZETA_ENABLE_PLUGINS[@]} -eq 0 ]] && return 3
 
   local -a loadable
-  loadable=( $(compgen -W "${ZETA_PLUGINS[*]}" -- "$1") )
+  loadable=( $(compgen -W "${ZETA_ENABLE_PLUGINS[*]}" -- "$1") )
   [[ ${#loadable[@]} -eq 0 ]] && return 2 # no match found
 
   local plg="${loadable[0]}"
@@ -78,13 +78,13 @@ function @zeta:auto:comp-args() {
   if [[ "$1" == "_EmptycmD_" ]]; then
     # _EmptycmD_ is emitted when just press Tab, check
     # it here to show the auto loadable plugins list
-    [[ ${#ZETA_PLUGINS[@]} -ne 0 ]] && {
+    [[ ${#ZETA_ENABLE_PLUGINS[@]} -ne 0 ]] && {
       local plg cnt=0 maxlen=0
-      for plg in "${ZETA_PLUGINS[@]}"; do
+      for plg in "${ZETA_ENABLE_PLUGINS[@]}"; do
         (( ${#plg} > maxlen )) && maxlen=${#plg}
       done
       (( maxlen += 2 ))
-      for plg in "${ZETA_PLUGINS[@]}"; do
+      for plg in "${ZETA_ENABLE_PLUGINS[@]}"; do
         # left justify, minimal width 15-chars
         builtin printf "%-${maxlen}s" "${plg}"
         (( cnt++, cnt % 8 == 0 )) && echo

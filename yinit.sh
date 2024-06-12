@@ -70,7 +70,11 @@ setopt extended_history       # Write HISTFILE file in ":start:elapsed;command" 
 # 命令补全 completion dump 缓存文件的保存位置
 ZSH_COMPDUMP="${ZETA_DIR}/xsh/assets/zsh-compdump"
 
-# ZETA_ENABLE_STARTUP_LOG=ON # 保存 ZSH 启动日志(分析性能)
+###### 配置选项 ######
+# ZETA_ENABLE_STARTUP_LOG=ON   # 保存 ZSH 启动日志(分析性能)
+# ZETA_ENABLE_PLUGINS=()       # 激活 xsh/plugin/* 插件列表
+
+######## 入口 ########
 [ -f "${ZETA_DIR}/zeta.xsh" ] && source "${ZETA_DIR}/zeta.xsh"
 
 ###### 主题风格 ######
