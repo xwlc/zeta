@@ -15,11 +15,20 @@ zcd_fpath="# Zsh fpath: ${fpath}"
 zcd_rhash="# Repo Hash: ${ZETA_COMMIT:-}"
 zcd_times="# Timestamp: $(date --iso-8601=seconds)"
 
-if [[ -f "${ZSH_COMPDUMP}" ]]; then # 默认值 IFS=' '$'\t'$'\n'$'\0'
-  { IFS=$'\n'; zcd_last2=( $(tail -2 "${ZSH_COMPDUMP}") ); unset IFS; }
-  if [[ ${#zcd_last2[@]} -eq 2 ]]; then
-    [[ "${zcd_rhash}" == "${zcd_last2[1]}" ]] && \
-    [[ "${zcd_fpath}" == "${zcd_last2[2]}" ]] && zcd_refresh=0
+[[ -z "${ZSH_COMPDUMP}" ]] && ZSH_COMPDUMP="${HOME}/.zsh-compdump"
+if [[ -f "${ZSH_COMPDUMP}" ]]; then
+  if @zeta:xsh:has-cmd md5sum; then
+    [[ -f "${ZSH_COMPDUMP}.md5" ]] && {
+      zcd_md5old=$(cat "${ZSH_COMPDUMP}.md5")
+      zcd_md5new=$(md5sum "${ZSH_COMPDUMP}" | cut -d' ' -f1)
+      [[ "${zcd_md5old}" == "${zcd_md5new}" ]] && zcd_refresh=0
+    }
+  else # 默认值 IFS=' '$'\t'$'\n'$'\0'
+    { IFS=$'\n'; zcd_last2=( $(tail -2 "${ZSH_COMPDUMP}") ); unset IFS; }
+    if [[ ${#zcd_last2[@]} -eq 2 ]]; then
+      [[ "${zcd_rhash}" == "${zcd_last2[1]}" ]] && \
+      [[ "${zcd_fpath}" == "${zcd_last2[2]}" ]] && zcd_refresh=0
+    fi
   fi
 fi
 
@@ -37,6 +46,10 @@ if (( zcd_refresh )); then
 
   zrecompile -q -p "${ZSH_COMPDUMP}"
   command rm -f "${ZSH_COMPDUMP}.zwc.old"
+
+  if @zeta:xsh:has-cmd md5sum; then
+    md5sum "${ZSH_COMPDUMP}" | cut -d' ' -f1 > "${ZSH_COMPDUMP}.md5"
+  fi
 fi
 
-unset -v zcd_{fpath,rhash,times,last2,refresh}
+unset -v zcd_{fpath,rhash,times,md5old,md5new,last2,refresh}
