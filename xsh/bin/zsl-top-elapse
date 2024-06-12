@@ -20,13 +20,13 @@ declare -i IsAllColored=0
 declare -i  MIN_ms=-1  MIN_us=-1  MIN_ns=-1
 declare OPTIND=1  OPTERR=0  OPTARG=''  _xopt_
 
-while getopts ":m:M:u:U:n:N:Aa" _xopt_; do
-  case "${_xopt_}" in # 命令参数列表  -m, -u, -n, -a
+while getopts ":m:M:u:U:n:N:l:L:Aa" _xopt_; do
+  case "${_xopt_}" in # 命令参数列表  -m, -u, -n, -a, -l
     a|A) IsAllColored=1; break ;; # 彩色化显示所有记录
     m|M) [[ -z "${OPTARG//[0-9]/}" ]] && MIN_ms=${OPTARG} ;; # 毫秒
     u|U) [[ -z "${OPTARG//[0-9]/}" ]] && MIN_us=${OPTARG} ;; # 微秒
     n|N) [[ -z "${OPTARG//[0-9]/}" ]] && MIN_ns=${OPTARG} ;; # 纳秒
-    *.log) XLOG="$(realpath ${OPTARG})" ;;
+    l|L) XLOG="$(realpath ${OPTARG})" ;;
   esac
 done
 
