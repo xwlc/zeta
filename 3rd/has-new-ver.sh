@@ -304,6 +304,14 @@ function check-version/xh() {
   print-version-info xh "v${old_version}" "${new_version}"
 }
 
+# https://github.com/ogham/dog
+function check-version/dog() { # https://dns.lookup.dog
+  has-cmd dog && return # NOTE v0.1.0 二进制包动态库缺失
+  local new_version="$(github-latest-release-of ogham/dog)"
+  local old_version=$(dog --version | head -1 | cut -d' ' -f2)
+  print-version-info dog "v${old_version}" "${new_version}"
+}
+
 check-version/ninja
 check-version/astyle
 check-version/ccache
@@ -335,6 +343,7 @@ check-version/jq        # 终端 JSON 解析           C
 check-version/xh        # HTTP/HTTPS 请求/调试     Rust
 check-version/xcurl     # curl 前端(语法高亮)      Go
 check-version/gping     # 终端 ping 图形化         Rust
+check-version/dog       # 终端 DNS 查询(JSON)      Rust
 
 check-version/fzf       # 模糊搜索匹配             Go
 # https://github.com/dandavison/delta              Rust
