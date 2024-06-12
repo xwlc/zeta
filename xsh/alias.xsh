@@ -39,8 +39,8 @@ unset -v _list_
 # https://dystroy.org/broot/install-br
 @zeta:xsh:has-cmd broot && BR_INSTALL=no
 
-@zeta:xsh:no-cmd zduf && alias zduf='du -sh *'
-@zeta:xsh:no-cmd zdud && alias zdud='du -d 1 -h'
+@zeta:xsh:no-cmd zduf && alias zduf='du -h -s'
+@zeta:xsh:no-cmd zdud && alias zdud='du -h -d 1'
 
 # https://www.baeldung.com/linux/find-command-regex
 # 显示 find 有效的正则表达式名称 => find -regextype help
