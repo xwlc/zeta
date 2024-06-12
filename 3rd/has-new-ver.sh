@@ -297,6 +297,12 @@ function check-version/xcurl() {
 }
 
 # https://github.com/ducaale/xh
+function check-version/xh() {
+  no-cmd xh && return
+  local new_version="$(github-latest-release-of ducaale/xh)"
+  local old_version=$(xh --version | head -1 | cut -d' ' -f2)
+  print-version-info xh "v${old_version}" "${new_version}"
+}
 
 check-version/ninja
 check-version/astyle
@@ -326,6 +332,7 @@ check-version/hexyl     # 十六进制查看工具         Rust
 check-version/lazygit   # 命令行 git 工具          Go
 
 check-version/jq        # 终端 JSON 解析           C
+check-version/xh        # HTTP/HTTPS 请求/调试     Rust
 check-version/xcurl     # curl 前端(语法高亮)      Go
 check-version/gping     # 终端 ping 图形化         Rust
 
