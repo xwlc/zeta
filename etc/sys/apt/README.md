@@ -68,12 +68,16 @@
     for key in /usr/share/keyrings/*.gpg; do
       # -k,--list-public-keys; --with-subkey-fingerprint
       echo ${key}; gpg --no-default-keyring --show-keys ${key};
-    done
+    done # -v,--verbose; -o,--output
+    cat key.asc | gpg --dearmor -vo key.gpg # 转换成二进制格式密钥
     ```
 
 - [Latest Git](https://git-scm.com/download/linux)
 - [Beyond Compare](https://www.scootersoftware.com/download)
-- [Microsoft Edge](https://www.microsoft.com/en-us/edge/download?form=MA13FJ)
+
+- [Microsoft Edge](https://www.microsoft.com/en-us/edge/download/insider?form=MA13ID)
+  * 下载 deb 软件包 https://packages.microsoft.com/repos/edge/pool/main/m/
+- [Mozilla Firefox](https://support.mozilla.org/en-US/kb/install-firefox-linux)
 
 - [XanMod](https://xanmod.org) Kernel [仓库](https://gitlab.com/xanmod)
   ```bash
