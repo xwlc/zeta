@@ -4,6 +4,10 @@
 # Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
+[[ -z "${XCOLORS}" || ! -f "${XCOLORS}" ]] && exit 255
+source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
+
+function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
 
 # 同时重定向标准输出和标准错误
@@ -15,12 +19,6 @@ function is-inside-git-work-tree() {
 }
 
 ! is-inside-git-work-tree && exit 1
-
-if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
-  source "${XCOLORS}"
-else
-  exit 255
-fi
 
 MSG="$@"
 YMD="$(date '+%Y-%m-%d')"

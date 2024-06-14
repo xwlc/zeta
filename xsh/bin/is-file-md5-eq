@@ -4,13 +4,12 @@
 # Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
-if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
-  source "${XCOLORS}"
-else
-  exit 255
-fi
+[[ -z "${XCOLORS}" || ! -f "${XCOLORS}" ]] && exit 255
+source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
 
+function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
+
 no-cmd md5sum && exit 1
 
 [[ $# != 2 || ! -f "$1" || ! -f "$2" ]] && {

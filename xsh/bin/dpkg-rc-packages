@@ -4,14 +4,13 @@
 # Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
-function no-cmd() { ! command -v "$1" > /dev/null; }
-no-cmd dpkg && return 1
+[[ -z "${XCOLORS}" || ! -f "${XCOLORS}" ]] && exit 255
+source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
 
-if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
-  source "${XCOLORS}"
-else
-  exit 255
-fi
+function has-cmd() {  command -v "$1" > /dev/null; }
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+no-cmd dpkg && return 1
 
 if [[ $1 == "delete" ]]; then
   dpkg -l | grep "^rc" | awk "{print \$2}" | sudo xargs dpkg --purge

@@ -12,17 +12,16 @@
 #     显示 <PKG> 软件包信息 apt show <PKG>
 # - 原因三: 新版 <PKG> 软件包的依赖发生变化
 
+[[ -z "${XCOLORS}" || ! -f "${XCOLORS}" ]] && exit 255
+source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
+
+function has-cmd() {  command -v "$1" > /dev/null; }
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+no-cmd apt && exit 1
+
 THIS_DIR="$(dirname "$0")"
 THIS_FNAME="$(basename "$0")"
-
-if [[ -n "${XCOLORS}" && -f "${XCOLORS}" ]]; then
-  source "${XCOLORS}"
-else
-  exit 255
-fi
-
-function no-cmd() { ! command -v "$1" > /dev/null; }
-no-cmd apt && exit 1
 
 NEW_VER=""; OLD_VER=""; IS_HOLD=""; IS_PHASED=""
 CACHE_LOG_OLD="${THIS_DIR}/${THIS_FNAME}-old.log"
