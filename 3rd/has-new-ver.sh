@@ -57,6 +57,14 @@ function print-version-info() {
   fi
 }
 
+# https://github.com/cli/cli
+function check-version/gh() {
+  no-cmd gh && return # 手册 https://cli.github.com
+  local new_version="$(github-latest-tag-of cli/cli)"
+  local old_version=$(gh --version | head -1 | cut -d' ' -f3)
+  print-version-info gh "v${old_version}" "${new_version}"
+}
+
 # https://github.com/beyondgrep/ack3
 function check-version/ack() {
   no-cmd ack && return
@@ -331,6 +339,8 @@ function check-version/dog() { # https://dns.lookup.dog
 check-version/ninja
 check-version/astyle
 check-version/ccache
+
+check-version/gh        # GitHub 命令行终端工具    Go
 
 check-version/procs     # ps 替代品(彩色及高亮)    Rust
 check-version/btm       # 终端系统监控(图形化)     Rust
