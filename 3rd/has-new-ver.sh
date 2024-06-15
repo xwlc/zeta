@@ -3,19 +3,17 @@
 # 检查 3rd/bin/* 应用是否有新版本
 # https://github.com/ibraheemdev/modern-unix
 
-if [[ "$0" == "has-new-ver.sh" ]]; then
-  THIS_DIR="${PWD}"
-else
-  THIS_DIR="$(realpath "${0%/*}")"
-fi
+THIS_FNAME="$(basename "$0")" # 当前文件名
+THIS_DIR="$(realpath "${0%/*}")" # 当前目录
+[[ "$0" == "${THIS_FNAME}" ]] && THIS_DIR="${PWD}"
 
 source "${THIS_DIR}/../xsh/colors.xsh"
 function has-cmd() { command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
 
-if [[ -z "${GITHUB_ACCESS_TOKEN}" ]]; then
+if [[ -z "${GITHUB_TOKEN}" ]]; then
   @D9 '################################### -> '; @G9 'https://docs.github.com/en/rest'; echo
-  echo "$(@D9 '#') $(@R3 'No GitHub Personal Access Token') $(@D9 '# =>') $(@Y3 GITHUB_ACCESS_TOKEN)"
+  echo "$(@D9 '#') $(@R3 'No GitHub Personal Access Token') $(@D9 '# =>') $(@Y3 GITHUB_TOKEN)"
   @D9 '################################### -> '; @G9 'https://github.com/settings/tokens'; echo
   exit 1
 fi
@@ -29,7 +27,7 @@ function github-latest-tag-of() {
   # https://api.github.com/repos/拥有者/仓库名/tags
   xdata=$(curl -s -H "Accept: application/json" \
     -H "X-GitHub-Api-Version: ${ApiVersion}" \
-    -H "Authorization: Bearer ${GITHUB_ACCESS_TOKEN}" \
+    -H "Authorization: Bearer ${GITHUB_TOKEN}" \
     -L  https://api.github.com/repos/${OwnerRepo}/tags | head -3 | tail -1
   )
   [[ $? -ne 0 ]] && return
@@ -41,7 +39,7 @@ function github-latest-release-of() {
   # https://api.github.com/repos/拥有者/仓库名/releases
   xdata=$(curl -s -H "Accept: application/json" \
     -H "X-GitHub-Api-Version: ${ApiVersion}" \
-    -H "Authorization: Bearer ${GITHUB_ACCESS_TOKEN}" \
+    -H "Authorization: Bearer ${GITHUB_TOKEN}" \
     -L  https://api.github.com/repos/${OwnerRepo}/releases/latest | \
     head -28 | tail -1
   )
