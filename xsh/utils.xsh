@@ -117,3 +117,29 @@ function @zeta:util:is-number() {
   [[ $# -eq 0 ]] && return 1
   [[ -n "$1" && -z "${1//[0-9A-Fa-f]/}" ]]
 }
+
+function @zeta:util:inside-git-repo() {
+  git rev-parse --is-inside-work-tree &> /dev/null
+}
+
+# $1 原始字符串  $2 期望包含字符
+function @zeta:util:has-sub-str() {
+  [[ -z "$1" || -z "$2" ]] && return 1
+  # 删除期望字符后若二者不相等则表示包含
+  [[ "$(echo "$1" | sed "s#$2##")" != "$1" ]]
+}
+
+function @zeta:util:get-repo-github-url() {
+  ! git rev-parse --is-inside-work-tree &> /dev/null && return
+  local xurl=$(git remote --verbose | head -1 | cut -d' ' -f1 | cut -f2)
+  if @zeta:util:has-sub-str "${xurl}" "git@github.com:"; then
+    xurl=$(echo "${xurl}" | sed 's#git@github.com:#https://github.com/#')
+  fi
+  xurl="${xurl%.git}" # 删除结尾的 .git 字符串
+  if @zeta:util:has-sub-str "${xurl}" "https://github.com/"; then
+    # GitHubUserRepo="${xurl#https://github.com/}" # 开头 % 结尾
+    # GitHubRepoName="${GitHubUserRepo#*/}"
+    # GitHubUserName="${GitHubUserRepo%/*}"
+    echo "${xurl}"
+  fi
+}
