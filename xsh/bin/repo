@@ -14,6 +14,16 @@ THIS_FNAME="$(basename "$0")" # 当前文件名
 THIS_DIR="$(realpath "${0%/*}")" # 当前目录
 [[ "$0" == "${THIS_FNAME}" ]] && THIS_DIR="${PWD}"
 
+# -R,--repo;
+# --public; --private; -p,--template; -d,--description
+
+# 登陆状态 $ gh auth status
+# 仓库列表 $ gh repo list [用户名/组织名]
+# 发布信息 $ gh release list -R 用户名/仓库名
+# 搜索仓库 $ gh search repos --owner 用户名 --match name 仓库名
+#
+# 新建仓库 $ gh repo create 仓库名 -p 模板库 -d 描述
+
 function is-inside-git-work-tree() {
   git rev-parse --is-inside-work-tree &> /dev/null
 }
@@ -28,15 +38,6 @@ function has-sub-string() {
 if no-cmd gh || no-cmd git; then # https://github.com/cli
   echo "${LINENO}: Not found command $(@R3 gh) or $(@R3 git)"; exit 1
 fi # https://cli.github.com/manual
-
-# 显示登陆状态 $ gh auth status
-# 显示仓库列表 $ gh repo list [User/Org]
-
-# https://docs.github.com/articles/creating-a-repository-from-a-template
-if [[ "$(git config --get user.email)" == "charlie-wong@outlook.com" ]]; then
-  # 模板仓库 https://github.com/xwlc/mini-repo
-  GitHubUserName="xwlc"; TemplateRepoName="mini-repo"
-fi
 
 if is-inside-git-work-tree; then
   CURRENT_REPO=$(git remote --verbose | head -1 | cut -d' ' -f1 | cut -f2)
@@ -146,55 +147,74 @@ while getopts ":U:T:R:b:r:t:" _xopt_; do
   esac
 done
 
+TemplateRepoOwner="${GitHubUserName}"
 [[ -z "${GitHubUserName}" || -z "${nRepoName}" ]] && {
-  echo "${LINENO}: no $(@R3 GitHubUserName) or $(@R3 nRepoName)"
+  echo "${LINENO}: no $(@R3 GitHubUserName) or $(@R3 WorkRepoName)"
   print-usage-and-exit
 }
-WORK_REPO="https://github.com/${GitHubUserName}/${nRepoName}"
-TEMPLATE_REPO="https://github.com/${GitHubUserName}/${TemplateRepoName}"
 
-function owner-has-repo() {
-  local usrRN="$1" out # $1 表示仓库名称(完全精准匹配)
-  echo "gh search repos --owner "${GitHubUserName}" --match name "${usrRN}""
-  out=$(gh search repos --owner "${GitHubUserName}" --match name "${usrRN}")
-  [[ $? -eq 0 && "${out}" != "no repositories matched your search" ]]
+# https://docs.github.com/articles/creating-a-template-repository
+# https://docs.github.com/articles/creating-a-repository-from-a-template
+if [[ -z "${TemplateRepoName}" ]]; then
+  # 模板仓库 https://github.com/xwlc/mini-repo
+  TemplateRepoOwner="xwlc"; TemplateRepoName="mini-repo"
+fi
+
+WORK_REPO="https://github.com/${GitHubUserName}/${nRepoName}"
+TEMPLATE_REPO="https://github.com/${TemplateRepoOwner}/${TemplateRepoName}"
+
+function has-repo() {
+  local usrN="$1"  repoN="$2"  out # $1 表示仓库名称(完全精准匹配)
+  out="$(gh search repos --owner "${usrN}" --match name "${repoN}" 2>&1)"
+  [[ $? -eq 0 && -n "${out}" ]] # 不等于 <空> 则表示目标仓库存在
 }
 
-# nRepoName  nBranchName  nReleaseName  nTagName
-CREAT_NEW_REPO=1
+function has-branch() { echo TODO; }
+function has-release() { echo TODO; }
+function has-tag() { echo TODO; }
+
+CREATE_NEW_REPO=0
 (( CREATE )) && {
-  if [[ -z "${nBranchName}" && "${nReleaseName}" && "${nTagName}" ]]; then
-    OWNER_HAS_REPO=0 # 依据模板仓库创建新仓库
-  else
-    [[ -z "${TemplateRepoName}" ]] || ! owner-has-repo "${TemplateRepoName}" && {
-      echo "${LINENO}: No Template Repo $(@R3 ${TEMPLATE_REPO})"
-      echo; print-usage-and-exit # 仓库模板不存在
-    }
-    owner-has-repo "${nRepoName}" && {
-      echo "${LINENO}: Already Exist Repo $(@R3 ${WORK_REPO})"
-      echo; print-usage-and-exit # 仓库模板不存在
-    }
+  if [[ -z "${nBranchName}" && -z "${nReleaseName}" && -z "${nTagName}" ]]; then
+    CREATE_NEW_REPO=1 # 依据 <模板仓库> 创建 <新仓库>
   fi
 }
 
-if ! owner-has-repo "${nRepoName}"; then
-  echo "${LINENO}: No Work Repo $(@R3 ${WORK_REPO})"
-  echo; print-usage-and-exit
+if (( CREATE_NEW_REPO )); then
+  [[ -z "${TemplateRepoName}" ]] || ! has-repo "${TemplateRepoOwner}" "${TemplateRepoName}" && {
+    echo "${LINENO}: No template repo $(@R3 ${TEMPLATE_REPO})"
+    echo; print-usage-and-exit
+  }
+  has-repo "${GitHubUserName}" "${nRepoName}" && {
+    echo "${LINENO}: Already exist repo $(@R3 ${WORK_REPO})"
+    echo; print-usage-and-exit
+  }
+else
+  ! has-repo "${GitHubUserName}" "${nRepoName}" && {
+    echo "${LINENO}: No work repo $(@R3 ${WORK_REPO})"
+    echo; print-usage-and-exit
+  }
 fi
 
-if true; then
-  echo "用户 [${GitHubUserName}], 模板 [${TemplateRepoName}], 仓库 [${nRepoName}]"
+if true; then # nRepoName  nBranchName  nReleaseName  nTagName
+  echo "模板 $(@Y3 ${TemplateRepoOwner}/${TemplateRepoName})"
   (( CREATE )) && {
-    echo "创建 B=[${nBranchName}], R=[${nReleaseName}], T=[${nTagName}]"
+    echo "Create 仓库 $(@R3 ${GitHubUserName}/${nRepoName})"
+    echo "Create 分支 [${nBranchName}]"
+    echo "Create 发布 [${nReleaseName}]"
+    echo "Create 标签 [${nTagName}]"
   }
   (( DELETE )) && {
-    echo "删除 B=[${nBranchName}], R=[${nReleaseName}], T=[${nTagName}]"
+    echo "Delete 仓库 $(@R3 ${GitHubUserName}/${nRepoName})"
+    echo "Delete 分支 [${nBranchName}]"
+    echo "Delete 发布 [${nReleaseName}]"
+    echo "Delete 标签 [${nTagName}]"
   }
   (( RENAME )) && {
-    echo "ReNa 仓库 [${oRepoName}]    => [${nRepoName}]"
-    echo "ReNa 分支 [${oBranchName}]  => [${nBranchName}]"
-    echo "ReNa 发布 [${oReleaseName}] => [${nReleaseName}]"
-    echo "ReNa 标签 [${oTagName}]     => [${nTagName}]"
+    echo "ReName 仓库 $(@D9 ${GitHubUserName}/${oRepoName}) => $(@R3 ${GitHubUserName}/${nRepoName})"
+    echo "ReName 分支 [${oBranchName}]  => [${nBranchName}]"
+    echo "ReName 发布 [${oReleaseName}] => [${nReleaseName}]"
+    echo "ReName 标签 [${oTagName}]     => [${nTagName}]"
   }
   exit
 fi
