@@ -27,10 +27,11 @@ if @zeta:xsh:has-cmd go; then
   GOROOT="$(realpath "${GOROOT}")"  # => go/X.Y.Z/bin/go
   export GOROOT="${GOROOT%/bin/go}" # => go/X.Y.Z
 
-  # 启用 module-aware 模式
-  export GO111MODULE=on
-  # 模块包下载及安装, 目录结构 bin/ + pkg/ + src/
-  export GOPATH="${GOROOT%/*}/modules" # => vendor/go/modules
+  [[ "${GOROOT}" =~ "^${ZETA_DIR}/3rd/vendor/go/[0-9.]*$" ]] && {
+    export GO111MODULE=on # 启用 module-aware 模式
+    # 模块包下载及安装, 目录结构 bin/ + pkg/ + src/
+    export GOPATH="${GOROOT%/*}/modules" # => vendor/go/modules
+  }
 
   # Go 模块代理下载地址(国内加速镜像)
 # export GOPROXY="https://goproxy.io,direct" # 官方地址
@@ -41,33 +42,32 @@ if @zeta:xsh:has-cmd go; then
   # export GOENV=""   # 用户配置, 默认值 ~/.config/go/env
 fi
 
-# Rust 编译器的安装及升级(多版本管理)
-# 默认值 ~/.rustup 或 %USERPROFILE%/.rustup
+# 清华   https://mirrors.tuna.tsinghua.edu.cn/help/rustup
+# 中科大 https://mirrors.ustc.edu.cn/help/rust-static.html
 # https://rust-lang.github.io/rustup/environment-variables.html
-if @zeta:xsh:has-cmd rustup; then
+# https://doc.rust-lang.org/stable/cargo/reference/environment-variables.html
+if [[ -d "${ZETA_DIR}/3rd/vendor/rust/rustup" ]]; then
+  # 默认值 ~/.rustup 或 %USERPROFILE%/.rustup
   export RUSTUP_HOME="${ZETA_DIR}/3rd/vendor/rust/rustup"
 fi
-
-# 依赖包的下载及构建缓存 => 提升效率
-# 默认值 ~/.cargo 或 %USERPROFILE%/.cargo
-# https://doc.rust-lang.org/stable/cargo/reference/environment-variables.html
-if @zeta:xsh:has-cmd cargo; then
+if [[ -d "${ZETA_DIR}/3rd/vendor/rust/cargo" ]]; then
+  # 默认值 ~/.cargo 或 %USERPROFILE%/.cargo
   export CARGO_HOME="${ZETA_DIR}/3rd/vendor/rust/cargo"
 fi
 
 function zman() {
   local cmkMAN  jsMAN  rustMAN  javaMAN
 
-  cmkMAN="$(@zeta:3rd:get-app-vendor-path cmake)"
+  cmkMAN="$(@zeta:3rd:get-vendor-path cmake)"
   [[ -n "${cmkMAN}" ]] && cmkMAN="$(realpath "${cmkMAN}/../man")"
 
-  jsMAN="$(@zeta:3rd:get-app-vendor-path node)"
+  jsMAN="$(@zeta:3rd:get-vendor-path node)"
   [[ -n "${jsMAN}" ]] && jsMAN="$(realpath "${jsMAN}/../share/man")"
 
-  javaMAN="$(@zeta:3rd:get-app-vendor-path java)"
+  javaMAN="$(@zeta:3rd:get-vendor-path java)"
   [[ -n "${javaMAN}" ]] && javaMAN="$(realpath "${javaMAN}/../man")"
 
-  rustMAN="$(@zeta:3rd:get-app-vendor-path rustc)"
+  rustMAN="$(@zeta:3rd:get-vendor-path rustc)"
   [[ -n "${rustMAN}" ]] && rustMAN="$(realpath "${rustMAN}/../share/man")"
 
   if [[ $# -eq 3 ]]; then
@@ -121,15 +121,15 @@ function zman() {
   esac
 }
 
-function @zeta:3rd:is-vendor-app() {
+function @zeta:3rd:is-vendor-pkg() {
   [[ "$1" =~ "^${ZETA_DIR}/3rd/vendor/*" ]]
 }
 
-function @zeta:3rd:get-app-vendor-path() {
+function @zeta:3rd:get-vendor-path() {
   local avpath="$(command -v $1)"
   avpath="$(realpath "${avpath}")"
   avpath="${avpath%/*}"
-  if @zeta:3rd:is-vendor-app "${avpath}"; then
+  if @zeta:3rd:is-vendor-pkg "${avpath}"; then
     echo "${avpath}"
   fi
 }
@@ -151,53 +151,53 @@ function @zeta:3rd:update-symlink() {
   fi
 }
 
+function @zeta:3rd:delete-symlink() {
+  local binEXE=$1  pkgBIN
+  case $1 in
+      rust) binEXE=rustc ;; # pick/rustc
+    nodejs) binEXE=node  ;; # pick/node
+  esac
+
+  # 读 binEXE 软链接, 找到 pkgBIN 目标路径
+  pkgBIN="$(@zeta:3rd:get-vendor-path ${binEXE})"
+  [[ -z "${pkgBIN}" ]] && return
+
+  local pickDIR="${ZETA_DIR}/3rd/pick"
+  for binEXE in $(ls "${pkgBIN}"); do
+    [[ -h "${pickDIR}/${binEXE}" ]] && {
+      printf "Delete $(@D9 '3rd/pick/')$(@Y3 %-12s) $(@D9 '->') " ${binEXE}
+      echo "$(@G3 "$(realpath "${pickDIR}/${binEXE}")")"
+      rm -f "${pickDIR}/${binEXE}"
+    }
+  done
+}
+
 function @zeta:3rd:switch-to() {
-  local pkg="$1" selected="$2" version
-
-  if [[ "$2" == "reset" ]]; then
-    local binEXE=$1 pkgBIN
-    case $1 in
-        rust) binEXE=rustc ;;
-      nodejs) binEXE=node  ;;
-    esac
-
-    pkgBIN="$(@zeta:3rd:get-app-vendor-path ${binEXE})"
-    [[ -z "${pkgBIN}" ]] && return
-
-    local pickDIR="${ZETA_DIR}/3rd/pick"
-    for binEXE in $(ls "${pkgBIN}"); do
-      [[ -h "${pickDIR}/${binEXE}" ]] && {
-          printf "Delete $(@D9 '3rd/pick/')$(@Y3 %-12s) $(@D9 '->') " ${binEXE}
-          echo "$(@G3 "$(realpath "${pickDIR}/${binEXE}")")"
-          rm -f "${pickDIR}/${binEXE}"
-      }
-    done
-    return
-  fi
-
-  for version in $(@zeta:3rd:get-pkg-version ${pkg}); do
+  [[ "$2" == "reset" ]] && {
+    @zeta:3rd:delete-symlink $1; return
+  }
+  local app="$1"  selected="$2"  version
+  for version in $(@zeta:3rd:get-pkg-version ${app}); do
     [[ "${selected}" == "${version}" ]] && {
-      local pkgBIN="${pkg}/${version}/bin" binEXE
+      local pkgBIN="${app}/${version}/bin" binEXE
       for binEXE in $(ls "${ZETA_DIR}/3rd/vendor/${pkgBIN}"); do
         @zeta:3rd:update-symlink ${binEXE} "${pkgBIN}/${binEXE}"
       done
       return
     }
   done
-  echo "=> no $(@G3 ${pkg}) version $(@R3 ${selected}) found"
-  return 1
+  echo "=> no $(@G3 ${app}) version $(@R3 ${selected}) found"
 }
 
 function @zeta:3rd:usage-help() {
   local _PKGS_=( cmake  go  nim  rust  nodejs  java )
   echo
-  echo "-> $(@C3 switch-to) $(@R3 'sys-default')"
+  echo "-> $(@D9 switch-to) $(@R3 'sys-default')"
   echo
-  local app version count=0 cfn
+  local app version
   for app in ${_PKGS_[@]}; do
-    cfn=@G3; (( count++, count%2 == 0 )) && cfn=@B3
     for version in $(@zeta:3rd:get-pkg-version ${app}); do
-      echo "-> $(@C3 switch-to) $(${cfn} ${app}) $(@Y3 ${version})"
+      printf "-> $(@D9 switch-to) $(@G3 %-9s) $(@Y3 ${version})\n" "${app}"
     done
   done
   echo
@@ -219,19 +219,19 @@ function switch-to() {
     cmake)
       @zeta:3rd:switch-to cmake   "$2" ;; # cmake/$2/bin/*
     java)
-      @zeta:3rd:switch-to java    "$2" ;;  # java/$2/bin/*
+      @zeta:3rd:switch-to java    "$2" ;; # java/$2/bin/*
     nodejs)
-      @zeta:3rd:switch-to nodejs  "$2"   # nodejs/$2/bin/*
+      @zeta:3rd:switch-to nodejs  "$2" # nodejs/$2/bin/*
       export NODE_PATH="${ZETA_DIR}/3rd/vendor/$1/$2/lib/node_modules"
       ;;
     go)
-      @zeta:3rd:switch-to go      "$2"       # go/$2/bin/*
+      @zeta:3rd:switch-to go      "$2" # go/$2/bin/*
       export GOROOT="${ZETA_DIR}/3rd/vendor/$1/$2"
       ;;
     nim)
-      @zeta:3rd:switch-to nim     "$2" ;;  #  nim/$2/bin/*
+      @zeta:3rd:switch-to nim     "$2" ;; # nim/$2/bin/*
     rust)
-      @zeta:3rd:switch-to rust    "$2" ;;  # rust/$2/bin/*
+      @zeta:3rd:switch-to rust    "$2" ;; # rust/$2/bin/*
     *)
       echo "=> not found package of $(@R3 $1)"
       ;;
