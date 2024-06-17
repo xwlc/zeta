@@ -3,18 +3,16 @@
 # Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
-source "${ZETA_DIR}/xsh/core/path.xsh"
-source "${ZETA_DIR}/xsh/host-triplet.xsh"
+function @zeta:xsh:is-zsh()  { [[ -n "${ZSH_VERSION:-}"  ]]; }
+function @zeta:xsh:is-bash() { [[ -n "${BASH_VERSION:-}" ]]; }
 
-function @zeta:xsh:which-workshell() {
-  if @zeta:host:is-linux; then
-    # 根据进程判断当前 Shell 类型, $$ 进程 PID
-    basename "$(readlink /proc/$$/exe)"
-  elif [ -n "${ZSH_VERSION}" ]; then
-    echo "zsh"
-  elif [ -n "${BASH_VERSION}" ]; then
-    echo "bash"
-  else
+# NOTE `which` can not found alias or shell function
+function @zeta:xsh:has-cmd() {  command -v "$1" > /dev/null 2>&1; }
+function @zeta:xsh:no-cmd() { ! command -v "$1" > /dev/null 2>&1; }
+
+function @zeta:xsh:req-cmd() {
+  if ! command -v "$1" > /dev/null 2>&1; then # 红色 \e[31m
+    printf "\e[90mzeta:\e[0m not found required \e[31m$1\e[0m command\n" >&2
     return 1
   fi
 }
@@ -101,3 +99,19 @@ if [ -t 2 ]; then # true if `stderr` is connected to a terminal
 else
   function @zeta:xsh:is-stderr-tty() { false; }
 fi
+
+source "${ZETA_DIR}/xsh/core/path.xsh"
+source "${ZETA_DIR}/xsh/host-triplet.xsh"
+
+function @zeta:xsh:which-workshell() {
+  if @zeta:host:is-linux; then
+    # 根据进程判断当前 Shell 类型, $$ 进程 PID
+    basename "$(readlink /proc/$$/exe)"
+  elif [ -n "${ZSH_VERSION}" ]; then
+    echo "zsh"
+  elif [ -n "${BASH_VERSION}" ]; then
+    echo "bash"
+  else
+    return 1
+  fi
+}

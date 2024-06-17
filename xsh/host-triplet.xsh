@@ -3,31 +3,6 @@
 # Created By: Charles Wong 2024-06-17T10:34:50+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
-# NOTE `which` can not found alias or shell function
-function @zeta:xsh:has-cmd() {  command -v "$1" > /dev/null 2>&1; }
-function @zeta:xsh:no-cmd() { ! command -v "$1" > /dev/null 2>&1; }
-
-function zeta-required-cmd() {
-  if @zeta:xsh:no-cmd "$1"; then # 红色 \e[31m
-    printf "zeta: required \e[31m$1\e[0m (command not found)\n" >&2; return 1
-  fi
-}
-
-# https://www.binarytides.com/linux-command-to-check-distro/
-# -> uname, lsb_release
-# -> cat /proc/version
-#    contains info about kernel and distro
-# -> Ubuntu/Debian Based      CentOS/Fedora Based
-#    cat /etc/issue           /etc/centos-release
-#    cat /etc/issue.net       /etc/redhat-release
-#    cat /etc/os-release      /etc/system-release
-#    cat /etc/lsb-release     cat /etc/lsb-release
-# -> Portable Command
-#    uname -a || lsb_release -a
-#    cat /etc/[A-Za-z]*[_-][vr]e[rl]*
-#    cat /etc/*-release | uniq -u
-#    cat /etc/*version /etc/*release /proc/version* | uniq -u
-
 function @zeta:host:is-macos()        { false; }
 
 function @zeta:host:is-linux()        { false; }
@@ -47,6 +22,21 @@ function @zeta:host:is-freebsd()      { false; }
 
 function @zeta:host:is-illumos()      { false; }
 function @zeta:host:is-dragonfly()    { false; }
+
+# https://www.binarytides.com/linux-command-to-check-distro/
+# -> uname, lsb_release
+# -> cat /proc/version
+#    contains info about kernel and distro
+# -> Ubuntu/Debian Based      CentOS/Fedora Based
+#    cat /etc/issue           /etc/centos-release
+#    cat /etc/issue.net       /etc/redhat-release
+#    cat /etc/os-release      /etc/system-release
+#    cat /etc/lsb-release     cat /etc/lsb-release
+# -> Portable Command
+#    uname -a || lsb_release -a
+#    cat /etc/[A-Za-z]*[_-][vr]e[rl]*
+#    cat /etc/*-release | uniq -u
+#    cat /etc/*version /etc/*release /proc/version* | uniq -u
 
 declare HOST_CPU_ID  HOST_DISTRO  HOST_OS_ABI
 HOST_CPU_ID="$(uname -m)"
