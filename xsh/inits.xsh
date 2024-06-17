@@ -4,62 +4,7 @@
 # Repository: https://github.com/xwlc/zeta
 
 source "${ZETA_DIR}/xsh/core/path.xsh"
-
-# NOTE `which` can not found alias or shell function
-function @zeta:xsh:has-cmd() {  command -v "$1" > /dev/null; }
-function @zeta:xsh:no-cmd() { ! command -v "$1" > /dev/null; }
-
-# https://www.binarytides.com/linux-command-to-check-distro/
-# -> uname, lsb_release
-# -> cat /proc/version
-#    contains info about kernel and distro
-# -> Ubuntu/Debian Based      CentOS/Fedora Based
-#    cat /etc/issue           /etc/centos-release
-#    cat /etc/issue.net       /etc/redhat-release
-#    cat /etc/os-release      /etc/system-release
-#    cat /etc/lsb-release     cat /etc/lsb-release
-# -> Portable Command
-#    uname -a || lsb_release -a
-#    cat /etc/[A-Za-z]*[_-][vr]e[rl]*
-#    cat /etc/*-release | uniq -u
-#    cat /etc/*version /etc/*release /proc/version* | uniq -u
-
-# NOTE Shell Set: HOSTTYPE, OSTYPE, MACHTYPE, and HOSTNAME
-function @zeta:host:is-macos()   { false; }
-function @zeta:host:is-linux()   { false; }
-function @zeta:host:is-windows() { false; }
-
-function @zeta:host:is-arch()    { false; }
-function @zeta:host:is-debian()  { false; }
-function @zeta:host:is-ubuntu()  { false; }
-
-# $(uname | tr '[:upper:]' '[:lower:]')
-# $(uname -s) -> WindowsNT, Darwin, Linux, FreeBSD, SunOS
-
-# 字符串 =~ POSIX正则(必须右侧)
-# [[ "${OSTYPE}" =~ ^linux  ]]
-# [[ "${OSTYPE}" =~ ^darwin ]]
-
-# https://megamorf.gitlab.io/2021/05/08/detect-operating-system-in-shell-script/
-case "${OSTYPE}" in
-  darwin*)  function @zeta:host:is-macos()   { true; } ;;
-  linux*)   function @zeta:host:is-linux()   { true; } ;;
-  msys*)    function @zeta:host:is-windows() { true; } ;;
-  cygwin*)  function @zeta:host:is-windows() { true; } ;;
-  *) ;; # SunOS(solaris), FreeBSD(bsd)
-esac
-
-if @zeta:host:is-linux; then
-  if [[ "$(lsb_release -is)" == 'Ubuntu' ]]; then
-# if grep -i ubuntu < /etc/os-release > /dev/null; then
-# if (( ${${(@f)"$(</etc/os-release)"}[(I)ID*=*ubuntu]} )); then
-    function @zeta:host:is-ubuntu() { true; }
-  fi
-else
-  if uname -a | grep -iE "MSYS|MinGW|Cygwin" > /dev/null; then
-    function @zeta:host:is-windows() { true; }
-  fi
-fi
+source "${ZETA_DIR}/xsh/host-triplet.xsh"
 
 function @zeta:xsh:which-workshell() {
   if @zeta:host:is-linux; then
