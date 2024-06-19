@@ -19,19 +19,18 @@ function @zeta:xsh:to-lowera()  {
 
 function @zeta:xsh:whats() {
   [[ $# -eq 0 ]] && return
-  local var vtype output details
+  local var vtype output details xflag
   for var in $@; do
-    vtype='' details=''
+    vtype=''; details=''; xflag=0
     if declare -p "${var}" >& /dev/null; then
       vtype="${(tP)${var}}"
     else
-      output="$(type -w ${var} | cut -d' ' -f2)"
-      [[ $? -eq 0 ]] && vtype="${output}"
+      output="$(type -w ${var})"; xflag=$?
+      [[ ${xflag} -eq 0 ]] && vtype="${output#${var}: }"
     fi
 
     if [[ -n "${_SILENT_:-}" ]]; then
-      echo "${vtype}"
-      continue
+      echo "${vtype}"; continue
     else
       # => `run-help type`
       # keyword, builtin, file, reserved, command, hashed
@@ -41,9 +40,17 @@ function @zeta:xsh:whats() {
       esac
     fi
 
-    local context="\e[90m[${SHLVL}][${ZSH_SUBSHELL}]\e[0m"
+    # - SHLVL 表示 Shell 进程的累加器
+    #   执行 `bash` 或 `zsh` 后其值 +1
+    # - ZSH_SUBSHELL 表示当前 Shell 进程中的 SubShell 的累加器
+    #   执行 echo "--$(echo ${SHLVL})-$(echo ${ZSH_SUBSHELL})--"
+    local context="\e[90m[D${SHLVL},S${ZSH_SUBSHELL}]\e[0m"
     if [[ -z "${vtype}" ]]; then
-      echo "${context} $(@Y9 ${var}) $(@D9 '->') $(@R3 Unknown)"
+      if (( xflag == 0 )); then
+        echo "${context} $(@Y9 ${var}) $(@D9 '->') $(@G9 none)"
+      else
+        echo "${context} $(@Y9 ${var}) $(@D9 '->') $(@R3 undefined)"
+      fi
     else
       echo "${context} $(@Y9 ${var}) $(@D9 '->') $(@G9 ${vtype})"
       [[ -n "${details}" ]] && echo "${details}"

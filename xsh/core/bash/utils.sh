@@ -10,9 +10,9 @@ function @zeta:xsh:to-lowera() { echo "${1@L}"; } # L 小写 <- 大写(全部)
 
 function @zeta:xsh:whats() {
   [[ $# -eq 0 ]] && return
-  local var vtype output details
+  local var vtype output details xflag
   for var in $@; do
-    vtype=''; details=''
+    vtype=''; details=''; xflag=0
     # NOTE 仅显示指定属性的变量
     # => declare -p -x  仅显示[拥有] export 属性变量
     # => declare -p +x  仅显示[没有] export 属性变量
@@ -45,8 +45,8 @@ function @zeta:xsh:whats() {
         esac
       done
     else
-      output="$(type -t "${var}")"
-      [[ $? -eq 0 ]] && vtype="${output}"
+      output="$(type -t "${var}")"; xflag=$?
+      [[ ${xflag} -eq 0 ]] && vtype="${output}"
     fi
 
     if [[ -n "${_SILENT_:-}" ]]; then
@@ -58,9 +58,17 @@ function @zeta:xsh:whats() {
       esac
     fi
 
-    local context=$'\e[90m'"[${SHLVL}][${BASH_SUBSHELL}]"$'\e[0m'
+    # - SHLVL 表示 Shell 进程的累加器
+    #   执行 `bash` 或 `zsh` 后其值 +1
+    # - BASH_SUBSHELL 表示当前 Shell 进程中的 SubShell 的累加器
+    #   执行 echo "--$(echo ${SHLVL})-$(echo ${BASH_SUBSHELL})--"
+    local context=$'\e[90m'"[D${SHLVL},S${BASH_SUBSHELL}]"$'\e[0m'
     if [[ -z "${vtype}" ]]; then
-      echo "${context} $(@Y9 ${var}) $(@D9 '->') $(@R3 Unknown)"
+      if (( xflag == 0 )); then
+        echo "${context} $(@Y9 ${var}) $(@D9 '->') $(@G9 none)"
+      else
+        echo "${context} $(@Y9 ${var}) $(@D9 '->') $(@R3 undefined)"
+      fi
     else
       echo "${context} $(@Y9 ${var}) $(@D9 '->') $(@G9 ${vtype})"
       [[ -n "${details}" ]] && echo "${details}"
