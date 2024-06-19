@@ -103,7 +103,7 @@ function @zeta:xsh:opt-if-off-then-on() {
 }
 
 # 若 $1 选项已<启用>则<禁用>之(提供恢复命令)
-function @zeta:xsh:opt-on-then-off() {
+function @zeta:xsh:opt-if-on-then-off() {
   [[ $# -ne 1 || -z "$1" ]] && return 1
   [[ ! -o $1 ]] && return 0 # 已禁用
 
@@ -123,6 +123,7 @@ function @zeta:xsh:opt-on-then-off() {
 function @zeta:xsh:ind-exp-var() {
   [[ $# -ne 1 || -z "$1" ]] && return 1
   if [[ -n "${ZSH_VERSION:-}" ]]; then
+    eval 'if ! declare -p '${(P)1}' > /dev/null 2>&1; then return 2; fi' # 未定义
     eval '[[ ${(t)'${(P)1}'} != scalar ]] && return 3' # 类型错误
     eval 'builtin echo ${'${(P)1}'}'
   elif [[ -n "${BASH_VERSION:-}" ]]; then
@@ -144,12 +145,13 @@ function @zeta:xsh:ind-exp-ia() {
     [[ -n "${ZSH_VERSION:-}" ]]  && xfeature=ksh_glob
     [[ -n "${BASH_VERSION:-}" ]] && xfeature=extglob
     xrestore="$(@zeta:xsh:opt-if-off-then-on ${xfeature})"
-    isok=$?; [[ ${isok} -ne 0 ]] && return 2 # 参数错误
-    [[ ! "$2" =~ ^[0-9]*([0-9])$ ]] && return 2 # 非数字索引
+    isok=$?; [[ ${isok} -ne 0 ]] && return 1 # 参数错误
+    [[ ! "$2" =~ ^[0-9]*([0-9])$ ]] && return 1 # 非数字索引
     [[ -n "${xrestore}" ]] && eval "${xrestore}" # 恢复选项状态
   }
 
   if [[ -n "${ZSH_VERSION:-}" ]]; then
+    eval 'if ! declare -p '${(P)1}' > /dev/null 2>&1; then return 2; fi' # 未定义
     eval '[[ ${(t)'${(P)1}'} != array ]] && return 3' # 类型错误
     if [[ -n "$2" ]]; then
       local idx=$2; (( idx == 0 )) && idx=1
@@ -158,6 +160,7 @@ function @zeta:xsh:ind-exp-ia() {
       eval 'builtin echo "${'${(P)1}'[@]}"'
     fi
   elif [[ -n "${BASH_VERSION:-}" ]]; then
+    eval 'if ! declare -p '${!1}' > /dev/null 2>&1; then return 2; fi' # 未定义
     eval '[[ ${'${!1}'@a} != a ]] && return 3' # 类型错误
     if [[ -n "$2" ]]; then
       local idx=$2; (( idx--, idx < 0 )) && idx=0
@@ -182,6 +185,7 @@ function @zeta:xsh:ind-exp-ia() {
 function @zeta:xsh:ind-exp-aa() {
   [[ -z "$1" ]] && return 1
   if [[ -n "${ZSH_VERSION:-}" ]]; then
+    eval 'if ! declare -p '${(P)1}' > /dev/null 2>&1; then return 2; fi' # 未定义
     eval '[[ ${(t)'${(P)1}'} != association ]] && return 3' # 类型错误
     if [[ -n "$2" ]]; then
       eval 'builtin echo "${'${(P)1}'['$2']}"'
@@ -189,6 +193,7 @@ function @zeta:xsh:ind-exp-aa() {
       eval 'builtin echo "${(k)'${(P)1}'}"' # 显示 key 列表
     fi
   elif [[ -n "${BASH_VERSION:-}" ]]; then
+    eval 'if ! declare -p '${!1}' > /dev/null 2>&1; then return 2; fi' # 未定义
     eval '[[ ${'${!1}'@a} != A ]] && return 3'
     if [[ -n "$2" ]]; then
       eval 'builtin echo ${'${!1}'['$2']}'
