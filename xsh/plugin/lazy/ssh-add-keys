@@ -67,7 +67,7 @@ fi
 function ssh-add-keys() {
   @zeta:host:is-windows && return
 
-  local _ukeys_  _xkeys_  _keyid_  _seckey_  _xrestore_
+  local _ukeys_  _xkeys_  _keyid_  _seckey_
   _ukeys_="$(command ls "${HOME}/.ssh" | grep "secret")"
   [[ $# -eq 0 || $? -ne 0 || -z "${_ukeys_}" ]] && return
 
@@ -75,10 +75,9 @@ function ssh-add-keys() {
   _xkeys_="$(command ssh-add -l 2>&1)"
 
   [[ -n "${ZSH_VERSION:-}" ]] && { # 字符分割未启用则启用
-    _xrestore_="$(@zeta:xsh:opt-if-off-then-on shwordsplit)"
-    if [[ $? -ne 0 ]]; then
+    @zeta:xsh:opt-if-off-then-on shwordsplit; [[ $? -ne 0 ]] && {
       @zeta:xsh:wmsg "try enable $(@G3 shwordsplit) failed!"; return
-    fi
+    }
   }
 
   for _keyid_ in ${LoadSecKeys}; do
@@ -96,6 +95,9 @@ function ssh-add-keys() {
     fi
   done
 
-  [[ -n "${_xrestore_:-}" ]] && eval "${_xrestore_}"
+  if [[ -n "${ZETA_XSH_OPT_shwordsplit:-}" ]]; then
+    eval   "${ZETA_XSH_OPT_shwordsplit}"
+  fi
+
   unset -f ssh-add-keys # 仅调用一次然后自我销毁 ^_^
 }

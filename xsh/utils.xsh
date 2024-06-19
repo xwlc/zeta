@@ -89,13 +89,16 @@ function @zeta:xsh:emsg() {
 function @zeta:xsh:opt-if-off-then-on() {
   [[ $# -ne 1 || -z "$1" ]] && return 1
   [[ -o $1 ]] && return 0 # 已启用
+
+  unset -v ZETA_XSH_OPT_$1
+  local _CleanVar_="unset -v ZETA_XSH_OPT_$1;"
+
   if [[ -n "${ZSH_VERSION:-}" ]]; then
-    setopt $1   # 启用选项
-    builtin echo "unsetopt $1" # eval 禁用恢复命令
+    declare -g ZETA_XSH_OPT_$1="unsetopt $1; ${_CleanVar_}" # <禁用>恢复 eval
+    setopt $1   # <启用>选项
   elif [[ -n "${BASH_VERSION:-}" ]]; then
-    shopt -s $1 # 启用选项
-    builtin echo "shopt -u $1" # eval 禁用恢复命令
-    # 特性选项状态 shopt extglob | cut -f2
+    declare -g ZETA_XSH_OPT_$1="shopt -u $1; ${_CleanVar_}" # <禁用>恢复 eval
+    shopt -s $1 # <启用>选项 -> 状态查看命令 $ shopt extglob | cut -f2
   fi
 }
 
@@ -103,12 +106,16 @@ function @zeta:xsh:opt-if-off-then-on() {
 function @zeta:xsh:opt-on-then-off() {
   [[ $# -ne 1 || -z "$1" ]] && return 1
   [[ ! -o $1 ]] && return 0 # 已禁用
+
+  unset -v ZETA_XSH_OPT_$1
+  local _CleanVar_="unset -v ZETA_XSH_OPT_$1;"
+
   if [[ -n "${ZSH_VERSION:-}" ]]; then
-    unsetopt $1 # 禁用选项
-    builtin echo "setopt $1"   # eval 启用恢复命令
+    declare -g ZETA_XSH_OPT_$1="setopt $1;   ${_CleanVar_}" # <启用>恢复 eval
+    unsetopt $1 # <禁用>选项
   elif [[ -n "${BASH_VERSION:-}" ]]; then
-    shopt -u $1 # 禁用选项
-    builtin echo "shopt -s $1" # eval 启用恢复命令
+    declare -g ZETA_XSH_OPT_$1="shopt -s $1; ${_CleanVar_}" # <启用>恢复 eval
+    shopt -u $1 # <禁用>选项
   fi
 }
 

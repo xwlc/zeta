@@ -275,14 +275,13 @@ function admin-clean-system-trash() {
     fi
   fi
 
-  local xfile  _xrestore_
   [[ -n "${ZSH_VERSION:-}" ]] && { # 关闭 GLOB 失败报错
-    _xrestore_="$(@zeta:xsh:opt-if-off-then-on nullglob)"
-    if [[ $? -ne 0 ]]; then
+    @zeta:xsh:opt-if-off-then-on nullglob; [[ $? -ne 0 ]] && {
       @zeta:xsh:wmsg "try enable $(@G3 nullglob) failed!"; return
-    fi
+    }
   }
 
+  local xfile
   # 应用程序崩溃报告/日志
   for xfile in /var/crash/*.crash; do
     [[ ! -f "${xfile}" ]] && continue
@@ -302,7 +301,10 @@ function admin-clean-system-trash() {
   # https://systemd.io/TEMPORARY_DIRECTORIES/
 
   @zeta:admin:del-all-sys-logs # 清空系统日志文件
-  [[ -n "${_xrestore_:-}" ]] && eval "${_xrestore_}"
+
+  if [[ -n "${ZETA_XSH_OPT_nullglob:-}" ]]; then
+    eval   "${ZETA_XSH_OPT_nullglob}"
+  fi
 
   echo "Clean/Reset home trash => $(@G3 ~/.xsession-errors)"
   [ -f ~/.xsession-errors ]  &&  echo > ~/.xsession-errors
