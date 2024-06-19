@@ -53,6 +53,8 @@ source "${ZETA_DIR}/xsh/core/lazy.xsh"
 @zeta:lazy:register xcmd $(command ls "${ZETA_DIR}/xsh/bin")
 [[ -n "${BASH_VERSION:-}" ]] && @zeta:lazy:register repeat
 
+# Bash/Zsh 的位置参数解析
+source "${ZETA_DIR}/xsh/core/args.xsh"
 # Shell 查询帮助快捷工具函数
 source "${ZETA_DIR}/xsh/core/help.xsh"
 # 需 ROOT 权限的系统管理快捷工具函数
