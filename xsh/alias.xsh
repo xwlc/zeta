@@ -3,6 +3,9 @@
 # Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
+# 临时变量 _ycmd_ _yarg_ _yvar_ _ymsg_ _ytmp_ _yidx_ _ycnt_ _ynum_ _yval_ _flag_
+# 临时变量 _zcmd_ _zarg_ _zvar_ _zmsg_ _ztmp_ _zidx_ _zcnt_ _znum_ _zval_ _isok_
+
 alias c='clear'   ;   alias j='jobs -l'
 
 alias cp='cp -i'  ;   alias -- -='cd -'
@@ -27,14 +30,23 @@ alias diff='diff --color=auto --report-identical-files'
 # -tx1z 输出: 每个数字 1 个字节, 十六进制, z 表示左侧显示源文件可打印内容
 alias od='od  -Ax  -w16  -tx1z  -tu1  -to1'
 
-_list_=".git,.github,.vscode,.bundle,.cache,node_modules"
-_list_="${_list_},out,dist,build,cache,3rd,3rdparty,todo,wip"
-alias   grep="grep --color=auto --exclude-dir={${_list_}}" # grep -G
-alias search="grep --color=auto --exclude-dir={${_list_}}" # default
+_zvar_=".git,.github,.vscode,.bundle,.cache,node_modules"
+_zvar_="${_zvar_},out,dist,build,cache,3rd,3rdparty,todo,wip"
+alias   grep="grep --color=auto --exclude-dir={${_zvar_}}" # grep -G
+alias search="grep --color=auto --exclude-dir={${_zvar_}}" # default
 
-alias  egrep="egrep --color=auto --exclude-dir={${_list_}}" # grep -E extend regexp
-alias  fgrep="fgrep --color=auto --exclude-dir={${_list_}}" # grep -F fixed strings
-unset -v _list_
+alias  egrep="egrep --color=auto --exclude-dir={${_zvar_}}" # grep -E extend regexp
+alias  fgrep="fgrep --color=auto --exclude-dir={${_zvar_}}" # grep -F fixed strings
+
+if @zeta:xsh:has-cmd ack; then
+  _ztmp_=; for _zval_ in $(echo "${_zvar_}" | sed 's/,/ /g'); do
+    _ztmp_+=" --ignore-dir=${_zval_}"
+  done
+  _ztmp_+=" --ignore-file=ext:log"
+  _ztmp_+=" --ignore-file=match:history"
+  _ztmp_+=" --ignore-file=match:zcompdump"
+  alias ack="$(command -v ack) ${_ztmp_}"
+fi
 
 # https://dystroy.org/broot/install-br
 @zeta:xsh:has-cmd broot && BR_INSTALL=no
@@ -89,25 +101,25 @@ function find-dirs-regex() {
 # 1,3 -> 第五列 Major 设备号, 第六列 Minor 次设备号
 
 # https://www.baeldung.com/linux/ls-ignore-hide-files
-_x_args_="--hide='System Volume Information'" # NTFS 格式系统卷信息
-_x_args_="${_x_args_} --hide='\$RECYCLE.BIN'" # NTFS 回收站
-_x_args_="${_x_args_} --hide='lost+found'" # EXT4 数据恢复元数据
-alias ls="/usr/bin/ls --color=auto --time-style=+%FT%T ${_x_args_}"
+_zvar_="--hide='System Volume Information'" # NTFS 格式系统卷信息
+_zvar_="${_zvar_} --hide='\$RECYCLE.BIN'" # NTFS 回收站
+_zvar_="${_zvar_} --hide='lost+found'" # EXT4 数据恢复元数据
+alias ls="/usr/bin/ls --color=auto --time-style=+%FT%T ${_zvar_}"
 if @zeta:xsh:has-cmd eza; then
-  _x_cmd_=$(command -v eza) # 忽略 glob 分割符 |
-  _x_args_="--ignore-glob='System Volume Information"
-  _x_args_="${_x_args_}|\$RECYCLE.BIN|lost+found'"
-  alias eza="${_x_cmd_} --color=auto --time-style=+%FT%T ${_x_args_}"
+  _zcmd_=$(command -v eza) # 忽略 glob 分割符 |
+  _zvar_="--ignore-glob='System Volume Information"
+  _zvar_="${_zvar_}|\$RECYCLE.BIN|lost+found'"
+  alias eza="${_zcmd_} --color=auto --time-style=+%FT%T ${_zvar_}"
 fi
 if @zeta:xsh:has-cmd lsd; then
-  _x_cmd_=$(command -v lsd)
-  _x_args_="--ignore-glob='System Volume Information'"
-  _x_args_="${_x_args_} --ignore-glob='\$RECYCLE.BIN'"
-  _x_args_="${_x_args_} --ignore-glob='lost+found'"
-  _x_args_="${_x_args_} --icon=always --icon-theme=unicode"
-  alias lsd="${_x_cmd_} --color=auto --date=+%FT%T ${_x_args_}"
+  _zcmd_=$(command -v lsd)
+  _zvar_="--ignore-glob='System Volume Information'"
+  _zvar_="${_zvar_} --ignore-glob='\$RECYCLE.BIN'"
+  _zvar_="${_zvar_} --ignore-glob='lost+found'"
+  _zvar_="${_zvar_} --icon=always --icon-theme=unicode"
+  alias lsd="${_zcmd_} --color=auto --date=+%FT%T ${_zvar_}"
 fi
-unset -v  _x_cmd_  _x_args_
+
 # https://unix.stackexchange.com/questions/50377
 #alias dir='command dir --color=auto' # compatibility
 # https://unix.stackexchange.com/questions/217757
@@ -185,8 +197,7 @@ alias ls-x509-crl='openssl crl  -noout -text -in' # path/to/ca.crl 查看注销�
 # 显示网址/域名的 HTTPS 证书链
 function ls-x509-https-cert-chain() {
   [[ $# -eq 0 ]] && {
-    echo "ls-x509-skid-rsa www.baidu.com"
-    return
+    echo "ls-x509-skid-rsa www.baidu.com"; return
   }
   openssl s_client -showcerts -connect $1:443
 }
@@ -199,18 +210,20 @@ function ls-x509-https-cert-chain() {
 # openssl x509 -noout -in ca.crt -pubkey | openssl asn1parse
 function ls-x509-skid-rsa() {
   [[ $# -eq 0 || ! -f "$1" ]] && {
-    echo "ls-x509-skid-rsa path/to/RSA.crt"
-    return
+    echo "ls-x509-skid-rsa path/to/RSA.crt"; return
   }
-  openssl x509 -noout -pubkey -in $1 | openssl asn1parse -strparse 19 -noout -out - | openssl dgst -c -sha1
+  openssl x509 -noout -pubkey -in $1 \
+    | openssl asn1parse -strparse 19 -noout -out - \
+    | openssl dgst -c -sha1
 }
 
 function ls-x509-skid-ed25519() {
   [[ $# -eq 0 || ! -f "$1" ]] && {
-    echo "ls-x509-skid-ed25519 path/to/ED25519.crt"
-    return
+    echo "ls-x509-skid-ed25519 path/to/ED25519.crt"; return
   }
-  openssl x509 -noout -pubkey -in $1 | openssl asn1parse -strparse 9 -noout -out - | openssl dgst -c -sha1
+  openssl x509 -noout -pubkey -in $1 \
+    | openssl asn1parse -strparse 9 -noout -out - \
+    | openssl dgst -c -sha1
 }
 
 # 列表格式化显示 /etc/passwd
@@ -249,3 +262,6 @@ alias is-octnum='@zeta:util:is-octnum'
 alias is-decnum='@zeta:util:is-decnum'
 alias is-hexnum='@zeta:util:is-hexnum'
 alias is-number='@zeta:util:is-number'
+
+unset -v _ycmd_ _yarg_ _yvar_ _ymsg_ _ytmp_   _yidx_ _ycnt_ _ynum_ _yval_ _flag_
+unset -v _zcmd_ _zarg_ _zvar_ _zmsg_ _ztmp_   _zidx_ _zcnt_ _znum_ _zval_ _isok_
