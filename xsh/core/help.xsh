@@ -8,6 +8,10 @@ if @zeta:xsh:no-cmd whats; then
   alias whats='@zeta:xsh:whats'
 fi
 
+if [[ -n "${ZSH_VERSION:-}" && "${aliases[run-help]}" == man ]]; then
+  unalias run-help; autoload -Uz run-help; compdef _run-help help-zsh
+fi
+
 # 内嵌命令帮助
 function help-bash() {
   if [[ -n "${BASH_VERSION:-}" ]]; then
@@ -19,8 +23,7 @@ function help-bash() {
 
 function help-zsh() {
   if [[ -n "${ZSH_VERSION:-}" ]]; then
-    run-help "$1"
-    return
+    run-help "$1"; return
   fi
 
   local zhelp="/usr/share/zsh/help"
@@ -75,9 +78,9 @@ function ls-fpath() {
 
 function ls-split() {
   case $# in
-    0) echo; echo "${PATH}" | sed 's/:/\n/g';  echo ;;
+    0) echo; echo "${PATH}" | sed 's/:/\n/g' ; echo ;;
     1) echo; echo "$1" | sed "s/[: ;\t]/\n/g"; echo ;;
-    2) echo; echo "$2" | sed "s/[$1]/\n/g";    echo ;;
+    2) echo; echo "$2" | sed "s/[$1]/\n/g"   ; echo ;;
   esac
 }
 
@@ -217,16 +220,14 @@ function ls-sh-complete() {
   local data  cnt=0  max=$1
   local XX='\e[0m' D9='\e[90m' G9='\e[92m' Y9='\e[93m'
   if [[ -n "${ZSH_VERSION:-}" ]]; then
-    [[ -z "$1" || -n "${1//[0-9]/}" ]] && max=3
-    local k v
-    data=( ${(k)builtins} )
-    eval "
-    for k v ( \"\${(@kv)_comps}\" ); do
-      builtin printf \"\${Y9}%+20s \${D9}->  \${D9}%-30s\${XX}\" \"\${v}\" \"\${k}\"
-      (( cnt++ ))
-      (( cnt % max == 0 )) && echo
+    [[ -z "$1" || -n "${1//[0-9]/}" ]] && max=4
+    local k v; data=( ${(k)builtins} )
+    eval '
+    for k v ( "${(@kv)_comps}" ); do
+      builtin printf "${Y9}%+20s ${D9}-> ${D9}%-35s${XX}" "${v}" "${k}"
+      (( cnt++ )); (( cnt % max == 0 )) && echo
     done
-    "
+    '
   else
     local IFS=$'\n'; data=( $(complete -p) )
     [[ -z "$1" || -n "${1//[0-9]/}" ]] && max=2
@@ -234,8 +235,7 @@ function ls-sh-complete() {
     for line in "${data[@]}"; do
       info="${line##complete?}"; comp="${info% *}"; cmd="${info#${comp}}"
       builtin printf -v str "${D9}complete ${G9}%s${Y9}%s${XX}" "${comp}" "${cmd}"
-      builtin printf "%-110s" "${str}"
-      (( cnt++ )); (( cnt % max == 0 )) && echo
+      builtin printf "%-110s" "${str}"; (( cnt++ )); (( cnt % max == 0 )) && echo
     done
   fi
   echo; (( cnt % max != 0 )) && echo
