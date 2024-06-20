@@ -119,6 +119,76 @@ function @zeta:xsh:opt-if-on-then-off() {
   fi
 }
 
+# 如果 $1(类型) 的 $2(变量) 未定义则(全局)创建之
+function @zeta:xsh:if-udv-then-gdv() {
+  [[ $# -ne 2 || -z "$2" ]] && return 1
+  declare -p ${2} > /dev/null 2>&1 && return # 变量已定义
+  case $1 in
+    ArrIdx) declare -ga ${2} ;; # 索引数组 array
+    ArrAss) declare -gA ${2} ;; # 关联数组 association
+    IntNum) declare -gi ${2} ;; # 数值变量 integer
+    Scalar) declare -g  ${2} ;; # 常规变量 scalar
+     *) return 2 ;;
+  esac
+}
+# local _vID_; for _vID_ in ArrIdx ArrAss IntNum Scalar; do
+#   printf "BB ${_vID_} "; @zeta:xsh:whats VAR_${_vID_}
+#   @zeta:xsh:if-udv-then-gdv   ${_vID_}   VAR_${_vID_}
+#   printf "AA ${_vID_} "; @zeta:xsh:whats VAR_${_vID_}
+# done
+
+# 变量 $1 类型是 scalar(且空值) 则 return 0
+function @zeta:xsh:is-var-scalar() {
+  [[ $# -ne 1 || -z "$1" ]] && return 2
+  ! declare -p ${1} > /dev/null 2>&1 && return 3 # 变量未定义
+  if [[ -n "${ZSH_VERSION:-}" ]]; then
+    # printf "[${(P)1}] -> "; eval echo '${(t)'${1}'}'
+    eval '[[ "${(t)'${1}'}" =~ scalar ]]'
+  elif [[ -n "${BASH_VERSION:-}" ]]; then
+    # printf "[${!1}] -> "; eval echo '${'${1}'@a}'
+    eval '[[ -z "${'${1}'@a}" ]]'
+  fi
+}
+
+# 变量 $1 类型是 integer 则 return 0
+function @zeta:xsh:is-var-number() {
+  [[ $# -ne 1 || -z "$1" ]] && return 2
+  ! declare -p ${1} > /dev/null 2>&1 && return 3 # 变量未定义
+  if [[ -n "${ZSH_VERSION:-}" ]]; then
+    # printf "[${(P)1}] -> "; eval echo '${(t)'${1}'}'
+    eval '[[ "${(t)'${1}'}" =~ integer ]]'
+  elif [[ -n "${BASH_VERSION:-}" ]]; then
+    # printf "[${!1}] -> "; eval echo '${'${1}'@a}'
+    eval '[[ "${'${1}'@a}" == i ]]'
+  fi
+}
+
+# 变量 $1 类型是 array(索引数组) 则 return 0
+function @zeta:xsh:is-var-idxarr() {
+  [[ $# -ne 1 || -z "$1" ]] && return 2
+  ! declare -p ${1} > /dev/null 2>&1 && return 3 # 变量未定义
+  if [[ -n "${ZSH_VERSION:-}" ]]; then
+    printf '[${'${1}'[@]}] -> '; eval echo '${(t)'${1}'}'
+    eval '[[ "${(t)'${1}'}" =~ array ]]'
+  elif [[ -n "${BASH_VERSION:-}" ]]; then
+    printf '[${'${1}'[@]}] -> '; eval echo '${'${1}'@a}'
+    eval '[[ "${'${1}'@a}" == a ]]'
+  fi
+}
+
+# 变量 $1 类型是 array(关联数组) 则 return 0
+function @zeta:xsh:is-var-assarr() {
+  [[ $# -ne 1 || -z "$1" ]] && return 2
+  ! declare -p ${1} > /dev/null 2>&1 && return 3 # 变量未定义
+  if [[ -n "${ZSH_VERSION:-}" ]]; then
+    printf '[${'${1}'[@]}] -> '; eval echo '${(t)'${1}'}'
+    eval '[[ "${(t)'${1}'}" =~ association ]]'
+  elif [[ -n "${BASH_VERSION:-}" ]]; then
+    printf '[${'${1}'[@]}] -> '; eval echo '${'${1}'@a}'
+    eval '[[ "${'${1}'@a}" == A ]]'
+  fi
+}
+
 # 变量名 $1 间接引用(indirection-expansion)
 function @zeta:xsh:ind-exp-var() {
   [[ $# -ne 1 || -z "$1" ]] && return 1
