@@ -132,4 +132,6 @@ fi
 # 编程语言
 # https://nodejs.org/dist
 # https://mirrors.ustc.edu.cn/golang
+#
+# https://rust-lang.github.io/rustup/installation/other.html
 # https://forge.rust-lang.org/infra/other-installation-methods.html

@@ -42,18 +42,29 @@ if @zeta:xsh:has-cmd go; then
   # export GOENV=""   # 用户配置, 默认值 ~/.config/go/env
 fi
 
-# 清华   https://mirrors.tuna.tsinghua.edu.cn/help/rustup
-# 中科大 https://mirrors.ustc.edu.cn/help/rust-static.html
 # https://rust-lang.github.io/rustup/environment-variables.html
-# https://doc.rust-lang.org/stable/cargo/reference/environment-variables.html
-if [[ -d "${ZETA_DIR}/3rd/vendor/rust/rustup" ]]; then
+if [[ -d "${ZETA_DIR}/3rd/vendor/rust/xmeta" ]]; then
   # 默认值 ~/.rustup 或 %USERPROFILE%/.rustup
-  export RUSTUP_HOME="${ZETA_DIR}/3rd/vendor/rust/rustup"
+  export RUSTUP_HOME="${ZETA_DIR}/3rd/vendor/rust/xmeta"
 fi
+# https://doc.rust-lang.org/stable/cargo/reference/environment-variables.html
 if [[ -d "${ZETA_DIR}/3rd/vendor/rust/cargo" ]]; then
   # 默认值 ~/.cargo 或 %USERPROFILE%/.cargo
   export CARGO_HOME="${ZETA_DIR}/3rd/vendor/rust/cargo"
 fi
+
+# RUSTUP_DIST_SERVER 更新工具链  RUSTUP_UPDATE_ROOT 更新 rustup 的地址
+export RUSTUP_DIST_SERVER="https://static.rust-lang.org"                # 官方
+export RUSTUP_DIST_SERVER="https://mirrors.ustc.edu.cn/rust-static"     # 中科
+export RUSTUP_DIST_SERVER="https://mirrors.tuna.tsinghua.edu.cn/rustup" # 清华
+export RUSTUP_UPDATE_ROOT="${RUSTUP_DIST_SERVER}/rustup"  # 更新 rustup 的地址
+# https://rust-lang.github.io/rustup/installation/other.html
+# 下载 https://static.rust-lang.org/rustup/dist/目标系统/rustup-init
+# => 组件 minimal, default, complete  通道 stable, beta, nightly, none
+# => 初始化安装 rust 编程语言(先安装 rustup 然后安装工具链)
+#    $ path/to/rustup-init --help
+#    $ path/to/rustup-init --no-modify-path --profile minimal --default-toolchain none
+#    $ path/to/rustup toolchain install stable --profile minimal
 
 function zman() {
   local cmkMAN  jsMAN  rustMAN  javaMAN
