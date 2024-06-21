@@ -75,6 +75,11 @@ function @zeta:xsh:emsg() {
   { @zeta:xsh:_msg_ ERROR '\e[31m' "$@"; } 1>&2
 }
 
+function @zeta:xsh:notes() {
+  [[ $# -eq 0 || -z "$1" ]] && return # 命令浅黄(彩色参数)
+  local _cmd_=$1; shift; @rainbow "\e[93m${_cmd_}\e[00m" $@
+}
+
 ##################################
 # Shell 配置选项(特性)及通用 API #
 ##################################

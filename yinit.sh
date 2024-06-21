@@ -6,6 +6,14 @@ THIS_DIR="$(dirname  "${THIS_AFP}")" # 当前文件所在的绝对路径
 # printf "[${THIS_AFP}]\n[${THIS_DIR}] [${THIS_FNO}]\n"; exit
 
 ZETA_DIR="${THIS_DIR}"
+# ${0%/*}  仅删除 $0 结尾文件名(匹配最短)
+# ${0##*/} 仅保留 $0 结尾文件名(匹配最长)
+source "${ZETA_DIR}/xsh/colors.xsh"
+
+case "$1" in
+  bash|zsh) XSH=$1 ;;
+  *) echo "$(@B3 ${THIS_FNO}) $(@Y3 bash) $(@D9 or) $(@G3 zsh)"; exit ;;
+esac
 
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
@@ -27,25 +35,16 @@ case "${OSTYPE}" in
   *) ;; # SunOS(solaris), FreeBSD(bsd), ...
 esac
 
-if is-host-linux; then
+if is-host-linux && has-cmd lsb_release; then
   case "$(lsb_release -is)" in
-    ubuntu|Ubuntu) function is-host-ubuntu() { true; } ;;
-    debian|Debian) function is-host-debian() { true; } ;;
+    Ubuntu) function is-host-ubuntu() { true; } ;;
+    Debian) function is-host-debian() { true; } ;;
   esac
 else
   if uname -a | grep -iE "MSYS|MinGW|Cygwin" > /dev/null; then
     function is-host-windows() { true; }
   fi
 fi
-
-# ${0%/*}  仅删除 $0 结尾文件名(匹配最短)
-# ${0##*/} 仅保留 $0 结尾文件名(匹配最长)
-source "${ZETA_DIR}/xsh/colors.xsh"
-
-case "$1" in
-  bash|zsh) XSH=$1 ;;
-  *) echo "$(@B3 ${THIS_FNO}) $(@Y3 bash) $(@D9 or) $(@G3 zsh)"; exit ;;
-esac
 
 function init-for-zsh() {
   cp "${ZETA_DIR}/xsh/startup/1shenv" "${HOME}/.zshenv"
@@ -70,21 +69,73 @@ setopt extended_history       # Write HISTFILE file in ":start:elapsed;command" 
 # 命令补全 completion dump 缓存文件的保存位置
 ZSH_COMPDUMP="${ZETA_DIR}/xsh/assets/zsh-compdump"
 
-###### 配置选项 ######
+###### 主题风格 ######
+if true; then
+  # 自带集成主题 /usr/share/zsh/functions/Prompts
+  autoload -Uz promptinit; promptinit; prompt adam1
+fi
+
+###### Zeta配置 ######
 # ZETA_ENABLE_STARTUP_LOG=ON   # 保存 ZSH 启动日志(分析性能)
 # ZETA_ENABLE_PLUGINS=()       # 激活 xsh/plugin/* 插件列表
 
-######## 入口 ########
-[ -f "${ZETA_DIR}/zeta.xsh" ] && source "${ZETA_DIR}/zeta.xsh"
-
-###### 主题风格 ######
-# 自带集成主题 /usr/share/zsh/functions/Prompts
-#autoload -Uz promptinit; promptinit; prompt adam1
+###### ZetaMain ######
+[[ -f "${ZETA_DIR}/zeta.xsh" ]] && source "${ZETA_DIR}/zeta.xsh"
 EOF
 }
 
 function init-for-bash() {
-  echo TODO # .bashrc bash-history
+  cat > "${HOME}/.bashrc" <<EOF
+###### 命令历史 ######
+HISTFILE="${ZETA_DIR}/xsh/assets/bash-history"
+HISTSIZE=3000       # 终端会话最多可保留历史命令行数
+HISTFILESIZE=3000   # 历史命令 HISTFILE 最大保留行数
+
+HISTCONTROL=ignoreboth    # no add duplicate lines or lines start with space
+shopt -s histappend       # append to history file not overwrite the history
+
+###### 特性选项 ######
+shopt -s checkwinsize     # 执行命令后检测窗口大小(更新 LINES 和 COLUMNS)
+if false; then
+  shopt -s globstar       # 启用 ** 递归(子目录)匹配<零>或<多>文件(目录)名
+fi
+
+###### 主题风格 ######
+if true; then
+  _colorterm_=0; _zchroot_="\${debian_chroot:+(\${debian_chroot})}"
+  case "\${TERM}" in
+    iterm|xterm-color|*-256color|*-truecolor) _colorterm_=1 ;;
+  esac
+  case "\${COLORTERM}" in
+    truecolor|24bit) _colorterm_=1 ;;
+  esac
+  if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    _colorterm_=1
+  fi
+
+  PS1="\${_zchroot_}\u@\h \w \\$ "
+  (( _colorterm_ )) && { # 终端转义序列 man console_codes
+    _zX_='\[\e[00m\]'; _zG_='\[\e[92m\]' # 关/绿/黄/青/灰
+    _zY_='\[\e[93m\]'; _zB_='\[\e[94m\]'; _xG_='\[\e[90m\]'
+    PS1="\${_zG_}\u\${_xG_}@\${_zY_}\h \${_zB_}\w\${_zX_} \\$ "
+    unset -v _zX_  _zG_  _zY_  _zB_  _xG_
+  }
+
+  case "\${TERM}" in
+    xterm*|rxvt*) # set title to user@host:dir for XTerm
+      PS1="\[\e]0;\u@\h - \w\a\]\${PS1}" ;;
+  esac
+
+  unset -v _zchroot_  _colorterm_
+fi
+
+###### Zeta配置 ######
+# ZETA_ENABLE_STARTUP_LOG=ON   # 保存 ZSH 启动日志(分析性能)
+# ZETA_ENABLE_PLUGINS=()       # 激活 xsh/plugin/* 插件列表
+
+###### ZetaMain ######
+[[ -f "${ZETA_DIR}/zeta.xsh" ]] && source "${ZETA_DIR}/zeta.xsh"
+EOF
 }
 
 init-for-${XSH}

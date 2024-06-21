@@ -3,7 +3,7 @@ Terminal=false
 Type=Application
 
 Name=ONI
-Icon=zeta-ONI
+Icon=klei-oni.png
 Categories=KDE;Game;Qt;
 Comment=Oxygen Not Included
 
