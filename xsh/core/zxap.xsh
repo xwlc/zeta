@@ -42,7 +42,17 @@ function @zeta:zxap:parser() {
       local lineNo=$1 xLN; shift; (( lineNo += 22 ))
       xLN="LN=${lineNo} "; @zeta:xsh:wmsg -T zxap "${xLN}$@"
     }; unset -f zxap±done
-  }; (( ZXAP_IDX = ZXAP_NXT, ZXAP_NXT++ ))
+  }
+
+  if (( ZXAP_NXT > 0 )); then
+    (( ZXAP_IDX = ZXAP_NXT, ZXAP_NXT++ ))
+  else
+    ZXAP_IDX=; ZXAP_NXT=; zxap±done; return 1
+  fi
+
+  [[ -z "${ZXAP_IDX}" || ${ZXAP_IDX} -gt ${_xMAX_} ]] && {
+    ZXAP_IDX=; ZXAP_NXT=; zxap±done; return 1
+  }
 
   # NOTE Zsh 数组索引 1 开始, Bash 数组索引 0 开始
   [[ -n "${ZSH_VERSION:-}" ]] && __zIDX__=1
@@ -109,15 +119,12 @@ function @zeta:zxap:parser() {
   ######################
   # 解析扫描命令行参数 #
   ######################
-  [[ ${ZXAP_IDX} -gt ${_xMAX_} || ${ZXAP_IDX} -lt 0 ]] && {
-    zxap±done; return 1
-  }
   [[ -n "${BASH_VERSION}" ]] && {
     eval '_IdxV_="'${!ZXAP_IDX}'"'
     if (( ZXAP_NXT <= _xMAX_ )); then
       eval '_xNxtV_="'${!ZXAP_NXT}'"'
     else
-      ZXAP_NXT=-1; _xNxtV_=
+      ZXAP_NXT=; _xNxtV_=
     fi
   }
   [[ -n "${ZSH_VERSION}"  ]] && {
@@ -125,7 +132,7 @@ function @zeta:zxap:parser() {
     if (( ZXAP_NXT <= _xMAX_ )); then
       eval '_xNxtV_="'${(P)ZXAP_NXT}'"'
     else
-      ZXAP_NXT=-1; _xNxtV_=
+      ZXAP_NXT=; _xNxtV_=
     fi
   }
 
@@ -139,7 +146,7 @@ function @zeta:zxap:parser() {
 
   # 获取选项字符串的第 1 个字节和第 2 个字节
   _bF1_="${_IdxV_:0:1}"; _bF2_="${_IdxV_:1:1}"
-  # echo "调试 AB1=[${_bF1_}] AB2=[${_bF2_}]"
+  # echo "调试 [${_IdxV_}] => AB1=[${_bF1_}] AB2=[${_bF2_}]"
   [[ "${_bF1_}" != - ]] && {
     zxap±done ${LINENO} "argument must begin with dash, but got $(@R3 ${_bF1_})"
     return 1
@@ -185,17 +192,32 @@ function @zeta:zxap:parser() {
       ;;
     "~") ZXAP_VAL= ;; # 开关
     *) zxap±done ${LINENO} "internal error"; return 1 ;;
-  esac; # ZXAP_ERR="STOP"
+  esac; (( ZXAP_NXT > _xMAX_ )) && ZXAP_NXT=; # ZXAP_ERR="STOP"
 }
 
-function @zeta:zxap:sample() {
+function @zeta:zxap:sample() { # 必须+  可选:  ~开关
   local _opts_="+S1,:S2|L2,~|L3,S4,S5|L5,|L6,+X1|X1"
   [[ $# -eq 0 ]] && { echo "=> ${_opts_}"; return; }
 
   local ZXAP_{IDX=0,NXT=1,ERR,ARG,VAL}
   while @zeta:zxap:parser "${_opts_}"  "$@"; do
-    printf "IDX=[%02d] ARG=[${ZXAP_ARG}] ERR=[${ZXAP_ERR}]\n" ${ZXAP_IDX}
-    printf "NXT=[%02d] VAL=[${ZXAP_VAL}]\n" ${ZXAP_NXT}; echo
+    local xIdx; printf -v xIdx "%02d" ${ZXAP_IDX}
+    local xNxt; printf -v xNxt "%02d" ${ZXAP_NXT}
+    # echo "IDX=[${xIdx}] ARG=[${ZXAP_ARG}] ERR=[${ZXAP_ERR}]"
+    # echo "NXT=[${xNxt}] VAL=[${ZXAP_VAL}]"; echo
     [[ -n "${ZXAP_ERR}" ]] && break
+
+    case "${ZXAP_ARG}" in
+      S1) echo "[${xIdx}]  -S1 参数(必需) [${ZXAP_VAL}] -> [${xNxt}]" ;;
+      S2) echo "[${xIdx}]  -S2 参数(可选) [${ZXAP_VAL}] -> [${xNxt}]" ;;
+      L2) echo "[${xIdx}] --L2 参数(可选) [${ZXAP_VAL}] -> [${xNxt}]" ;;
+      L3) echo "[${xIdx}] --L3 参数(开关) -> [${xNxt}]" ;;
+      S4) echo "[${xIdx}]  -S4 参数(开关) -> [${xNxt}]" ;;
+      S5) echo "[${xIdx}]  -S5 参数(开关) -> [${xNxt}]" ;;
+      L5) echo "[${xIdx}] --L5 参数(开关) -> [${xNxt}]" ;;
+      L6) echo "[${xIdx}] --L6 参数(开关) -> [${xNxt}]" ;;
+      X1) echo "[${xIdx}] --X1 参数(必需) [${ZXAP_VAL}] -> [${xNxt}]"
+          echo "[${xIdx}]  -X1 参数(必需) [${ZXAP_VAL}] -> [${xNxt}]" ;;
+    esac
   done
 }
