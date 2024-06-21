@@ -4,6 +4,11 @@
 # Created By: Charles Wong 2023-11-25T09:50:43+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
+THIS_AFP="$(realpath "${0}")"        # 当前文件绝对路径(含名)
+THIS_FNO="$(basename "${THIS_AFP}")" # 仅包含当前文件的文件名
+THIS_DIR="$(dirname  "${THIS_AFP}")" # 当前文件所在的绝对路径
+# printf "[${THIS_AFP}]\n[${THIS_DIR}] [${THIS_FNO}]\n"; exit
+
 # `sudo apt upgrade` 显示 packages have been kept back 的原因
 # - 原因一: <PKG> 软件包位于 hold 列表
 #     apt-mark showhold           apt-mark showhold <PKG>
@@ -20,12 +25,9 @@ function no-cmd() { ! command -v "$1" > /dev/null; }
 
 no-cmd apt && exit 1
 
-THIS_DIR="$(dirname "$0")"
-THIS_FNAME="$(basename "$0")"
-
 NEW_VER=""; OLD_VER=""; IS_HOLD=""; IS_PHASED=""
-CACHE_LOG_OLD="${THIS_DIR}/${THIS_FNAME}-old.log"
-CACHE_LOG_NEW="${THIS_DIR}/${THIS_FNAME}-new.log"
+CACHE_LOG_OLD="${THIS_DIR}/${THIS_FNO}-old.log"
+CACHE_LOG_NEW="${THIS_DIR}/${THIS_FNO}-new.log"
 POLICY_STATUS="$(apt policy 2> /dev/null)"
 
 for PKG in $(apt list --upgradable 2> /dev/null | grep / | cut -d/ -f1); do

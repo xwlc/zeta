@@ -4,16 +4,14 @@
 # Created By: Charles Wong 2024-05-26T00:01:02+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
-THIS_FNAME="$(basename "$0")"
-if [[ "$0" == "status.sh" ]]; then
-  THIS_DIR="${PWD}"
-else
-  THIS_DIR="$(realpath "${0%/*}")"
-fi
-
-ZETA_DIR="$(realpath "${THIS_DIR}/..")"
 # ${0%/*}  仅删除 $0 结尾文件名(匹配最短)
 # ${0##*/} 仅保留 $0 结尾文件名(匹配最长)
+THIS_AFP="$(realpath "${0}")"        # 当前文件绝对路径(含名)
+THIS_FNO="$(basename "${THIS_AFP}")" # 仅包含当前文件的文件名
+THIS_DIR="$(dirname  "${THIS_AFP}")" # 当前文件所在的绝对路径
+# printf "[${THIS_AFP}]\n[${THIS_DIR}] [${THIS_FNO}]\n"; exit
+
+ZETA_DIR="$(realpath "${THIS_DIR}/..")"
 source "${ZETA_DIR}/xsh/colors.xsh"
 
 function is-arch()    { false; }

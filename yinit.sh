@@ -1,11 +1,11 @@
 #!/usr/bin/bash
 
-THIS_FNAME="$(basename "$0")"
-if [[ "$0" == "yinit.sh" ]]; then
-  ZETA_DIR="${PWD}"
-else
-  ZETA_DIR="$(realpath "${0%/*}")"
-fi
+THIS_AFP="$(realpath "${0}")"        # 当前文件绝对路径(含名)
+THIS_FNO="$(basename "${THIS_AFP}")" # 仅包含当前文件的文件名
+THIS_DIR="$(dirname  "${THIS_AFP}")" # 当前文件所在的绝对路径
+# printf "[${THIS_AFP}]\n[${THIS_DIR}] [${THIS_FNO}]\n"; exit
+
+ZETA_DIR="${THIS_DIR}"
 
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
@@ -44,7 +44,7 @@ source "${ZETA_DIR}/xsh/colors.xsh"
 
 case "$1" in
   bash|zsh) XSH=$1 ;;
-  *) echo "$(@B3 ${THIS_FNAME}) $(@Y3 bash) $(@D9 or) $(@G3 zsh)"; exit ;;
+  *) echo "$(@B3 ${THIS_FNO}) $(@Y3 bash) $(@D9 or) $(@G3 zsh)"; exit ;;
 esac
 
 function init-for-zsh() {
