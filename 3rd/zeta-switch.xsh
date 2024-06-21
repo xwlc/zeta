@@ -107,7 +107,7 @@ function zman() {
     rustc) man -l "${rustMAN}/man1/rustc.1" ;;
     *)
       echo
-      echo "Usage: $(@C3 zman) $(@Y3 '<C|R|J>') $(@R3 '<1-8>') $(@B3 '<XXX>')"
+      echo "Usage: $(@C3 zman) $(@Y3 '<C|R|J>') $(@R3 '<1-8>') $(@B3 '<Name>')"
       echo
 
       if [[ -n "${cmkMAN}" ]]; then
@@ -183,7 +183,7 @@ function @zeta:3rd:delete-symlink() {
   done
 }
 
-function @zeta:3rd:switch-to() {
+function @zeta:3rd:zeta-switch() {
   [[ "$2" == "reset" ]] && {
     @zeta:3rd:delete-symlink $1; return
   }
@@ -203,18 +203,18 @@ function @zeta:3rd:switch-to() {
 function @zeta:3rd:usage-help() {
   local _PKGS_=( cmake  go  nim  rust  nodejs  java )
   echo
-  echo "-> $(@D9 switch-to) $(@R3 'sys-default')"
+  echo "-> $(@D9 zeta-switch) $(@R3 'sys-default')"
   echo
   local app version
   for app in ${_PKGS_[@]}; do
     for version in $(@zeta:3rd:get-pkg-version ${app}); do
-      printf "-> $(@D9 switch-to) $(@G3 %-9s) $(@Y3 ${version})\n" "${app}"
+      printf "-> $(@D9 zeta-switch) $(@G3 %-9s) $(@Y3 ${version})\n" "${app}"
     done
   done
   echo
 }
 
-function switch-to() {
+function zeta-switch() {
   [[ $# -eq 0 ]] && { @zeta:3rd:usage-help; return; }
   case "$1" in
     sys-default)
@@ -228,21 +228,21 @@ function switch-to() {
       done
       ;;
     cmake)
-      @zeta:3rd:switch-to cmake   "$2" ;; # cmake/$2/bin/*
+      @zeta:3rd:zeta-switch cmake   "$2" ;; # cmake/$2/bin/*
     java)
-      @zeta:3rd:switch-to java    "$2" ;; # java/$2/bin/*
+      @zeta:3rd:zeta-switch java    "$2" ;; # java/$2/bin/*
     nodejs)
-      @zeta:3rd:switch-to nodejs  "$2" # nodejs/$2/bin/*
+      @zeta:3rd:zeta-switch nodejs  "$2" # nodejs/$2/bin/*
       export NODE_PATH="${ZETA_DIR}/3rd/vendor/$1/$2/lib/node_modules"
       ;;
     go)
-      @zeta:3rd:switch-to go      "$2" # go/$2/bin/*
+      @zeta:3rd:zeta-switch go      "$2" # go/$2/bin/*
       export GOROOT="${ZETA_DIR}/3rd/vendor/$1/$2"
       ;;
     nim)
-      @zeta:3rd:switch-to nim     "$2" ;; # nim/$2/bin/*
+      @zeta:3rd:zeta-switch nim     "$2" ;; # nim/$2/bin/*
     rust)
-      @zeta:3rd:switch-to rust    "$2" ;; # rust/$2/bin/*
+      @zeta:3rd:zeta-switch rust    "$2" ;; # rust/$2/bin/*
     *)
       echo "=> not found package of $(@R3 $1)"
       ;;
@@ -250,7 +250,7 @@ function switch-to() {
 }
 
 if [[ -n "${ZSH_VERSION:-}" ]]; then
-  function @zeta:comp:switch-to() {
+  function @zeta:comp:zeta-switch() {
     local -A opt_args
     local context state state_descr line
 
@@ -268,15 +268,16 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
 
     unset -f @zeta:once±top-cmds
   }
-  compdef @zeta:comp:switch-to switch-to
+  # zsh/sched => 延迟 1s 执行, 等待 compinit 完成
+  sched +1 compdef @zeta:comp:zeta-switch zeta-switch
 elif [[ -n "${BASH_VERSION:-}" ]]; then
-  function @zeta:comp:switch-to() {
+  function @zeta:comp:zeta-switch() {
     local -a apps=( sys-default  cmake  go  nim  rust  nodejs  java )
-    if [[ "switch-to" == "$3" ]]; then
+    if [[ "zeta-switch" == "$3" ]]; then
       COMPREPLY=($(compgen -W "${apps[*]}" -- "$2"))
     else
       COMPREPLY=($(compgen -W "reset $(@zeta:3rd:get-pkg-version "$3")" -- "$2"))
     fi
   }
-  complete -o nosort -F @zeta:comp:switch-to switch-to
+  complete -o nosort -F @zeta:comp:zeta-switch zeta-switch
 fi

@@ -42,7 +42,7 @@ declare HOST_CPU_ID  HOST_DISTRO  HOST_OS_ABI
 HOST_CPU_ID="$(uname -m)"
 HOST_DISTRO="$(uname -s)"
 
-function @zeta:xsh:init-host-triplet() {
+function @zeta:xsh:host-triplet() {
   if [[ "${HOST_DISTRO}" == Linux ]]; then
     [[ "$(uname -o)" == Android ]] && HOST_DISTRO=Android
   elif [[ "${HOST_DISTRO}" == Darwin ]]; then
@@ -165,7 +165,7 @@ function @zeta:xsh:init-host-triplet() {
     # https://developer.arm.com/architectures
     xscale|arm*|armv*l|aarch*)      HOST_CPU_ID=arm${_xinfo_}   ;;
   esac
-}
+}; @zeta:xsh:host-triplet; unset -f @zeta:xsh:host-triplet
 
 # $(uname | tr '[:upper:]' '[:lower:]')
 # $(uname -s) -> WindowsNT, Darwin, Linux, FreeBSD, SunOS
@@ -173,8 +173,18 @@ function @zeta:xsh:init-host-triplet() {
 # 正则比较语法: 字符串变量 =~ 正则(必须右侧)常量
 # [[ "${OSTYPE}" =~ ^linux  ]] 和 [[ "${OSTYPE}" =~ ^darwin ]]
 
-@zeta:xsh:init-host-triplet
-unset -f @zeta:xsh:init-host-triplet
+function @zeta:xsh:which-workshell() {
+  if @zeta:host:is-linux; then
+    # 根据进程判断当前 Shell 类型, $$ 进程 PID
+    basename "$(readlink /proc/$$/exe)"
+  elif [ -n "${ZSH_VERSION}" ]; then
+    echo "zsh"
+  elif [ -n "${BASH_VERSION}" ]; then
+    echo "bash"
+  else
+    return 1
+  fi
+}
 
 # $ gcc -dumpmachine
 # https://wiki.osdev.org/Target_Triplet

@@ -59,5 +59,3 @@ source "${ZETA_DIR}/xsh/core/zxap.xsh"
 source "${ZETA_DIR}/xsh/core/help.xsh"
 # 需 ROOT 权限的系统管理快捷工具函数
 source "${ZETA_DIR}/xsh/core/admin.xsh"
-# 管理 3rd/pick 目录的软连接(版本切换)
-source "${ZETA_DIR}/3rd/switch-to.xsh"

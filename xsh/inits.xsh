@@ -103,15 +103,5 @@ fi
 source "${ZETA_DIR}/xsh/core/path.xsh"
 source "${ZETA_DIR}/xsh/host-triplet.xsh"
 
-function @zeta:xsh:which-workshell() {
-  if @zeta:host:is-linux; then
-    # 根据进程判断当前 Shell 类型, $$ 进程 PID
-    basename "$(readlink /proc/$$/exe)"
-  elif [ -n "${ZSH_VERSION}" ]; then
-    echo "zsh"
-  elif [ -n "${BASH_VERSION}" ]; then
-    echo "bash"
-  else
-    return 1
-  fi
-}
+# 管理 3rd/pick/* 应用软连接(版本切换)
+source "${ZETA_DIR}/3rd/zeta-switch.xsh"
