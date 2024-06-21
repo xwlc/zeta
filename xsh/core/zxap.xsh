@@ -108,8 +108,8 @@ function @zeta:zxap:parser() {
       ZXAP__L__[${_idx_}]="␜${_rob_}${_oL_}"; (( _idx_++ ))
     done; ZXAP__InitSpec=1 # 参数规范解析初始化完成
 
-    echo "调试 ZXAP__S__ => [${ZXAP__S__[@]}]"
-    echo "调试 ZXAP__L__ => [${ZXAP__L__[@]}]"
+    # echo "调试 ZXAP__S__ => [${ZXAP__S__[@]}]"
+    # echo "调试 ZXAP__L__ => [${ZXAP__L__[@]}]"
 
     if [[ -n "${ZETA_XSH_OPT_shwordsplit:-}" ]]; then
       eval   "${ZETA_XSH_OPT_shwordsplit}"
@@ -197,7 +197,10 @@ function @zeta:zxap:parser() {
   esac; (( ZXAP_NXT > _xMAX_ )) && ZXAP_NXT=-1; return 0
 }
 
-# @zeta:zxap:sample -S1 x --L2 --L3 -S4 -S5 --L6 -X1 zz --X1 yy
+return # 长短位置参数解析调用示例
+@zeta:zxap:sample -S1 x --L2 --L3 -S4 -S5 --L6 -X1 zz --X1 yy
+@zeta:zxap:sample -S1 'yy zz' --L2 'zb cx' --L3 -S4 -S5 --L6 -X1 'zz bb' --X1 yy
+
 function @zeta:zxap:sample() { # 必须+  可选:  ~开关
   local _opts_="+S1,:S2|L2,~|L3,S4,S5|L5,|L6,+X1|X1"
   [[ $# -eq 0 ]] && { echo "=> ${_opts_}"; return; }
