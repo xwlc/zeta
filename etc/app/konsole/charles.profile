@@ -8,6 +8,11 @@ Name=Charles Wong
 Parent=FALLBACK/
 RemoteTabTitleFormat=%n: %u
 
+[Interaction Options]
+AutoCopySelectedText=true
+TrimLeadingSpacesInSelectedText=true
+TrimTrailingSpacesInSelectedText=true
+
 [Scrolling]
 HistorySize=3000
 
