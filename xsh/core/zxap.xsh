@@ -47,11 +47,11 @@ function @zeta:zxap:parser() {
   if (( ZXAP_NXT > 0 )); then
     (( ZXAP_IDX = ZXAP_NXT, ZXAP_NXT++ ))
   else
-    ZXAP_IDX=; ZXAP_NXT=; zxap±done; return 1
+    ZXAP_IDX=-1; ZXAP_NXT=-1; zxap±done; return 1
   fi
 
   [[ -z "${ZXAP_IDX}" || ${ZXAP_IDX} -gt ${_xMAX_} ]] && {
-    ZXAP_IDX=; ZXAP_NXT=; zxap±done; return 1
+    ZXAP_IDX=-1; ZXAP_NXT=-1; zxap±done; return 1
   }
 
   # NOTE Zsh 数组索引 1 开始, Bash 数组索引 0 开始
@@ -121,18 +121,18 @@ function @zeta:zxap:parser() {
   ######################
   [[ -n "${BASH_VERSION}" ]] && {
     eval '_IdxArg_="'${!ZXAP_IDX}'"'
-    if (( ZXAP_NXT <= _xMAX_ )); then
+    if (( ZXAP_NXT > 0 && ZXAP_NXT <= _xMAX_ )); then
       eval '_xNxtArg_="'${!ZXAP_NXT}'"'
     else
-      ZXAP_NXT=; _xNxtArg_=
+      ZXAP_NXT=-1; _xNxtArg_=
     fi
   }
   [[ -n "${ZSH_VERSION}"  ]] && {
     eval '_IdxArg_="'${(P)ZXAP_IDX}'"'
-    if (( ZXAP_NXT <= _xMAX_ )); then
+    if (( ZXAP_NXT > 0 && ZXAP_NXT <= _xMAX_ )); then
       eval '_xNxtArg_="'${(P)ZXAP_NXT}'"'
     else
-      ZXAP_NXT=; _xNxtArg_=
+      ZXAP_NXT=-1; _xNxtArg_=
     fi
   }
 
@@ -177,25 +177,24 @@ function @zeta:zxap:parser() {
     zxap±done ${LINENO} "Unknown option ${_IdxArg_}"; return 1;
   }
 
-  ZXAP_ARG="${_IdxArg_}"; ZXAP_VAL="${_xNxtArg_}"
   # echo "调试 [${_rob_}] ARG=[${ZXAP_ARG}] VAL=[${ZXAP_VAL}]"
 
   case "${_rob_}" in
     "+") # 必须
       if [[  -z "${_xNxtArg_}" || "${_xNxtArg_:0:1}" == - ]]; then
         zxap±done ${LINENO} "$(@R3 ${_IdxArg_}) required value"; return 1
-      fi; [[ -n "${ZXAP_NXT}" ]] && (( ZXAP_NXT++ ))
+      fi; (( ZXAP_NXT > 0 )) && (( ZXAP_NXT++ ))
       ;;
     ":") # 可选
       if [[ "${_xNxtArg_:0:1}" == - ]]; then
         ZXAP_VAL=
       else
-        [[ -n "${ZXAP_NXT}" ]] && (( ZXAP_NXT++ ))
+        (( ZXAP_NXT > 0 )) && (( ZXAP_NXT++ ))
       fi
       ;;
     "~") ZXAP_VAL= ;; # 开关
     *) zxap±done ${LINENO} "internal error"; return 1 ;;
-  esac; (( ZXAP_NXT > _xMAX_ )) && ZXAP_NXT=; return 0
+  esac; (( ZXAP_NXT > _xMAX_ )) && ZXAP_NXT=-1; return 0
 }
 
 # @zeta:zxap:sample -S1 x --L2 --L3 -S4 -S5 --L6 -X1 zz --X1 yy
@@ -211,16 +210,16 @@ function @zeta:zxap:sample() { # 必须+  可选:  ~开关
     # echo "IDX=[${xIdx}] ARG=[${ZXAP_ARG}]"
     # echo "NXT=[${xNxt}] VAL=[${ZXAP_VAL}]"; echo
     case "${ZXAP_ARG}" in
-      S1) echo "[${xIdx}]  -S1 参数(必需) [${ZXAP_VAL}] -> [${xNxt}]" ;;
-      S2) echo "[${xIdx}]  -S2 参数(可选) [${ZXAP_VAL}] -> [${xNxt}]" ;;
-      L2) echo "[${xIdx}] --L2 参数(可选) [${ZXAP_VAL}] -> [${xNxt}]" ;;
-      L3) echo "[${xIdx}] --L3 参数(开关) -> [${xNxt}]" ;;
-      S4) echo "[${xIdx}]  -S4 参数(开关) -> [${xNxt}]" ;;
-      S5) echo "[${xIdx}]  -S5 参数(开关) -> [${xNxt}]" ;;
-      L5) echo "[${xIdx}] --L5 参数(开关) -> [${xNxt}]" ;;
-      L6) echo "[${xIdx}] --L6 参数(开关) -> [${xNxt}]" ;;
-      X1) echo "[${xIdx}] --X1 参数(必需) [${ZXAP_VAL}] -> [${xNxt}]"
-          echo "[${xIdx}]  -X1 参数(必需) [${ZXAP_VAL}] -> [${xNxt}]" ;;
+       -S1) echo "[${xIdx}]  -S1 参数(必需) [${xNxt}] -> [${ZXAP_VAL}]" ;;
+      --S2) echo "[${xIdx}]  -S2 参数(可选) [${xNxt}] -> [${ZXAP_VAL}]" ;;
+      --L2) echo "[${xIdx}] --L2 参数(可选) [${xNxt}] -> [${ZXAP_VAL}]" ;;
+      --L3) echo "[${xIdx}] --L3 参数(开关) [${xNxt}]" ;;
+       -S4) echo "[${xIdx}]  -S4 参数(开关) [${xNxt}]" ;;
+       -S5) echo "[${xIdx}]  -S5 参数(开关) [${xNxt}]" ;;
+      --L5) echo "[${xIdx}] --L5 参数(开关) [${xNxt}]" ;;
+      --L6) echo "[${xIdx}] --L6 参数(开关) [${xNxt}]" ;;
+       -X1) echo "[${xIdx}]  -X1 参数(必需) [${xNxt}] -> [${ZXAP_VAL}]";;
+      --X1) echo "[${xIdx}] --X1 参数(必需) [${xNxt}] -> [${ZXAP_VAL}]" ;;
     esac
   done
 }
