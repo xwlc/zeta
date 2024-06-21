@@ -280,10 +280,10 @@ function desktop-alert-when-done() {
   @zeta:xsh:no-cmd notify-send && return 2 # $ apt show libnotify-bin
   local _cmd_=$1; shift; @zeta:xsh:no-cmd ${_cmd_} && return 1
   local isOK zSVG summary; ${_cmd_} $@; isOK=$? # 执行长耗时命令
-  local title="Terminal Zeta"; summary="${_cmd_}: OK"
+  local title="${_cmd_} | Zeta Notify"; summary="OK"
   zSVG="${ZETA_DIR}/etc/xdg/icons/hicolor/scalable/status/about.svg"
   if [[ ${isOK} -ne 0 ]]; then
-    summary="${_cmd_}: ErrorCode=${isOK}"
+    summary="Error Code: ${isOK}"
     zSVG="${ZETA_DIR}/etc/xdg/icons/hicolor/scalable/status/error.svg"
   fi
   notify-send --urgency=low --app-name "${title}" --icon "${zSVG}" "${summary}"
