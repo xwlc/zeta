@@ -181,32 +181,43 @@ function ls-dot-files() {
 }
 
 function ls-gpg-keys() {
-  if [[ $# -eq 0 ]]; then
-    gpg -k; return # 显示本地公钥
-  fi
+  [[ $# -eq 0 ]] && { gpg -k; return; } # 显示本地公钥
 
-  local key=$1 type=$2
-  [[ ! -f "${key}" ]] && return 1
+  local key="$1" type="$2"
+  [[ -z "${key}" || ! -f "${key}" ]] && return 1
   [[ -z "${type}" ]] && type=short
 
-  # -k,--list-public-keys 和 --with-subkey-fingerprint
-  case ${type} in
-    short) gpg --show-keys "${key}" ;;
-     long) gpg --no-default-keyring --show-keys "${key}" ;;
-        *) gpg --show-keys --with-colons "${key}" ;;
+  # -k,--list-public-keys
+  case ${type} in # --with-subkey-fingerprint
+    short|s|S) gpg --show-keys "${key}" ;;
+     long|l|L) gpg --no-default-keyring --show-keys "${key}" ;;
+            *) gpg --show-keys --with-colons "${key}" ;;
   esac
 }
 
-alias ls-x509-crt='openssl x509 -noout -text -in' # path/to/ca.crt 查看证书信息
-alias ls-x509-csr='openssl req  -noout -text -in' # path/to/ca.csr 查看签名请求
-alias ls-x509-crl='openssl crl  -noout -text -in' # path/to/ca.crl 查看注销列表
+function ls-x509-crt() { # 查看证书信息
+  [[ $# -ne 1 || -z "$1" || ! -f "$1" ]] && {
+    echo "$(@D9 ls-x509-crt) path/to/ca.crt"; return
+  }; openssl x509 -noout -text -in "$1"
+}
+
+function ls-x509-csr() { # 查看签名请求
+  [[ $# -ne 1 || -z "$1" || ! -f "$1" ]] && {
+    echo "$(@D9 ls-x509-csr) path/to/ca.csr"; return
+  }; openssl req -noout -text -in "$1"
+}
+
+function ls-x509-crl() { # 查看注销列表
+  [[ $# -ne 1 || -z "$1" || ! -f "$1" ]] && {
+    echo "$(@D9 ls-x509-crl) path/to/ca.crl"; return
+  }; openssl crl -noout -text -in "$1"
+}
 
 # 显示网址/域名的 HTTPS 证书链
 function ls-x509-https-cert-chain() {
-  [[ $# -eq 0 ]] && {
+  [[ $# -ne 1 || -z "$1" ]] && {
     echo "$(@D9 ls-x509-https-cert-chain) www.baidu.com"; return
-  }
-  openssl s_client -showcerts -connect $1:443
+  }; openssl s_client -showcerts -connect $1:443
 }
 
 # https://security.stackexchange.com/questions/128944
@@ -216,7 +227,7 @@ function ls-x509-https-cert-chain() {
 # => RSA 算法类密钥公钥偏移 19字节, ED25519 算法则偏移 9 字节
 # openssl x509 -noout -in ca.crt -pubkey | openssl asn1parse
 function ls-x509-skid-rsa() {
-  [[ $# -eq 0 || ! -f "$1" ]] && {
+  [[ $# -ne 1 || -z "$1" || ! -f "$1" ]] && {
     echo "$(@D9 ls-x509-skid-rsa) path/to/RSA.crt"; return
   }
   openssl x509 -noout -pubkey -in $1 \
@@ -225,7 +236,7 @@ function ls-x509-skid-rsa() {
 }
 
 function ls-x509-skid-ed25519() {
-  [[ $# -eq 0 || ! -f "$1" ]] && {
+  [[ $# -ne 1 || -z "$1" || ! -f "$1" ]] && {
     echo "$(@D9 ls-x509-skid-ed25519) path/to/ED25519.crt"; return
   }
   openssl x509 -noout -pubkey -in $1 \
