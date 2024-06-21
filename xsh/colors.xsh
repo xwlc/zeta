@@ -7,6 +7,7 @@
 # https://github.com/termstandard/colors
 
 # Difference between `printf` and `echo`
+# NOTE Bash `echo` do not enable -e by default
 # https://unix.stackexchange.com/questions/58310
 # https://www.in-ulm.de/~mascheck/various/echo+printf/
 # => TIMEFORMAT=$"e-loop => Real=%3lR(s) User=%3lU(s) Sys=%3lS(s)"
@@ -16,8 +17,6 @@
 #
 # -> e-loop => Real=0m3.977s(s) User=0m2.033s(s) Sys=0m1.938s(s)
 # -> p-loop => Real=0m3.879s(s) User=0m1.864s(s) Sys=0m2.008s(s)
-
-# NOTE Bash do not enable -e by default for `echo`
 
 # ANSI Colors Frequently Used In Terminal
 function @D3() { builtin printf "\e[0;30m%s\e[0m" "$*"; } # Dark(Black)
@@ -81,7 +80,40 @@ function @ES() { # Escape Sequence
   builtin printf "\e[${fmt}m%s\e[0m" "$*"
 }
 
-function @preview-colors() {
+function @colored() {
+  ! declare -p RbIdx > /dev/null 2>&1 && return
+  ! declare -p RbOut > /dev/null 2>&1 && return
+  local _RbCNS_=( G3 Y3 B3 P3  G9 Y9 B9 P9 )
+  local _RbMax_=${#_RbCNS_[@]} _RbMsg_="$1"
+  local G3='\e[32m' Y3='\e[33m' B3='\e[34m' P3='\e[35m'
+  local G9='\e[92m' Y9='\e[93m' B9='\e[94m' P9='\e[95m'
+  if [[ -n "${BASH_VERSION}" ]]; then
+    [[ -z "${RbIdx}" ]] && RbIdx=0
+    eval 'RbOut="${!_RbCNS_[${RbIdx}]}${_RbMsg_}\e[0m"'
+    (( RbIdx++, RbIdx = RbIdx % _RbMax_ ))
+  elif [[ -n "${ZSH_VERSION}"  ]]; then
+    [[ -z "${RbIdx}" || ${RbIdx} -eq 0 ]] && RbIdx=1
+    eval 'RbOut="${(P)_RbCNS_[${RbIdx}]}${_RbMsg_}\e[0m"'
+    (( RbIdx++, RbIdx = RbIdx % _RbMax_ ))
+  fi
+}
+
+function @rainbow() {
+  local xTitle="$1" xMsg  zFB zLB zIt; shift
+  local y1='\e[1;5;90m' y2='\e[0m' RbIdx RbOut
+  for zIt in "$@"; do
+    zFB="${zIt:0:1}"; zLB="${zIt:${#zIt}-1:1}"
+    case "${zFB}${zLB}" in
+      "[]") @colored "${zIt:1:${#zIt}-2}"; xMsg+=" ${y1}[${y2}${RbOut}${y1}]${y2}" ;;
+      "<>") @colored "${zIt:1:${#zIt}-2}"; xMsg+=" ${y1}<${y2}${RbOut}${y1}>${y2}" ;;
+      "()") @colored "${zIt:1:${#zIt}-2}"; xMsg+=" ${y1}(${y2}${RbOut}${y1})${y2}" ;;
+      "{}") @colored "${zIt:1:${#zIt}-2}"; xMsg+=" ${y1}{${y2}${RbOut}${y1}}${y2}" ;;
+         *) @colored "${zIt}"; xMsg+=" ${RbOut}" ;;
+    esac
+  done; printf "${xTitle}${xMsg}\n"
+}
+
+function zeta-term-color-preview() {
   echo
   printf "msg1 $(@ES '4;5;32' "@ES => 绿色+闪烁+下划线") msg1-end\n"
   echo "msg2 $(@ES 38 5 242 '@ES => grey message again') msg2-end"
@@ -126,8 +158,7 @@ function @preview-colors() {
     printf -v ramp "GS=%02d" ${idx}
     printf "[";  @GS ${idx} "${ramp}"; printf "] "
     [ ${idx} -eq 11 ] && {
-      echo
-      local cnt=1
+      echo; local cnt=1
       for cnt in {1..12}; do printf "[$(@D9 @D9灰)] "; done
       echo
     }

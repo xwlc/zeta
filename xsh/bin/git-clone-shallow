@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-06-21T19:22:50+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+THIS_AFP="$(realpath "${0}")"        # 当前文件绝对路径(含名)
+THIS_FNO="$(basename "${THIS_AFP}")" # 仅包含当前文件的文件名
+THIS_DIR="$(dirname  "${THIS_AFP}")" # 当前文件所在的绝对路径
+# printf "[${THIS_AFP}]\n[${THIS_DIR}] [${THIS_FNO}]\n"; exit
+
+[[ -z "${XCOLORS}" || ! -f "${XCOLORS}" ]] && exit 255
+source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
+
+function zhelp() {
+  local D9='\e[90m' Y9='\e[93m' XX='\e[00m'
+  @rainbow "${D9}xcmd${XX} ${Y9}${THIS_FNO}${XX}" $@
+}
+function has-cmd() {  command -v "$1" > /dev/null; }
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+[[ $# -eq 0 || -z "$1" ]] && { zhelp URL "[Branch]"; exit; }
+case $# in # 仓库地址 $1  分支名 $2
+  1) git clone --no-tags --depth 1 $1 ;;
+  2) git clone --no-tags --depth 1 --branch "$2" $1 ;;
+esac
