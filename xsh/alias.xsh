@@ -47,7 +47,7 @@ if @zeta:xsh:has-cmd ack; then
   done
   _ztmp_+=" --ignore-file=ext:log"
   _ztmp_+=" --ignore-file=match:history"
-  _ztmp_+=" --ignore-file=match:zcompdump"
+  _ztmp_+=" --ignore-file=match:compdump"
   alias ack="${_zcmd_} ${_ztmp_}"
 fi
 

@@ -11,7 +11,7 @@
 # Zsh/Bash 启动参数若包含 i 则表示 Interactive Shell
 # NOTE Bash can only `return` from function or sourced script,
 # but it works well in ZSH for none function or sourced script
-[[ $- == *i* ]] || return # Interactive or NOT
+[[ $- == *i* ]] || return # 非交互式 Shell 则直接返回
 
 # NOTE zeta/xsh Only Support for Bash Shell and Zsh Shell
 # https://gitlab.gnome.org/GNOME/vte/-/blob/master/src/vte.sh.in

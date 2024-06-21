@@ -6,7 +6,7 @@
 # https://github.com/scop/bash-completion.git
 # Enable programmable completion features for interactive shells.
 # NOTE It maybe enabled in /etc/bash.bashrc or /etc/profile file.
-! shopt -oq posix && {
+! shopt -oq posix && { # apt show bash-completion
   if [[ -f /usr/share/bash-completion/bash_completion ]]; then
     source /usr/share/bash-completion/bash_completion
   elif [[ -f /etc/bash_completion ]]; then

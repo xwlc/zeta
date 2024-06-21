@@ -1,13 +1,13 @@
 # Bash/Zsh Startup or Shutdown Files
 
-- Interactive & Login
+- Interactive(交互) & Login(登陆)
 
-  |  交互式  |  login  |       示例       |
-  |:--------:|:-------:|:----------------:|
-  | no       | no      |   执行脚本文件   |
-  | no       | yes     |   ?? 不存在 ??   |
-  | yes      | no      | 打开 PC 本地终端 |
-  | yes      | yes     | `ssh  localhost` |
+  |  交互  |  登陆  |       示例       |
+  |:------:|:------:|:----------------:|
+  |   NO   |   NO   |   执行脚本文件   |
+  |   NO   |   OK   |   ?? 不存在 ??   |
+  |   OK   |   NO   | 打开 PC 本地终端 |
+  |   OK   |   OK   | `ssh  localhost` |
 
 ## Zsh Startup Files
 
