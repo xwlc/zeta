@@ -22,7 +22,7 @@
 function @zeta:zxap:parser() {
   [[ $# -eq 0 || $# -eq 1 || -z "$1" ]] && return 1
   local _xSpec_="$1"; shift 1; local _xMAX_=$#
-  local _IdxV_  _xNxtV_  __zIDX__=0  _idx_
+  local _IdxArg_  _xNxtArg_  __zIDX__=0  _idx_
   local _oS_ _oL_ _oI_  _val_ _xit_  _bF1_ _bF2_ _rob_
 
   ! declare -p ZXAP__InitSpec > /dev/null 2>&1 && {
@@ -120,74 +120,74 @@ function @zeta:zxap:parser() {
   # 解析扫描命令行参数 #
   ######################
   [[ -n "${BASH_VERSION}" ]] && {
-    eval '_IdxV_="'${!ZXAP_IDX}'"'
+    eval '_IdxArg_="'${!ZXAP_IDX}'"'
     if (( ZXAP_NXT <= _xMAX_ )); then
-      eval '_xNxtV_="'${!ZXAP_NXT}'"'
+      eval '_xNxtArg_="'${!ZXAP_NXT}'"'
     else
-      ZXAP_NXT=; _xNxtV_=
+      ZXAP_NXT=; _xNxtArg_=
     fi
   }
   [[ -n "${ZSH_VERSION}"  ]] && {
-    eval '_IdxV_="'${(P)ZXAP_IDX}'"'
+    eval '_IdxArg_="'${(P)ZXAP_IDX}'"'
     if (( ZXAP_NXT <= _xMAX_ )); then
-      eval '_xNxtV_="'${(P)ZXAP_NXT}'"'
+      eval '_xNxtArg_="'${(P)ZXAP_NXT}'"'
     else
-      ZXAP_NXT=; _xNxtV_=
+      ZXAP_NXT=; _xNxtArg_=
     fi
   }
 
   # ZXAP_IDX              ZXAP_NXT
-  # ZXAP_ARG -> _IdxV_    ZXAP_VAL -> _xNxtV_
-  ZXAP_ARG="${_IdxV_}"; ZXAP_VAL="${_xNxtV_}"
-  [[ -z "${_IdxV_}" ]] && {
+  # ZXAP_ARG -> _IdxArg_    ZXAP_VAL -> _xNxtArg_
+  ZXAP_ARG="${_IdxArg_}"; ZXAP_VAL="${_xNxtArg_}"
+  [[ -z "${_IdxArg_}" ]] && {
     zxap±done ${LINENO} "invalid empty argument"; return 1
   }
 
   # 获取选项字符串的第 1 个字节和第 2 个字节
-  _bF1_="${_IdxV_:0:1}"; _bF2_="${_IdxV_:1:1}"
-  # echo "调试 [${_IdxV_}] => AB1=[${_bF1_}] AB2=[${_bF2_}]"
+  _bF1_="${_IdxArg_:0:1}"; _bF2_="${_IdxArg_:1:1}"
+  # echo "调试 [${_IdxArg_}] => AB1=[${_bF1_}] AB2=[${_bF2_}]"
   [[ "${_bF1_}" != - ]] && {
     zxap±done ${LINENO} "argument must begin with dash, but got $(@R3 ${_bF1_})"
     return 1
   }
   if [[ "${_bF2_}" == - ]]; then
-    _IdxV_="${_IdxV_:2}" # 长选项 --XXX
-    [[ -z "${_IdxV_}" ]] && {
+    _IdxArg_="${_IdxArg_:2}" # 长选项 --XXX
+    [[ -z "${_IdxArg_}" ]] && {
       zxap±done ${LINENO} "invalid empty long argument"; return 1
     }; (( _idx_ = __zIDX__ )); _oI_=
     while (( _idx_ < ${#ZXAP__L__[@]} )); do
       _val_="${ZXAP__L__[${_idx_}]}"
-      [[ "${_val_:2}" == "${_IdxV_}" ]] && {
+      [[ "${_val_:2}" == "${_IdxArg_}" ]] && {
         (( _oI_ = _idx_ )); _rob_="${_val_:1:1}"; break
       }; (( _idx_++ ))
     done
   else
-    _IdxV_="${_IdxV_:1}" # 短选项 -XXX
-    [[ -z "${_IdxV_}" ]] && {
+    _IdxArg_="${_IdxArg_:1}" # 短选项 -XXX
+    [[ -z "${_IdxArg_}" ]] && {
       zxap±done ${LINENO} "invalid empty short argument"; return 1
     }; (( _idx_ = __zIDX__ )); _oI_=
     while (( _idx_ < ${#ZXAP__S__[@]} )); do
       _val_="${ZXAP__S__[${_idx_}]}"
-      [[ "${_val_:2}" == "${_IdxV_}" ]] && {
+      [[ "${_val_:2}" == "${_IdxArg_}" ]] && {
         (( _oI_ = _idx_ )); _rob_="${_val_:1:1}"; break
       }; (( _idx_++ ))
     done
   fi
   [[ -z "${_oI_}" ]] && {
-    zxap±done ${LINENO} "Unknown option ${_IdxV_}"; return 1;
+    zxap±done ${LINENO} "Unknown option ${_IdxArg_}"; return 1;
   }
 
-  ZXAP_ARG="${_IdxV_}"; ZXAP_VAL="${_xNxtV_}"
+  ZXAP_ARG="${_IdxArg_}"; ZXAP_VAL="${_xNxtArg_}"
   # echo "调试 [${_rob_}] ARG=[${ZXAP_ARG}] VAL=[${ZXAP_VAL}]"
 
   case "${_rob_}" in
     "+") # 必须
-      if [[  -z "${_xNxtV_}" || "${_xNxtV_:0:1}" == - ]]; then
-        zxap±done ${LINENO} "$(@R3 ${_IdxV_}) required value"; return 1
+      if [[  -z "${_xNxtArg_}" || "${_xNxtArg_:0:1}" == - ]]; then
+        zxap±done ${LINENO} "$(@R3 ${_IdxArg_}) required value"; return 1
       fi; [[ -n "${ZXAP_NXT}" ]] && (( ZXAP_NXT++ ))
       ;;
     ":") # 可选
-      if [[ "${_xNxtV_:0:1}" == - ]]; then
+      if [[ "${_xNxtArg_:0:1}" == - ]]; then
         ZXAP_VAL=
       else
         [[ -n "${ZXAP_NXT}" ]] && (( ZXAP_NXT++ ))
