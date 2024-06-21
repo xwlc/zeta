@@ -29,14 +29,14 @@ function @zeta:zxap:parser() {
     declare -g ZXAP__InitSpec=0
     declare -ga ZXAP__{S,L}__ # 短选项(S) 长选项(L)
     if ! declare -p ZXAP_IDX > /dev/null 2>&1; then
-      declare -g ZXAP_{IDX=0,NXT=1,ERR,ARG,VAL}
+      declare -g ZXAP_{IDX=0,NXT=1,ARG,VAL}
     fi
   }
 
   function zxap±done() {
     unset -v ZXAP__InitSpec
     unset -v ZXAP__{S,L}__
-    unset -v ZXAP_{IDX,NXT,ERR,ARG,VAL}
+    unset -v ZXAP_{IDX,NXT,ARG,VAL}
     [[ $# -ge 2 ]] && { # Bash/Zsh 预定义变量 LINENO 更具可读性
       # NOTE Bash 的 LINENO 值忽略纯注释(空白)行, 行号 22 函数定义
       local lineNo=$1 xLN; shift; (( lineNo += 22 ))
@@ -108,8 +108,8 @@ function @zeta:zxap:parser() {
       ZXAP__L__[${_idx_}]="␜${_rob_}${_oL_}"; (( _idx_++ ))
     done; ZXAP__InitSpec=1 # 参数规范解析初始化完成
 
-    # echo "调试 ZXAP__S__ => [${ZXAP__S__[@]}]"
-    # echo "调试 ZXAP__L__ => [${ZXAP__L__[@]}]"
+    echo "调试 ZXAP__S__ => [${ZXAP__S__[@]}]"
+    echo "调试 ZXAP__L__ => [${ZXAP__L__[@]}]"
 
     if [[ -n "${ZETA_XSH_OPT_shwordsplit:-}" ]]; then
       eval   "${ZETA_XSH_OPT_shwordsplit}"
@@ -136,7 +136,6 @@ function @zeta:zxap:parser() {
     fi
   }
 
-  # ZXAP_ERR 非空表示出错终止
   # ZXAP_IDX              ZXAP_NXT
   # ZXAP_ARG -> _IdxV_    ZXAP_VAL -> _xNxtV_
   ZXAP_ARG="${_IdxV_}"; ZXAP_VAL="${_xNxtV_}"
@@ -155,8 +154,8 @@ function @zeta:zxap:parser() {
     _IdxV_="${_IdxV_:2}" # 长选项 --XXX
     [[ -z "${_IdxV_}" ]] && {
       zxap±done ${LINENO} "invalid empty long argument"; return 1
-    }
-    (( _idx_ = __zIDX__ )); while (( _idx_ < ${#ZXAP__L__[@]} )); do
+    }; (( _idx_ = __zIDX__ )); _oI_=
+    while (( _idx_ < ${#ZXAP__L__[@]} )); do
       _val_="${ZXAP__L__[${_idx_}]}"
       [[ "${_val_:2}" == "${_IdxV_}" ]] && {
         (( _oI_ = _idx_ )); _rob_="${_val_:1:1}"; break
@@ -166,47 +165,51 @@ function @zeta:zxap:parser() {
     _IdxV_="${_IdxV_:1}" # 短选项 -XXX
     [[ -z "${_IdxV_}" ]] && {
       zxap±done ${LINENO} "invalid empty short argument"; return 1
-    }
-    (( _idx_ = __zIDX__ )); while (( _idx_ < ${#ZXAP__S__[@]} )); do
+    }; (( _idx_ = __zIDX__ )); _oI_=
+    while (( _idx_ < ${#ZXAP__S__[@]} )); do
       _val_="${ZXAP__S__[${_idx_}]}"
       [[ "${_val_:2}" == "${_IdxV_}" ]] && {
         (( _oI_ = _idx_ )); _rob_="${_val_:1:1}"; break
       }; (( _idx_++ ))
     done
   fi
-  [[ -z "${_oI_}" ]] && { ZXAP_ERR="Unknown option ${_IdxV_}"; return; }
+  [[ -z "${_oI_}" ]] && {
+    zxap±done ${LINENO} "Unknown option ${_IdxV_}"; return 1;
+  }
 
   ZXAP_ARG="${_IdxV_}"; ZXAP_VAL="${_xNxtV_}"
+  # echo "调试 [${_rob_}] ARG=[${ZXAP_ARG}] VAL=[${ZXAP_VAL}]"
+
   case "${_rob_}" in
     "+") # 必须
       if [[  -z "${_xNxtV_}" || "${_xNxtV_:0:1}" == - ]]; then
         zxap±done ${LINENO} "$(@R3 ${_IdxV_}) required value"; return 1
-      fi; (( ZXAP_NXT++ ))
+      fi; [[ -n "${ZXAP_NXT}" ]] && (( ZXAP_NXT++ ))
       ;;
     ":") # 可选
       if [[ "${_xNxtV_:0:1}" == - ]]; then
         ZXAP_VAL=
       else
-        (( ZXAP_NXT++ ))
+        [[ -n "${ZXAP_NXT}" ]] && (( ZXAP_NXT++ ))
       fi
       ;;
     "~") ZXAP_VAL= ;; # 开关
     *) zxap±done ${LINENO} "internal error"; return 1 ;;
-  esac; (( ZXAP_NXT > _xMAX_ )) && ZXAP_NXT=; # ZXAP_ERR="STOP"
+  esac; (( ZXAP_NXT > _xMAX_ )) && ZXAP_NXT=; return 0
 }
 
+# @zeta:zxap:sample -S1 x --L2 --L3 -S4 -S5 --L6 -X1 zz --X1 yy
 function @zeta:zxap:sample() { # 必须+  可选:  ~开关
   local _opts_="+S1,:S2|L2,~|L3,S4,S5|L5,|L6,+X1|X1"
   [[ $# -eq 0 ]] && { echo "=> ${_opts_}"; return; }
 
-  local ZXAP_{IDX=0,NXT=1,ERR,ARG,VAL}
+  local xIdx  xNxt
+  local ZXAP_{IDX=0,NXT=1,ARG,VAL}
   while @zeta:zxap:parser "${_opts_}"  "$@"; do
-    local xIdx; printf -v xIdx "%02d" ${ZXAP_IDX}
-    local xNxt; printf -v xNxt "%02d" ${ZXAP_NXT}
-    # echo "IDX=[${xIdx}] ARG=[${ZXAP_ARG}] ERR=[${ZXAP_ERR}]"
+    printf -v xIdx "%02d" "${ZXAP_IDX}"
+    printf -v xNxt "%02d" "${ZXAP_NXT}"
+    # echo "IDX=[${xIdx}] ARG=[${ZXAP_ARG}]"
     # echo "NXT=[${xNxt}] VAL=[${ZXAP_VAL}]"; echo
-    [[ -n "${ZXAP_ERR}" ]] && break
-
     case "${ZXAP_ARG}" in
       S1) echo "[${xIdx}]  -S1 参数(必需) [${ZXAP_VAL}] -> [${xNxt}]" ;;
       S2) echo "[${xIdx}]  -S2 参数(可选) [${ZXAP_VAL}] -> [${xNxt}]" ;;
