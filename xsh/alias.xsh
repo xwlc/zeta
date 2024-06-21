@@ -32,20 +32,23 @@ alias od='od  -Ax  -w16  -tx1z  -tu1  -to1'
 
 _zvar_=".git,.github,.vscode,.bundle,.cache,node_modules"
 _zvar_="${_zvar_},out,dist,build,cache,3rd,3rdparty,todo,wip"
-alias   grep="grep --color=auto --exclude-dir={${_zvar_}}" # grep -G
-alias search="grep --color=auto --exclude-dir={${_zvar_}}" # default
 
-alias  egrep="egrep --color=auto --exclude-dir={${_zvar_}}" # grep -E extend regexp
-alias  fgrep="fgrep --color=auto --exclude-dir={${_zvar_}}" # grep -F fixed strings
+_zcmd_="$(command -v grep)"  # grep 默认等同于 grep -G
+alias  grep="${_zcmd_} --color=auto --exclude-dir={${_zvar_}}"
+_zcmd_="$(command -v egrep)" # grep -E extend regexp
+alias egrep="${_zcmd_} --color=auto --exclude-dir={${_zvar_}}"
+_zcmd_="$(command -v fgrep)" # grep -F fixed strings
+alias fgrep="${_zcmd_} --color=auto --exclude-dir={${_zvar_}}"
 
 if @zeta:xsh:has-cmd ack; then
-  _ztmp_=; for _zval_ in $(echo "${_zvar_}" | sed 's/,/ /g'); do
+  _ztmp_=; _zcmd_="$(command -v ack)"
+  for _zval_ in $(echo "${_zvar_}" | sed 's/,/ /g'); do
     _ztmp_+=" --ignore-dir=${_zval_}"
   done
   _ztmp_+=" --ignore-file=ext:log"
   _ztmp_+=" --ignore-file=match:history"
   _ztmp_+=" --ignore-file=match:zcompdump"
-  alias ack="$(command -v ack) ${_ztmp_}"
+  alias ack="${_zcmd_} ${_ztmp_}"
 fi
 
 # https://dystroy.org/broot/install-br
@@ -74,21 +77,23 @@ alias esc-space='sed -e "s/ /\\\\ /g"' # 反斜杠数目: 四 -> 二 -> 一
 # 示例 find . -maxdepth 1 -type f -regex '.*\.js'
 # 示例 find . -maxdepth 1 -type d -regex 'foo[0-9]'
 function find-file-regex() {
-  local it
+  local _it_ _items_
   case $# in
-    1) for it in $(command find ./ -type f -name "*$1*" -print); do realpath ${it}; done ;;
-    2) for it in $(command find $1 -type f -name "*$2*" -print); do realpath ${it}; done ;;
+    1) _items_=( $(command find ./ -type f -name "*$1*" -print) ) ;;
+    2) _items_=( $(command find $1 -type f -name "*$2*" -print) ) ;;
     *) return 1 ;;
   esac
+  for _it_ in ${_items_}; do realpath ${_it_}; done
 }
 
 function find-dirs-regex() {
-  local it
+  local _it_ _items_
   case $# in
-    1) for it in $(command find ./ -type d -name "*$1*" -print); do realpath ${it}; done ;;
-    2) for it in $(command find $1 -type d -name "*$2*" -print); do realpath ${it}; done ;;
+    1) _items_=( $(command find ./ -type d -name "*$1*" -print) ) ;;
+    2) _items_=( $(command find $1 -type d -name "*$2*" -print) ) ;;
     *) return 1 ;;
   esac
+  for _it_ in ${_items_}; do realpath ${_it_}; done
 }
 
 # https://unix.stackexchange.com/questions/367547
@@ -105,12 +110,14 @@ _zvar_="--hide='System Volume Information'" # NTFS 格式系统卷信息
 _zvar_="${_zvar_} --hide='\$RECYCLE.BIN'" # NTFS 回收站
 _zvar_="${_zvar_} --hide='lost+found'" # EXT4 数据恢复元数据
 alias ls="/usr/bin/ls --color=auto --time-style=+%FT%T ${_zvar_}"
+
 if @zeta:xsh:has-cmd eza; then
   _zcmd_=$(command -v eza) # 忽略 glob 分割符 |
   _zvar_="--ignore-glob='System Volume Information"
   _zvar_="${_zvar_}|\$RECYCLE.BIN|lost+found'"
   alias eza="${_zcmd_} --color=auto --time-style=+%FT%T ${_zvar_}"
 fi
+
 if @zeta:xsh:has-cmd lsd; then
   _zcmd_=$(command -v lsd)
   _zvar_="--ignore-glob='System Volume Information'"
@@ -173,7 +180,7 @@ function ls-dot-files() {
   fi
 }
 
-function ls-gpg-key() {
+function ls-gpg-keys() {
   if [[ $# -eq 0 ]]; then
     gpg -k; return # 显示本地公钥
   fi
@@ -197,7 +204,7 @@ alias ls-x509-crl='openssl crl  -noout -text -in' # path/to/ca.crl 查看注销�
 # 显示网址/域名的 HTTPS 证书链
 function ls-x509-https-cert-chain() {
   [[ $# -eq 0 ]] && {
-    echo "ls-x509-skid-rsa www.baidu.com"; return
+    echo "$(@D9 ls-x509-https-cert-chain) www.baidu.com"; return
   }
   openssl s_client -showcerts -connect $1:443
 }
@@ -210,7 +217,7 @@ function ls-x509-https-cert-chain() {
 # openssl x509 -noout -in ca.crt -pubkey | openssl asn1parse
 function ls-x509-skid-rsa() {
   [[ $# -eq 0 || ! -f "$1" ]] && {
-    echo "ls-x509-skid-rsa path/to/RSA.crt"; return
+    echo "$(@D9 ls-x509-skid-rsa) path/to/RSA.crt"; return
   }
   openssl x509 -noout -pubkey -in $1 \
     | openssl asn1parse -strparse 19 -noout -out - \
@@ -219,7 +226,7 @@ function ls-x509-skid-rsa() {
 
 function ls-x509-skid-ed25519() {
   [[ $# -eq 0 || ! -f "$1" ]] && {
-    echo "ls-x509-skid-ed25519 path/to/ED25519.crt"; return
+    echo "$(@D9 ls-x509-skid-ed25519) path/to/ED25519.crt"; return
   }
   openssl x509 -noout -pubkey -in $1 \
     | openssl asn1parse -strparse 9 -noout -out - \
