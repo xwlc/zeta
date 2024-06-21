@@ -155,7 +155,7 @@ function @zeta:zxap:parser() {
     [[ -z "${_IdxArg_}" ]] && {
       zxap±done ${LINENO} "invalid empty long argument"; return 1
     }; (( _idx_ = __zIDX__ )); _oI_=
-    while (( _idx_ < ${#ZXAP__L__[@]} )); do
+    while (( _idx_ <= ${#ZXAP__L__[@]} )); do
       _val_="${ZXAP__L__[${_idx_}]}"
       [[ "${_val_:2}" == "${_IdxArg_}" ]] && {
         (( _oI_ = _idx_ )); _rob_="${_val_:1:1}"; break
@@ -166,7 +166,7 @@ function @zeta:zxap:parser() {
     [[ -z "${_IdxArg_}" ]] && {
       zxap±done ${LINENO} "invalid empty short argument"; return 1
     }; (( _idx_ = __zIDX__ )); _oI_=
-    while (( _idx_ < ${#ZXAP__S__[@]} )); do
+    while (( _idx_ <= ${#ZXAP__S__[@]} )); do
       _val_="${ZXAP__S__[${_idx_}]}"
       [[ "${_val_:2}" == "${_IdxArg_}" ]] && {
         (( _oI_ = _idx_ )); _rob_="${_val_:1:1}"; break
