@@ -17,6 +17,24 @@ function @zeta:xsh:req-cmd() {
   fi
 }
 
+function @zeta:xsh:workshell() {
+  if @zeta:host:is-linux; then
+    # 根据进程判断($$ 当前进程的 PID)
+    basename "$(readlink /proc/$$/exe)"
+  elif [[ -n "${ZSH_VERSION}" ]]; then
+    echo "zsh"
+  elif [[ -n "${BASH_VERSION}" ]]; then
+    echo "bash"
+  else
+    return 1
+  fi
+}
+
+# $(uname | tr '[:upper:]' '[:lower:]')
+# $(uname -s) -> WindowsNT, Darwin, Linux, FreeBSD, SunOS
+# NOTE 正则比较语法: 字符串变量 =~ 正则(必须右侧)常量
+# [[ "${OSTYPE}" =~ ^linux  ]] 和 [[ "${OSTYPE}" =~ ^darwin ]]
+
 if [[ -n "${ZSH_VERSION:-}" ]]; then
   # 启动参数包含 l 表示 login
   if [[ $- == *l* ]]; then

@@ -23,6 +23,31 @@ function @zeta:host:is-freebsd()      { false; }
 function @zeta:host:is-illumos()      { false; }
 function @zeta:host:is-dragonfly()    { false; }
 
+# $ gcc -dumpmachine
+# https://wiki.osdev.org/Target_Triplet
+# https://clang.llvm.org/docs/CrossCompilation.html
+# https://llvm.org/doxygen/classllvm_1_1Triple.html
+# https://doc.rust-lang.org/nightly/rustc/platform-support.html
+
+#    Arch: x86, x64, arm, mips, thumb
+# SubArch: v7, v8, v9m
+#  Endian: BE(Big Endian), LE(Little Endian)
+declare HOST_CPU_ID="$(uname -m)"
+# OS: windows, macos, linux, android, bsd
+#     arch, debian, ubuntu, freebsd, netbsd
+declare HOST_SYSTEM="$(uname -s)"
+#   ABI: gnu(glibc), musl(libc), eabi(Embedded ABI)
+#        msvc, mysy, cygwin, mingw
+# Extra: hf(Hardware Float Point)
+declare HOST_OS_ENV
+
+# x64-linux-gnu, x64-macos-musl, arm64v8be-linux-eabihf
+function host-triplet() {
+  [[ -z "${HOST_OS_ENV}" ]] && {
+     echo "${HOST_CPU_ID}-${HOST_SYSTEM}"; return
+  }; echo "${HOST_CPU_ID}-${HOST_SYSTEM}-${HOST_OS_ENV}"
+}
+
 # https://www.binarytides.com/linux-command-to-check-distro/
 # -> uname, lsb_release
 # -> cat /proc/version
@@ -37,10 +62,6 @@ function @zeta:host:is-dragonfly()    { false; }
 #    cat /etc/[A-Za-z]*[_-][vr]e[rl]*
 #    cat /etc/*-release | uniq -u
 #    cat /etc/*version /etc/*release /proc/version* | uniq -u
-
-declare HOST_CPU_ID  HOST_SYSTEM  HOST_OS_ABI
-HOST_CPU_ID="$(uname -m)"
-HOST_SYSTEM="$(uname -s)"
 
 function @zeta:host:triplet() {
   if [[ "${HOST_SYSTEM}" == Linux ]]; then
@@ -98,7 +119,7 @@ function @zeta:host:triplet() {
   case "${HOST_SYSTEM}" in
     msys|mingw|cygwin)
       function @zeta:host:is-windows() { true; }
-      HOST_OS_ABI=${HOST_SYSTEM}; HOST_SYSTEM=windows
+      HOST_OS_ENV=${HOST_SYSTEM}; HOST_SYSTEM=windows
     ;;
   esac
 
@@ -114,8 +135,8 @@ function @zeta:host:triplet() {
       eval "function @zeta:host:is-${LinuxDistro}() { true; }"
     }
 
-    HOST_OS_ABI='gnu'; # https://musl.libc.org
-    ldd --version 2>&1 | grep -q 'musl' && HOST_OS_ABI="musl"
+    HOST_OS_ENV='gnu'; # https://musl.libc.org
+    ldd --version 2>&1 | grep -q 'musl' && HOST_OS_ENV="musl"
 
     # ELF 可执行文件格式 https://man.archlinux.org/man/elf.5.en
     # https://www.kernel.org/doc/html/latest/filesystems/proc.html
@@ -167,40 +188,3 @@ function @zeta:host:triplet() {
     arm*|aarch*|xscale)             HOST_CPU_ID=arm${_xinfo_}   ;;
   esac
 }; @zeta:host:triplet; unset -f @zeta:host:triplet
-
-# $(uname | tr '[:upper:]' '[:lower:]')
-# $(uname -s) -> WindowsNT, Darwin, Linux, FreeBSD, SunOS
-#
-# 正则比较语法: 字符串变量 =~ 正则(必须右侧)常量
-# [[ "${OSTYPE}" =~ ^linux  ]] 和 [[ "${OSTYPE}" =~ ^darwin ]]
-
-function @zeta:xsh:which-workshell() {
-  if @zeta:host:is-linux; then
-    # 根据进程判断当前 Shell 类型, $$ 进程 PID
-    basename "$(readlink /proc/$$/exe)"
-  elif [ -n "${ZSH_VERSION}" ]; then
-    echo "zsh"
-  elif [ -n "${BASH_VERSION}" ]; then
-    echo "bash"
-  else
-    return 1
-  fi
-}
-
-# $ gcc -dumpmachine
-# https://wiki.osdev.org/Target_Triplet
-# https://clang.llvm.org/docs/CrossCompilation.html
-# https://doc.rust-lang.org/nightly/rustc/platform-support.html
-
-# 处理器-发行商-操作系统
-#   HOST_CPU_ID = x86, x64, arm, mips, thumb
-#   HOST_SYSTEM = windows, macos, linux, android, bsd
-#                 arch, debian, ubuntu, freebsd, netbsd
-#   HOST_OS_ABI = gnu, musl, msvc, mysy, cygwin, mingw
-function host-triplet() {
-  if [[ -n "${HOST_OS_ABI}" ]]; then
-    echo "${HOST_CPU_ID}-${HOST_SYSTEM}-${HOST_OS_ABI}"
-  else
-    echo "${HOST_CPU_ID}-${HOST_SYSTEM}"
-  fi
-}
