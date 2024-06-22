@@ -261,13 +261,17 @@ alias ls-disk-block-size='stat -fc %s .' # 显示磁盘 Block Size 字节
 # -> date +'%Y-%m-%d %H:%M:%S %z'  date +'%Y-%m-%dT%H:%M:%S%Z'
 @zeta:xsh:no-cmd now && alias now=timestamp-iso-8601-now
 function timestamp-iso-8601-now() {
-  case "$1" in
-        date|d|D) date --iso-8601         ;; # 2023-12-29
-       hours|h|H) date --iso-8601=hours   ;; # 2023-12-29T05+08:00
-     minutes|m|M) date --iso-8601=minutes ;; # 2023-12-29T05:22+08:00
-     seconds|s|S) date --iso-8601=seconds ;; # 2023-12-29T05:22:46+08:00
-    compress|c|C) date '+%Y%m%d%H%M%S'    ;; # 20231229053537
-               *) date --iso-8601=seconds ;;
+  local _fmt_=$1 _utc_
+  case "$1$2" in
+    *-u|*--utc|*--universal) _utc_='--utc' ;;
+  esac
+  case "${_fmt_}" in
+    d|D) date --iso-8601         ${_utc_} ;; # 2023-12-29
+    h|H) date --iso-8601=hours   ${_utc_} ;; # 2023-12-29T05+08:00
+    m|M) date --iso-8601=minutes ${_utc_} ;; # 2023-12-29T05:22+08:00
+    s|S) date --iso-8601=seconds ${_utc_} ;; # 2023-12-29T05:22:46+08:00
+    x|X) date '+%Y%m%d%H%M%S'    ${_utc_} ;; # 20231229052246
+      *) date --iso-8601=seconds ${_utc_} ;;
   esac
 }
 
