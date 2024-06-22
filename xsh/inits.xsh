@@ -101,7 +101,7 @@ else
 fi
 
 source "${ZETA_DIR}/xsh/core/path.xsh"
-source "${ZETA_DIR}/xsh/host-triplet.xsh"
+source "${ZETA_DIR}/xsh/core/host.xsh"
 
 # 管理 3rd/pick/* 应用软连接(版本切换)
 source "${ZETA_DIR}/3rd/zeta-switch.xsh"

@@ -38,14 +38,14 @@ function @zeta:host:is-dragonfly()    { false; }
 #    cat /etc/*-release | uniq -u
 #    cat /etc/*version /etc/*release /proc/version* | uniq -u
 
-declare HOST_CPU_ID  HOST_DISTRO  HOST_OS_ABI
+declare HOST_CPU_ID  HOST_SYSTEM  HOST_OS_ABI
 HOST_CPU_ID="$(uname -m)"
-HOST_DISTRO="$(uname -s)"
+HOST_SYSTEM="$(uname -s)"
 
-function @zeta:xsh:host-triplet() {
-  if [[ "${HOST_DISTRO}" == Linux ]]; then
-    [[ "$(uname -o)" == Android ]] && HOST_DISTRO=Android
-  elif [[ "${HOST_DISTRO}" == Darwin ]]; then
+function @zeta:host:triplet() {
+  if [[ "${HOST_SYSTEM}" == Linux ]]; then
+    [[ "$(uname -o)" == Android ]] && HOST_SYSTEM=Android
+  elif [[ "${HOST_SYSTEM}" == Darwin ]]; then
     if [[ "${HOST_CPU_ID}" == i386 ]]; then
       # Handling i386 compatibility mode in macOS version <10.15
       # Starting from 10.15, macOS explicitly bans all i386 binaries
@@ -62,58 +62,59 @@ function @zeta:xsh:host-triplet() {
         HOST_CPU_ID=arm64
       fi
     fi
-  elif [[ "${HOST_DISTRO}" == SunOS ]]; then
+  elif [[ "${HOST_SYSTEM}" == SunOS ]]; then
     # Both Solaris and illumos announce as "SunOS" in `uname -s`
-    [[ "$(uname -o)" == illumos ]] && HOST_DISTRO=illumos
+    [[ "$(uname -o)" == illumos ]] && HOST_SYSTEM=illumos
     # illumos `uname -m` reports i86pc for both x86 32-/64-(bit)
     # Check for the native instruction set on the running kernel
     [[ "${HOST_CPU_ID}" == i86pc ]] && HOST_CPU_ID="$(isainfo -n)"
   fi
 
   # 环境变量 HOSTTYPE, OSTYPE, MACHTYPE, HOSTNAME
-  case "${HOST_DISTRO}" in
-    Darwin)     HOST_DISTRO=macos     ;;
+  case "${HOST_SYSTEM}" in
+    Darwin)     HOST_SYSTEM=macos     ;;
 
-    Linux)      HOST_DISTRO=linux     ;;
-    Android)    HOST_DISTRO=android   ;;
+    Linux)      HOST_SYSTEM=linux     ;;
+    Android)    HOST_SYSTEM=android   ;;
 
-    MSYS*)      HOST_DISTRO=msys      ;;
-    MINGW*)     HOST_DISTRO=mingw     ;;
-    CYGWIN*)    HOST_DISTRO=cygwin    ;;
-    Windows_NT) HOST_DISTRO=windows   ;;
+    MSYS*)      HOST_SYSTEM=msys      ;;
+    MINGW*)     HOST_SYSTEM=mingw     ;;
+    CYGWIN*)    HOST_SYSTEM=cygwin    ;;
+    Windows_NT) HOST_SYSTEM=windows   ;;
 
-    NetBSD)     HOST_DISTRO=netbsd    ;;
-    FreeBSD)    HOST_DISTRO=freebsd   ;;
+    NetBSD)     HOST_SYSTEM=netbsd    ;;
+    FreeBSD)    HOST_SYSTEM=freebsd   ;;
 
-    illumos)    HOST_DISTRO=illumos   ;;
-    DragonFly)  HOST_DISTRO=dragonfly ;;
+    illumos)    HOST_SYSTEM=illumos   ;;
+    DragonFly)  HOST_SYSTEM=dragonfly ;;
   esac
 
-  eval "function @zeta:host:is-${HOST_DISTRO}() { true; }"
+  eval "function @zeta:host:is-${HOST_SYSTEM}() { true; }"
 
-  if [[ "${HOST_DISTRO}" == "netbsd" || "${HOST_DISTRO}" == "freebsd" ]]; then
-    function @zeta:host:is-bsd() { true; }
+  if [[ "${HOST_SYSTEM}" == "netbsd" || "${HOST_SYSTEM}" == "freebsd" ]]; then
+    HOST_SYSTEM=bsd; function @zeta:host:is-bsd() { true; }
   fi
 
-  case "${HOST_DISTRO}" in
+  case "${HOST_SYSTEM}" in
     msys|mingw|cygwin)
       function @zeta:host:is-windows() { true; }
-      HOST_DISTRO=windows; HOST_OS_ABI=${HOST_DISTRO}
+      HOST_OS_ABI=${HOST_SYSTEM}; HOST_SYSTEM=windows
     ;;
   esac
 
-  if @zeta:host:is-linux && @zeta:xsh:has-cmd lsb_release; then
-    local linuxDistroName=$(lsb_release -is)
-    case "${linuxDistroName}" in
-        Arch) HOST_DISTRO=arch   ;;
-      Debian) HOST_DISTRO=debian ;;
-      Ubuntu) HOST_DISTRO=ubuntu ;;
-    esac
+  if @zeta:host:is-linux; then
+    @zeta:xsh:has-cmd lsb_release && {
+      local LinuxDistro="$(lsb_release -is)"
+      if [[ -n "${ZSH_VERSION}" ]]; then
+        eval 'LinuxDistro="${LinuxDistro:l}"' # 大写转小写
+      elif [[ -n "${BASH_VERSION}" ]]; then
+        eval 'LinuxDistro="${LinuxDistro@L}"' # 大写转小写
+      fi
+      # Linux 发行版 function @zeta:host:is-arch()  { true; }
+      eval "function @zeta:host:is-${LinuxDistro}() { true; }"
+    }
 
-    # Linux 发行版 function @zeta:host:is-arch() { true; }
-    eval "function @zeta:host:is-${HOST_DISTRO}() { true; }"
-
-    # https://musl.libc.org
+    HOST_OS_ABI='gnu'; # https://musl.libc.org
     ldd --version 2>&1 | grep -q 'musl' && HOST_OS_ABI="musl"
 
     # ELF 可执行文件格式 https://man.archlinux.org/man/elf.5.en
@@ -163,9 +164,9 @@ function @zeta:xsh:host-triplet() {
     # 龙架构 https://www.loongson.cn/system/loongarch
     loongarch*)                     HOST_CPU_ID=lsa${_xinfo_}   ;;
     # https://developer.arm.com/architectures
-    xscale|arm*|armv*l|aarch*)      HOST_CPU_ID=arm${_xinfo_}   ;;
+    arm*|aarch*|xscale)             HOST_CPU_ID=arm${_xinfo_}   ;;
   esac
-}; @zeta:xsh:host-triplet; unset -f @zeta:xsh:host-triplet
+}; @zeta:host:triplet; unset -f @zeta:host:triplet
 
 # $(uname | tr '[:upper:]' '[:lower:]')
 # $(uname -s) -> WindowsNT, Darwin, Linux, FreeBSD, SunOS
@@ -192,14 +193,14 @@ function @zeta:xsh:which-workshell() {
 # https://doc.rust-lang.org/nightly/rustc/platform-support.html
 
 # 处理器-发行商-操作系统
-#   HOST_CPU_ID = x86_64, i386, arm, thumb, mips
-#   HOST_DISTRO = none, windows, macos, linux, android
+#   HOST_CPU_ID = x86, x64, arm, mips, thumb
+#   HOST_SYSTEM = windows, macos, linux, android, bsd
 #                 arch, debian, ubuntu, freebsd, netbsd
 #   HOST_OS_ABI = gnu, musl, msvc, mysy, cygwin, mingw
 function host-triplet() {
   if [[ -n "${HOST_OS_ABI}" ]]; then
-    echo "${HOST_CPU_ID}-${HOST_DISTRO}-${HOST_OS_ABI}"
+    echo "${HOST_CPU_ID}-${HOST_SYSTEM}-${HOST_OS_ABI}"
   else
-    echo "${HOST_CPU_ID}-${HOST_DISTRO}"
+    echo "${HOST_CPU_ID}-${HOST_SYSTEM}"
   fi
 }
