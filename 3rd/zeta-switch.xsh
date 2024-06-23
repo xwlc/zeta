@@ -183,7 +183,8 @@ function @zeta:3rd:usage-help() {
   echo
   for app in ${_PKGS_[@]}; do
     for version in $(@zeta:3rd:get-pkg-version ${app}); do
-      printf "-> $(@D9 zeta-switch) $(@G3 %-5s) $(@Y3 ${version})\n" "${app}"
+      printf -v app "%-5s" "${app}"
+      echo "-> $(@D9 zeta-switch) $(@G3 "${app}") $(@Y3 ${version})"
     done
   done
   echo
@@ -242,12 +243,17 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
   sched +1 compdef @zeta:comp:zeta-switch zeta-switch
 elif [[ -n "${BASH_VERSION:-}" ]]; then
   function @zeta:comp:zeta-switch() {
-    local -a apps=( reset  cmake  java  node  rust  go  nim )
-    if [[ "zeta-switch" == "$3" ]]; then
-      COMPREPLY=($(compgen -W "${apps[*]}" -- "$2"))
-    else
-      COMPREPLY=($(compgen -W "reset $(@zeta:3rd:get-pkg-version "$3")" -- "$2"))
-    fi
+    # $1 待补全命令, 等同于 ${COMP_WORDS[0]}
+    # $2 待补全参数, 等同于 ${COMP_WORDS[${COMP_CWORD}]}
+    # $3 前一个参数, 等同于 ${COMP_WORDS[${COMP_CWORD}-1]}
+    # 按空格分隔数组 COMP_WORDS, 最后输入词索引 COMP_CWORD
+    [[ ${COMP_CWORD} -eq 3 ]] && return # 最多 2 个参数
+    local -a _apps_=( cmake  java  node  rust  go  nim )
+    case "$3" in
+      zeta-switch) COMPREPLY=( $(compgen -W "reset ${_apps_[*]}" -- "$2") ) ;;
+            reset) COMPREPLY=( $(compgen -W "${_apps_[*]}" -- "$2") ) ;;
+      *) COMPREPLY=( $(compgen -W "$(@zeta:3rd:get-pkg-version "$3")" -- "$2") ) ;;
+    esac
   }
   complete -o nosort -F @zeta:comp:zeta-switch zeta-switch
 fi
