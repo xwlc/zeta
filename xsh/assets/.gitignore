@@ -1,4 +1,2 @@
-# Ignore Everything
-*
-# Except .gitignore
-!.gitignore
+*history*
+*compdump*

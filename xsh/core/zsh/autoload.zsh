@@ -3,12 +3,9 @@
 # Created By: Charlie WONG 2023-04-08T13:47:32+08:00 Asia/Shanghai
 # Repository: https://github.com/xwlc/zeta
 
-# NOTE 默认补全脚本位置
-# - /usr/share/zsh/*
-# - /usr/local/share/zsh/site-functions/*
-
-if [[ -d  "${ZETA_DIR}/3rd/bin/comps/zsh" ]]; then
-  fpath=( "${ZETA_DIR}/3rd/bin/comps/zsh" ${fpath[@]} )
+# NOTE 默认补全脚本位置 /usr/share/zsh/* 和 /usr/local/share/zsh/*
+if [[ -d  "${ZETA_DIR}/xsh/assets/comps/zsh" ]]; then
+  fpath=( "${ZETA_DIR}/xsh/assets/comps/zsh" ${fpath[@]} )
 fi
 
 # autoload -Uz hello
