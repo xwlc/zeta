@@ -56,6 +56,7 @@
   * https://wiki.archlinux.org/title/Dotfiles
   * https://github.com/webpro/awesome-dotfiles
 
+- https://man.archlinux.org/man/manpath.5
 - https://github.com/durgeshsamariya/awesome-github-profile-readme-templates
 - 首次运行 `sudo` 成功后创建 `~/.sudo_as_admin_successful` 文件, `man sudo_root`
 
