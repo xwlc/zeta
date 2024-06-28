@@ -1,11 +1,10 @@
 #!/usr/bin/bash
 
 # 检查 3rd/bin/* 应用是否有新版本
-# https://github.com/ibraheemdev/modern-unix
-
-THIS_FNAME="$(basename "$0")" # 当前文件名
-THIS_DIR="$(realpath "${0%/*}")" # 当前目录
-[[ "$0" == "${THIS_FNAME}" ]] && THIS_DIR="${PWD}"
+THIS_AFP="$(realpath "${0}")"        # 当前文件绝对路径(含名)
+THIS_FNO="$(basename "${THIS_AFP}")" # 仅包含当前文件的文件名
+THIS_DIR="$(dirname  "${THIS_AFP}")" # 当前文件所在的绝对路径
+# printf "[${THIS_AFP}]\n[${THIS_DIR}] [${THIS_FNO}]\n"; exit
 
 source "${THIS_DIR}/../xsh/colors.xsh"
 function has-cmd() { command -v "$1" > /dev/null; }
