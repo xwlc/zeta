@@ -77,7 +77,7 @@ function @zeta:xsh:emsg() {
 
 function @zeta:xsh:notes() {
   [[ $# -eq 0 || -z "$1" ]] && return # 命令浅黄(彩色参数)
-  local _cmd_=$1; shift; @rainbow "\e[93m${_cmd_}\e[00m" $@
+  local _cmd_=$1; shift; @rainbow "\e[90m${_cmd_}\e[00m" $@
 }
 
 ##################################

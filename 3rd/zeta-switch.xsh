@@ -95,18 +95,18 @@ function zman() {
     *)
       echo; @zeta:xsh:notes zman '<C|R|J>' '<1-8>' '<Name>'; echo
       [[ -n "${cmakeMAN}" ]] && {
-        echo "$(@G3 cmake) $(@D9 'Manual Pages')"
+        echo "=> $(@R3 cmake)"
         command ls "${cmakeMAN}/man1/"
         command ls "${cmakeMAN}/man7/"
         echo
       }
       [[ -n "${rustMAN}" ]] && {
-        echo "$(@G3 rust) $(@D9 'Manual Pages')"
+        echo "=> $(@R3 rust)"
         command ls "${rustMAN}/man1/"
         echo
       }
       [[ -n "${javaMAN}" ]] && {
-        echo "$(@G3 java) $(@D9 'Manual Pages')"
+        echo "=> $(@R3 java)"
         command ls "${javaMAN}/man1/"
         echo
       }

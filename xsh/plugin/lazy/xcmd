@@ -5,15 +5,14 @@
 
 # 调用 etc/shell/bin 目录下脚本, 如 `xcmd date-time`
 function xcmd() {
-  [[ $# -eq 0 ]] && return
+  [[ $# -eq 0 ]] && return 255
 
   local sf="${ZETA_DIR}/xsh/bin/$1"; shift
   local xcolors="${ZETA_DIR}/xsh/colors.xsh"
 
-  [[ ! -f "${sf}" ]] && {
-    echo "$(@R3 ${sf}) script file do NOT exists."
-    return 255
-  } >&2
+  if [[ ! -f "${sf}" ]]; then
+    @zeta:xsh:emsg "do not exist $(@D9 ${sf}) script file."; return 255
+  fi
 
   env XCOLORS="${xcolors}"  "${sf}"  "$@"
 }
