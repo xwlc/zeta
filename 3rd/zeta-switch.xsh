@@ -136,9 +136,11 @@ function @zeta:3rd:get-pkg-version() {
 function @zeta:3rd:create-links() {
   local sym="${ZETA_DIR}/3rd/pick/$1"
   local app="${ZETA_DIR}/3rd/vendor/$2"
-  if [[ -f "${app}" || -h "${app}" ]]; then
+  [[ -h "${app}" ]] && app="$(realpath "${app}")"
+  if [[ -f "${app}" ]]; then
     ln -sTf "${app}" "${sym}" # -s 符号链接 -f 若已存在则删除后重建
-    printf "Create $(@D9 '3rd/pick/')$(@G3 "%-12s") $(@D9 '->') $(@Y3 "${app}")\n" "$1"
+    printf "Create $(@D9 '3rd/pick/')$(@G3 "%-12s") " "$1"
+    echo "$(@D9 '->') $(@Y3 "${app}")"
   fi
 }
 
@@ -180,7 +182,7 @@ function @zeta:3rd:zeta-switch() {
 
 function @zeta:3rd:usage-help() {
   local _PKGS_=( cmake  java  node  rust  go  nim ) app version
-  echo
+  echo; echo "-> $(@D9 zeta-switch) $(@R3 reset) $(@G3 PKG)"
   for app in ${_PKGS_[@]}; do
     for version in $(@zeta:3rd:get-pkg-version ${app}); do
       printf -v app "%-5s" "${app}"
