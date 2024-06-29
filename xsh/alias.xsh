@@ -256,16 +256,24 @@ alias ls-alt-selections="update-alternatives --get-selections"
 alias ls-disk-layout='lsblk -o NAME,FSTYPE,FSSIZE,FSUSE%,FSUSED,MOUNTPOINT,LABEL,UUID,PARTLABEL,PARTUUID'
 alias ls-disk-block-size='stat -fc %s .' # 显示磁盘 Block Size 字节
 
-# ISO-8601 格式时间标签
+# ISO-8601 后缀 Z 表示 UTC 时间, Z 表示 Zero, 即 UTC 时间
+# UTC Time Now        https://www.utctime.net
+# ISO-8601 时标       https://www.timestamp-converter.com
+# ISO-8601 时区地图   https://iso8601converter.com
+# 时间格式转换工具    https://dencode.com/en/date/iso8601
+# Time Zone 简写列表  https://www.timeanddate.com/time/zones
+# 时间格式可视化对比  https://ijmacd.github.io/rfc3339-iso8601
+
+# ISO-8601 格式时间(本地时 %z 标准时 %Z)
 # -> date +'%F %T %z'              date +'%FT%T%Z'
 # -> date +'%Y-%m-%d %H:%M:%S %z'  date +'%Y-%m-%dT%H:%M:%S%Z'
 @zeta:xsh:no-cmd now && alias now=timestamp-iso-8601-now
 function timestamp-iso-8601-now() {
-  local _fmt_=$1 _utc_
-  case "$1$2" in
+  local _fmt_=$1 _utc_ # CST 中国标准时 China Standard Time
+  case "$1$2" in       # UTC 世界协调时 Universal Time Coordinated
     *-u|*--utc|*--universal) _utc_='--utc' ;;
   esac
-  case "${_fmt_}" in
+  case "${_fmt_}" in # --rfc-3339=seconds, --rfc-email
     d|D) date --iso-8601         ${_utc_} ;; # 2023-12-29
     h|H) date --iso-8601=hours   ${_utc_} ;; # 2023-12-29T05+08:00
     m|M) date --iso-8601=minutes ${_utc_} ;; # 2023-12-29T05:22+08:00
