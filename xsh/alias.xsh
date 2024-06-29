@@ -293,6 +293,31 @@ function desktop-alert-when-done() {
   notify-send --urgency=low --app-name "${title}" --icon "${zSVG}" "${summary}"
 }
 
+function extract() {
+  if [[ $# -eq 0 || -z "$1" ]]; then
+    @zeta:xsh:notes extract path/to/tarball; return
+  fi
+  [[ ! -f "$1" ]] && return 1
+  # https://unix.stackexchange.com/questions/429169
+  case "$1" in
+    *.7z)        7z x       "$1" ;;
+    *.xz)        unxz       "$1" ;;
+    *.gz)        gunzip     "$1" ;;
+    *.zip)       unzip      "$1" ;;
+    *.bz2)       bunzip2    "$1" ;;
+    *.tar)       tar xvf    "$1" ;;
+    *.tgz)       tar xvzf   "$1" ;;
+    *.tbz2)      tar xvjf   "$1" ;;
+    *.tar.gz)    tar xvzf   "$1" ;;
+    *.tar.xz)    tar xvJf   "$1" ;;
+    *.tar.bz2)   tar xvjf   "$1" ;;
+    *.rar)       unrar x    "$1" ;;
+    *.Z)         uncompress "$1" ;;
+    *.exe)       cabextract "$1" ;;
+    *) echo "[$1]: unknown compression format"; return 1 ;;
+  esac
+}
+
 alias to-upper1='@zeta:xsh:to-upper1'
 alias to-uppera='@zeta:xsh:to-uppera'
 alias to-lowera='@zeta:xsh:to-lowera'
