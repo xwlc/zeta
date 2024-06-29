@@ -373,12 +373,12 @@ aliases = "!git config --get-regexp '^alias\\.' | cut -c 7- | sed 's/ / = /'"
 # SHA224  哈希值 28 字节   SHA512    哈希值 64 字节
 init-repo1 = "!f() { \
     git init --object-format=sha1; \
-    git commit --allow-empty --message 'init-repo-first-none-commit'; \
+    git commit --allow-empty --message 'repo: first initial commit'; \
   }; f"
 
 init-repo2 = "!f() { \
     git init --object-format=sha256; \
-    git commit --allow-empty --message 'init-repo-first-none-commit'; \
+    git commit --allow-empty --message 'repo: first initial commit'; \
   }; f"
 
 # list all the branches, local & remote both included
