@@ -106,17 +106,17 @@ if [[ -n "${ZETA_ENABLE_STARTUP_LOG}" ]]; then
   exec  2>&3  3>&-
 fi
 
-alias lsz-once='ls-sh-func-names | grep once±'
-alias lsz-bugs='ls-sh-func-names | grep bugs±'
-alias lsz-todo='ls-sh-func-names | grep todo±'
-
 alias lsz-vars='ls-sh-vars | grep -i zeta'     # 环境变量
 alias lsz-func='ls-sh-func-names | grep zeta:' # 函数列表
 
-alias lsz-util='ls-sh-func-names | grep util:' # 通用函数
-alias lsz-auto='ls-sh-func-names | grep auto:' # 自动加载
-alias lsz-lazy='ls-sh-func-names | grep lazy:' # 延迟加载
+alias lsz-util='ls-sh-func-names | grep util:' # 通用函数 @zeta:util:
+alias lsz-auto='ls-sh-func-names | grep auto:' # 自动加载 @zeta:auto:
+alias lsz-lazy='ls-sh-func-names | grep lazy:' # 延迟加载 @zeta:lazy: 模块名 PKG
 
-alias lsz-comp='ls-sh-func-names | grep comp:' # 命令补全
-alias lsz-hook='ls-sh-func-names | grep hook:' # 回调函数
-alias lsz-priv='ls-sh-func-names | grep priv:' # 内部函数
+alias lsz-comp='ls-sh-func-names | grep comp:' # 补全  @zeta:comp:  «PKG»comp:
+alias lsz-hook='ls-sh-func-names | grep hook:' # 回调  @zeta:hook:  «PKG»hook:
+alias lsz-priv='ls-sh-func-names | grep priv:' # 内部  @zeta:priv:  «PKG»priv:
+
+alias lsz-once='ls-sh-func-names | grep once±' # @zeta:once±  «PKG»once±
+alias lsz-bugs='ls-sh-func-names | grep bugs±' # @zeta:bugs±  «PKG»bugs±
+alias lsz-todo='ls-sh-func-names | grep todo±' # @zeta:todo±  «PKG»todo±
