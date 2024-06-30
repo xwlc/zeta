@@ -18,8 +18,8 @@ fi
 
 # 终端显示 NodeJS 安装位置 $ npm config get prefix
 if @zeta:xsh:has-cmd node; then
-  NODE_PATH="$(command -v node)"
-  NODE_PATH="$(realpath -eq "${NODE_PATH}")"
+  NODE_PATH="$(command -v node)" # NodeJS 模块查找路径
+  NODE_PATH="$(realpath -eq "${NODE_PATH}")" # 冒号分割列表
   export NODE_PATH="${NODE_PATH%/bin/node}/lib/node_modules"
 fi
 # 中科 https://mirrors.ustc.edu.cn/help/node.html

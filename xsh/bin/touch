@@ -30,11 +30,19 @@ function is-inside-git-work-tree() {
 # https://spdx.dev/learn/handling-license-info
 # https://www.kernel.org/doc/html/latest/process/license-rules.html
 
-[[ $# -ne 1 || -z "$1" ]] && exit 234 # => $1 表示文件名
-NewFile="${1@L}" # 文件名转换为小写字母
+[[ $# -ne 1 || -z "$1" ]] && exit 234
 UserName=TODO; UserEmail=TODO; RepoURL=TODO
+[[ -f "${PWD}/$1" ]] && exit 234 # 文件已存在
 
-case "${NewFile}" in
+NewFileFullPath="${PWD}/$1"
+SubPath="${1%/*}"; NewFileNameOnly="${1#*/}"
+NewFileNameOnly="${NewFileNameOnly@L}" # 小写匹配
+
+if [[ -n "${SubPath}" && "$1" != "${SubPath}" ]]; then
+  [[ ! -d "${PWD}/${SubPath}" ]] && mkdir -p "${PWD}/${SubPath}"
+fi
+
+case "${NewFileNameOnly}" in
   *.html) isHTML=1 ;;
   *.css|*.scss) isCSS=1 ;;
   *.c|*.cc|*.cpp|*.cxx|*.h|*.hpp|*.hxx) isC=1 ;;
@@ -43,6 +51,10 @@ case "${NewFile}" in
   *.js)  comment='//'; shebang="#!/usr/bin/env node" ;;
   *.py)  comment='#' ; shebang="#!/usr/bin/env python3" ;;
 esac
+
+[[ "${PWD}/${SubPath}" =~ "${THIS_DIR%/bin}"* ]] && {
+  NEW_XCMD_SUBCMD=1; comment='#' ; shebang="#!/usr/bin/env bash"
+}
 
 year=$(date +%Y)
 timestamp="$(date --iso-8601=seconds)"
@@ -66,8 +78,33 @@ elif [[ "${RepoURL}" =~ ^"git@gitlib.com:".* ]]; then
   RepoURL="https://gitlib.com/${RepoURL#git@gitlib.com:}"
 fi
 
+if (( NEW_XCMD_SUBCMD == 1 )); then
+  cat > "${NewFileFullPath}" <<EOF
+${shebang}
+${comment} SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+${comment} SPDX-FileCopyrightText: ${year} ${UserName} <${UserEmail}>
+${comment} Created By: ${UserName} ${timestamp} ${timezone}
+${comment} Repository: ${RepoURL}
+
+THIS_AFP="\$(realpath "\${0}")"        # 当前文件绝对路径(含名)
+THIS_FNO="\$(basename "\${THIS_AFP}")" # 仅包含当前文件的文件名
+THIS_DIR="\$(dirname  "\${THIS_AFP}")" # 当前文件所在的绝对路径
+
+[[ -z "\${XCOLORS}" || ! -f "\${XCOLORS}" ]] && exit 255
+source "\${XCOLORS}" # 加载终端彩色消息输出显示的函数库
+
+function has-cmd() {  command -v "\$1" > /dev/null; }
+function no-cmd() { ! command -v "\$1" > /dev/null; }
+
+function is-inside-git-work-tree() {
+  git rev-parse --is-inside-work-tree &> /dev/null
+}
+EOF
+  chmod a+x "${NewFileFullPath}"; exit
+fi
+
 function touch-script() {
-  cat > "${PWD}/${NewFile}" <<EOF
+  cat > "${NewFileFullPath}" <<EOF
 ${shebang}
 ${comment} SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
 ${comment} SPDX-FileCopyrightText: ${year} ${UserName} <${UserEmail}>
@@ -77,7 +114,7 @@ EOF
 }
 
 function touch-c-src() {
-  cat > "${PWD}/${NewFile}" <<EOF
+  cat > "${NewFileFullPath}" <<EOF
 // SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
 // SPDX-FileCopyrightText: ${year} ${UserName} <${UserEmail}>
 // Created By: ${UserName} ${timestamp} ${timezone}
@@ -86,12 +123,12 @@ EOF
 }
 
 function touch-c-hdr() {
-  if [[ -n "$(echo "${NewFile}" | sed 's#[a-zA-Z0-9._-]##g')" ]]; then
+  if [[ -n "$(echo "${NewFileNameOnly}" | sed 's#[a-zA-Z0-9._-]##g')" ]]; then
     touch-c-src ; return
   fi
   # 头文件名有效字符 => 大小写字母, 点, 下划线, 减号
   local headerID="$(echo ${NewFile@U} | sed 's#[.-]#_#g')"
-  cat > "${PWD}/${NewFile}" <<EOF
+  cat > "${NewFileFullPath}" <<EOF
 #ifndef ${headerID}
 #define ${headerID}
 // SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
@@ -104,7 +141,7 @@ EOF
 }
 
 function touch-css() {
-  cat > "${PWD}/${NewFile}" <<EOF
+  cat > "${NewFileFullPath}" <<EOF
 /* SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
  * SPDX-FileCopyrightText: ${year} ${UserName} <${UserEmail}>
  * Created By: ${UserName} ${timestamp} ${timezone}
@@ -115,12 +152,12 @@ body { /* CSS Units -> https://www.w3schools.com/cssref/css_units.php */
   width:  100vw; /* vw  Relative to 1% of 宽度 of 浏览器窗口 viewport 的大小 */
   height: 100vh; /* vh  Relative to 1% of 高度 of 浏览器窗口 viewport 的大小 */
   background-color: lightgray; background-image: url("path/to/background.jpg");
-} /* <井>仅可用一次 id=   <点>可引用多次 class= */
+} /* .XXX 对应 class 可多次引用, #XXX 对应 id 仅可用一次 */
 EOF
 }
 
 function touch-html() {
-  cat > "${PWD}/${NewFile}" <<EOF
+  cat > "${NewFileFullPath}" <<EOF
 <!--
 SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
 SPDX-FileCopyrightText: ${year} ${UserName} <${UserEmail}>
@@ -130,7 +167,7 @@ Repository: ${RepoURL}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="author" content="Charles Wong">
   <meta name="description" content="简要内容描述">
   <meta name="keywords" content="HTML,CSS,XML,JavaScript,JS">
@@ -154,7 +191,7 @@ EOF
 if [[ -n "${shebang}" && -n "${comment}" ]]; then
   touch-script
 elif (( isC == 1 )); then
-  case "${NewFile}" in
+  case "${NewFileNameOnly}" in
     *.h|*.hpp|*.hxx)      touch-c-hdr ;;
     *.c|*.cpp|*.cxx|*.cc) touch-c-src ;;
   esac
@@ -163,5 +200,5 @@ elif (( isHTML == 1 )); then
 elif (( isCSS == 1 )); then
   touch-css
 else
-  touch "${PWD}/${NewFile}"
+  touch "${NewFileFullPath}"
 fi
