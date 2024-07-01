@@ -50,7 +50,7 @@ source "${ZETA_DIR}/xsh/core/lazy.xsh"
 @zeta:lazy:register color-pipe
 @zeta:lazy:register cursor-style
 @zeta:lazy:register ssh-add-keys
-@zeta:lazy:register xcmd $(command ls "${ZETA_DIR}/xsh/bin")
+@zeta:lazy:register xcmd $(command ls --hide='*.log' "${ZETA_DIR}/xsh/bin")
 [[ -n "${BASH_VERSION:-}" ]] && @zeta:lazy:register repeat
 
 # Bash/Zsh 的位置参数解析
