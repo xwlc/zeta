@@ -146,9 +146,9 @@ function show-home-symlink() {
 
   if [[ -h "${HOME}/${symlink}" ]]; then
     linksrc="$(readlink "${HOME}/${symlink}")"
-    printf "$(@R3 "${HOME}")/$(@G3 ${symlink}) -> $(@Y3 "${linksrc}")\n"
+    printf "$(@D9 "${HOME}/")$(@G3 ${symlink}) -> $(@Y3 "${linksrc}")\n"
   else
-    echo "$(@R3 "${HOME}")/$(@D9 ${symlink})"
+    echo "$(@D9 "${HOME}/")$(@D9 ${symlink})"
   fi
 }
 
