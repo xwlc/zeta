@@ -54,6 +54,12 @@ fi
 # 中科 https://mirrors.ustc.edu.cn/help/crates.io-index.html
 # 清华 https://mirrors.tuna.tsinghua.edu.cn/help/crates.io-index
 
+if @zeta:xsh:has-cmd java; then
+  JAVA_HOME="$(command -v java)"
+  JAVA_HOME="$(realpath -eq "${JAVA_HOME}")"
+  export JAVA_HOME="${JAVA_HOME%/bin/java}"
+fi
+
 function zman() {
   local cmakeMAN  nodeMAN  rustMAN  javaMAN  xMAN
 
