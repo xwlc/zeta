@@ -3,7 +3,7 @@ CursorShape=1
 
 [General]
 InvertSelectionColors=false
-LocalTabTitleFormat=%n: %u
+LocalTabTitleFormat=%n: %d
 Name=Charles Wong
 Parent=FALLBACK/
 RemoteTabTitleFormat=%n: %u
