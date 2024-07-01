@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+THIS_AFP="$(realpath "${0}")"        # 当前文件绝对路径(含名)
+THIS_FNO="$(basename "${THIS_AFP}")" # 仅包含当前文件的文件名
+THIS_DIR="$(dirname  "${THIS_AFP}")" # 当前文件所在的绝对路径
+
+[[ -z "${XCOLORS}" || ! -f "${XCOLORS}" ]] && exit 255
+source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
+
+echo
+if [[ $# -ne 0 ]]; then
+  FilePermission=0444; DirsPermission=0555 # r=4, w=2, x=1
+  echo -n "$(@D9 文件权限) => $(@G3 'r--'),$(@B3 'r--'),$(@Y3 'r--')"
+  echo "   $(@D9 目录权限) => $(@G3 'r-x'),$(@B3 'r-x'),$(@Y3 'r-x')"
+else
+  FilePermission=0644; DirsPermission=0755
+  echo -n "$(@D9 文件权限) => $(@G3 'rw-'),$(@B3 'r--'),$(@Y3 'r--')"
+  echo "   $(@D9 目录权限) => $(@G3 'rwx'),$(@B3 'r-x'),$(@Y3 'r-x')"
+fi
+
+echo
+echo "### Press $(@R3 Enter) to confirm and others to $(@R3 STOP) ###"
+read ok_confirm; [[ -n "${ok_confirm}" ]] && exit
+
+IFS='␟'
+for file in $(find "${PWD}" -type f -print0 | sed -e 's/\x0/␟/g'); do
+  chmod   ${FilePermission}   "${file}"
+done
+
+for folder in $(find "${PWD}" -type d -print0 | sed -e 's/\x0/␟/g'); do
+  chmod   ${DirsPermission}   "${folder}"
+done
