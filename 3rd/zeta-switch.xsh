@@ -257,14 +257,14 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
     local -A opt_args
     local context state state_descr line
     local -a _apps_=( cmake  java  node  rust  go  nim ) _keys_
-    function @zeta:once±zcomps() {
+    function once±zcomp1() {
       _keys_=( reset update-tools ${_apps_[@]} )
-      _describe 'command' _keys_
+      _describe 'command' _keys_; unset -f once±zcomp1
     }
     # 语法 N:Message:Action 表示第 N 个参数执行 Action 行为
     # NOTE Action 可以是普通的 Shell 函数调用
     # NOTE Action 语法 ->XXX 表示将 state 设置为 XXX
-    _arguments '1:what:@zeta:once±zcomps' '2:next:->todo'
+    _arguments '1:参数壹:once±zcomp1' '2:参数贰:->todo'
     if [[ "todo" == "${state[1]}" ]]; then
       case "${line[1]}" in
         update-tools) return ;;
@@ -273,7 +273,6 @@ if [[ -n "${ZSH_VERSION:-}" ]]; then
       _keys_=( $(@zeta:3rd:get-pkg-version ${line[1]}) )
       _describe 'command' _keys_
     fi
-    unset -f @zeta:once±zcomps
   }
   # zsh/sched => 延迟 1s 执行, 等待 compinit 完成
   sched +1 compdef @zeta:comp:zeta-switch zeta-switch

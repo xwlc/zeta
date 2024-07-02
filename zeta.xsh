@@ -117,6 +117,6 @@ alias lsz-comp='ls-sh-func-names | grep comp:' # 补全  @zeta:comp:  «PKG»com
 alias lsz-hook='ls-sh-func-names | grep hook:' # 回调  @zeta:hook:  «PKG»hook:
 alias lsz-priv='ls-sh-func-names | grep priv:' # 内部  @zeta:priv:  «PKG»priv:
 
-alias lsz-once='ls-sh-func-names | grep once±' # @zeta:once±  «PKG»once±
-alias lsz-bugs='ls-sh-func-names | grep bugs±' # @zeta:bugs±  «PKG»bugs±
-alias lsz-todo='ls-sh-func-names | grep todo±' # @zeta:todo±  «PKG»todo±
+alias lsz-bugs='ls-sh-func-names | grep temp±' # 用完清理
+alias lsz-once='ls-sh-func-names | grep once±' # 临时函数
+alias lsz-todo='ls-sh-func-names | grep todo±' #
