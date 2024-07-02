@@ -147,12 +147,24 @@ function touch-css() {
  * Created By: ${UserName} ${timestamp} ${timezone}
  * Repository: ${RepoURL}
  */
+
+/* NOTE 语句 @import 必须位于文件开头的第壹行 */
+@import url("https://fonts.loli.net/css?family=Merienda");
+
+:root {
+  --x-font-family: Merienda, Ubuntu, sans-serif;
+}
+
+* {
+  font-family: var(--x-font-family);
+} /* .XXX 对应 class 可多次引用, #XXX 对应 id 仅可用一次 */
+
 body { /* CSS Units -> https://www.w3schools.com/cssref/css_units.php */
-  margin: 0; padding: 0; display: flex;
+  display: flex; align-items: center; justify-content: center;   /* 居中对齐 */
   width:  100vw; /* vw  Relative to 1% of 宽度 of 浏览器窗口 viewport 的大小 */
   height: 100vh; /* vh  Relative to 1% of 高度 of 浏览器窗口 viewport 的大小 */
   background-color: lightgray; background-image: url("path/to/background.jpg");
-} /* .XXX 对应 class 可多次引用, #XXX 对应 id 仅可用一次 */
+}
 EOF
 }
 
