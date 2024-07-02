@@ -1,0 +1,191 @@
+#!/usr/bin/env bash
+# SPDX-License-Identifier: GPL-3.0-only OR Apache-2.0 OR MIT
+# SPDX-FileCopyrightText: 2024 Charles Wong <charlie-wong@outlook.com>
+# Created By: Charles Wong 2024-05-22T07:28:46+08:00 Asia/Shanghai
+# Repository: https://github.com/xwlc/zeta
+
+THIS_AFP="$(realpath "${0}")"        # 当前文件绝对路径(含名)
+THIS_FNO="$(basename "${THIS_AFP}")" # 仅包含当前文件的文件名
+THIS_DIR="$(dirname  "${THIS_AFP}")" # 当前文件所在的绝对路径
+
+ZETA_XSH_DIR="$(realpath "${THIS_DIR}/../../../xsh")"
+source "${ZETA_XSH_DIR}/colors.xsh"
+
+function has-cmd() {  command -v "$1" > /dev/null; }
+function no-cmd() { ! command -v "$1" > /dev/null; }
+
+# https://ping.ceo/ping/github.com
+# https://ping.chinaz.com/github.com
+# https://raw.hellogithub.com/hosts
+
+declare -A IpCountryName=(
+  "20.200"  "韩国"      "20.29"    "美国"    "20.87"   "南非"
+  "20.205"  "新加坡"    "140.82"   "美国"    "20.201"  "巴西"
+  "20.27"   "日本"      "185.199"  "美国"
+  "20.207"  "印度"
+  "20.199"  "法国"      "20.248"  "澳大利亚"
+  "4.208"   "爱尔兰"    "20.175"  "加拿大"
+  "20.26"   "英格兰"    "20.233"  "阿联酋"
+)
+
+# https://api.github.com/meta
+# CIDR 格式区间计算 https://tool.chinaz.com/tools/subnetmask
+# https://docs.github.com/articles/about-githubs-ip-addresses
+GithubIPs_WebGit=( # Web + Git
+  "20.201.28.151"     "20.205.243.166"    "20.87.245.0"       "20.248.137.48"
+  "20.207.73.82"      "20.27.177.113"     "20.200.245.247"    "20.175.192.147"
+  "20.233.83.145"     "20.29.134.23"      "20.199.39.232"     "4.208.26.197"
+  "20.26.156.215"
+)
+GithubIPs_API=( # API
+  "20.201.28.148"     "20.205.243.168"    "20.87.245.6"       "20.248.137.49"
+  "20.207.73.85"      "20.27.177.116"     "20.200.245.245"    "20.175.192.149"
+  "20.233.83.146"     "20.29.134.17"      "20.199.39.228"     "4.208.26.200"
+  "20.26.156.210"
+)
+GithubIPs_Git=( # git
+  "20.201.28.152"     "20.205.243.160"    "20.87.245.4"       "20.248.137.50"
+  "20.207.73.83"      "20.27.177.118"     "20.200.245.248"    "20.175.192.146"
+  "20.233.83.149"     "20.29.134.19"      "20.199.39.227"     "4.208.26.198"
+  "20.26.156.214"
+)
+GithubIPs_Packages=( # packages
+  "140.82.121.33"     "140.82.121.34"     "140.82.113.33"     "140.82.113.34"
+  "140.82.112.33"     "140.82.112.34"     "140.82.114.33"     "140.82.114.34"
+  "192.30.255.164"    "192.30.255.165"    "20.201.28.144"     "20.205.243.164"
+  "20.87.245.1"       "20.248.137.52"     "20.207.73.86"      "20.27.177.117"
+  "20.200.245.241"    "20.175.192.150"    "20.233.83.147"     "20.29.134.18"
+  "20.199.39.231"     "4.208.26.196"      "20.26.156.211"
+)
+GithubIPs_Pages=( # pages
+  "192.30.252.153"    "192.30.252.154"    "185.199.108.153"   "185.199.109.153"
+  "185.199.110.153"   "185.199.111.153"
+)
+GithubIPs_CIDR=( # hooks, web, api, git
+#  192.30.252.0/22   开始 192.30.252.1    结束 192.30.255.254
+#  185.199.108.0/22  开始 185.199.108.1   结束 185.199.111.254
+  "185.199.108.133"
+  "185.199.109.153"
+  "185.199.110.154"
+  "185.199.111.133"
+#  140.82.112.0/20   开始 140.82.112.1    结束 140.82.127.254
+  "140.82.112.3"       "140.82.112.10"        "140.82.112.21"
+  "140.82.113.4"       "140.82.113.21"        "140.82.113.22"
+  "140.82.113.26"
+  "140.82.114.4"       "140.82.114.5"         "140.82.114.17"
+  "140.82.114.25"
+  "140.82.116.4"
+#  143.55.64.0/20    开始 143.55.64.1     结束 143.55.79.254
+)
+GithubIPs=(
+  ${GithubIPs_CIDR[@]} ${GithubIPs_WebGit[@]}
+)
+
+function padding-chinese() {
+  local maxEnLen=$1  charCntCN=${#2}  padEnLen  data
+  (( padEnLen = maxEnLen - charCntCN*2 ))
+  printf -v data "%${padEnLen}s" " "
+  echo "$2${data}"
+}
+
+function xping() {
+  local xip=$1 xmsg MinAvgMax xloc="$(padding-chinese 9 $2)"
+  printf "$(@D9 PING) $(@R3 '%-15s') $(@D9 "${xloc}") -> " ${xip}
+# fping -4 -c10 -t200  ${xip} # 200 毫秒 = 0.2 秒
+  xmsg="$(ping -4 -q -c10 -i 0.2 ${xip} | tail -n 1)"
+  MinAvgMax="$(echo "${xmsg}" | cut -d= -f2 | cut -d' ' -f2)"
+  local min=$(echo "${MinAvgMax}" | cut -d/ -f1)
+  local avg=$(echo "${MinAvgMax}" | cut -d/ -f2)
+  local max=$(echo "${MinAvgMax}" | cut -d/ -f3)
+  printf "$(@D9 Avg) $(@G3 %-8s) " ${avg}
+  printf "$(@D9 Min) $(@B3 %-8s) " ${min}
+  printf "$(@D9 Max) $(@Y3 %-8s)\n" ${max}
+}
+
+function xping-avg() {
+  local xip=$1 xmsg MinAvgMax
+  xmsg="$(ping -4 -q -c2 -i 0.5 ${xip} | tail -n 1)"
+  MinAvgMax="$(echo "${xmsg}" | cut -d= -f2 | cut -d' ' -f2)"
+  local min=$(echo "${MinAvgMax}" | cut -d/ -f1)
+  local avg=$(echo "${MinAvgMax}" | cut -d/ -f2)
+  local max=$(echo "${MinAvgMax}" | cut -d/ -f3)
+  printf "Avg $(@G3 %-8s) " ${avg}
+  printf "Min $(@B3 %-8s) " ${min}
+  printf "Max $(@Y3 %-8s) " ${max}
+}
+
+function showPingSpeed() {
+  local xlog="${THIS_DIR}/${THIS_FNO}.log"; rm -f "${xlog}"
+  for xIP in ${GithubIPs[*]}; do
+    country="${xIP%.*}"
+    country="${country%.*}"
+    country="${IpCountryName["${country}"]}"
+    [[ -z "${country}" ]] && country=未知
+    xping ${xIP} ${country} | tee -a "${xlog}"
+  done
+  echo "================排序后================"
+  # 依据 Avg 排序(内含终端颜色转义代码)
+  cat "${xlog}" | sort -bn --key 8.8,8
+}
+
+function showIpDomain() {
+  local xlog="${THIS_DIR}/${THIS_FNO}.log"; rm -f "${xlog}"
+  [[ $# -eq 0 ]] && PingTest=1
+
+  for xIP in ${GithubIPs[*]}; do
+    country="${xIP%.*}"
+    country="${country%.*}"
+    country="${IpCountryName["${country}"]}"
+    if [[ -z "${country}" ]]; then
+      country="$(@R3 '未知        ')"
+    else
+      country="$(padding-chinese 12 ${country})"
+      country="$(@D9 "${country}")"
+    fi
+    # --connect-timeout 1 表示 1 秒内无响应则终止 curl 的执行
+    domain="$(curl -qIv --connect-timeout 1 https://${xIP} 2>&1 | grep subject:)"
+    [[ -z "${domain}" ]] && continue
+    domain="$(echo "${domain}" | grep CN=)"
+    [[ -z "${domain}" ]] && continue
+    extras="${domain}"; domain=
+    while true; do # echo abc123 | rev 显示结果 321cba
+      wanted="$(echo "${extras}" | cut -d' ' -f1)"
+      extras="$(echo "${extras}" | cut -d' ' -f2-)"
+      # echo "W[${wanted}] E[${extras}]"
+      [[ "${wanted}" =~ CN=* ]] && {
+        domain="$(echo "${wanted}" | cut -d= -f2)"; break
+      }; [[ -z "${extras}" || "${wanted}" == "${extras}" ]] && break
+    done
+
+    if (( PingTest )); then
+      printf "${country} %-16s %-30s $(@Y3 '%-15s')\n" \
+        "${xIP}" "$(xping-avg ${xIP})" "${domain}" | tee -a "${xlog}"
+    else
+      printf "${country} %-16s $(@Y3 '%-15s')\n" "${xIP}" "${domain}"
+    fi
+  done
+
+  if (( PingTest )); then
+    echo "================排序后================"
+    # 依据 Avg 排序(内含终端颜色转义代码)
+    cat "${xlog}" | sort -bn --key 5.8,6
+  fi
+}
+
+case $# in
+  0) showIpDomain; exit ;;
+  *) showIpDomain NoPing; exit ;;
+esac
+
+### -命令备忘- ###
+
+# 检测 80 ~ 443 端口是否开放
+nc -zv  140.82.114.4  80-443
+
+# 指定域名的 IP 地址
+# -I,--head       查看响应头部   -v,--verbose   显示详细信息
+# -k,--insecure   跳过安全检测   -H,--header    指定请求头部
+curl -Iv https://github.com   ;  curl --head https://github.com
+curl https://github.com --resolve github.com:443:140.82.114.4
+curl -H "Host: github.com" --verbose https://140.82.114.4
+curl -H "Host: github.com" --verbose https://140.82.114.4 -k
