@@ -58,6 +58,8 @@ if @zeta:xsh:has-cmd java; then
   JAVA_HOME="$(command -v java)"
   JAVA_HOME="$(realpath -eq "${JAVA_HOME}")"
   export JAVA_HOME="${JAVA_HOME%/bin/java}"
+  # Android Studio Java Development Kit
+  export STUDIO_JDK="${JAVA_HOME}"
 fi
 
 function zman() {
