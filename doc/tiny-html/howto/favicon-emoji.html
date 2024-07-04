@@ -52,7 +52,7 @@ const favicons = document.querySelector(
   `head > link[rel='icon']`
 );
 
-function faviconTemplate(string, icon) {
+function faviconTemplate(icon) {
   return `
     <svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22>
       <text y=%22.9em%22 font-size=%2290%22>
@@ -64,7 +64,7 @@ function faviconTemplate(string, icon) {
 
 document.querySelectorAll(`.favicon-grid > button`).forEach(btn => {
   btn.addEventListener("click", () => {
-    let emoji = faviconTemplate`${btn.innerText}`;
+    let emoji = faviconTemplate(`${btn.innerText}`);
     console.log(emoji); // new favicon
     favicons.setAttribute(`href`, `data:image/svg+xml,${emoji}`);
   });
