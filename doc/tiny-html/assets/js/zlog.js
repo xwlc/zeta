@@ -12,6 +12,8 @@
 // log() info() warn() error() debug() assert() trace() clear()
 
 class ZLog {
+  static _instance_ = null; // 确保仅创建单个实例
+
   // 静态公共属性
   static ANSI = {
     attrs: {        // 开  关
@@ -265,6 +267,10 @@ class ZLog {
 
   // 初始化构造器
   constructor() {
+    if(ZLog._instance_) {
+      return ZLog._instance_;
+    }
+
     this.mode = {};
     this.ansi = {};
     this.ansi.attrs = {};
@@ -296,6 +302,8 @@ class ZLog {
         this._setDefaultValues(); return colorMsg;
       }
     }
+
+    ZLog._instance_ = this;
   }
 
   trace(enable = true) {
