@@ -1,13 +1,15 @@
 // 参考实现 https://github.com/chalk/chalk
 // 参考实现 https://www.npmmirror.com/package/chalk
-// https://developer.mozilla.org/en-US/docs/Web/API/console
-// log() info() warn() error() debug() assert() trace() clear()
+
 // 浏览器控制台
 //   console.error('报错信息 => 默认红色');
 //   console.log('%c绿色信息', 'color: #529b2e');
 // 浏览器控制台 + 终端
 //   console.log(  '\x1B[32m%s\x1B[0m', '绿色信息');
 //   console.log('\u001B[31m%s\x1B[0m', '红色信息');
+//
+// https://developer.mozilla.org/en-US/docs/Web/API/console
+// log() info() warn() error() debug() assert() trace() clear()
 
 class ZLog {
   // 静态公共属性
@@ -133,15 +135,15 @@ class ZLog {
   }
 
   // 共享原型函数
-  _ansiDefaultValues() {
+  _setDefaultValues() {
+    this.mode.trace = false;
+
     if(ZLog.RTME.supports.nocolor) {
       return true;
     }
 
-    this.ansi.fg = true;
-    this.ansi.bg = false;
-    this.ansi.normal = true;
-    this.ansi.bright = false;
+    this.ansi.fg = true;   this.ansi.normal = true;
+    this.ansi.bg = false;  this.ansi.bright = false;
 
     for(const [key, val] of Object.entries(ZLog.ANSI.attrs)) {
       this.ansi.attrs[key] = false;
@@ -263,17 +265,22 @@ class ZLog {
 
   // 初始化构造器
   constructor() {
+    this.mode = {};
     this.ansi = {};
     this.ansi.attrs = {};
-    this._ansiDefaultValues();
+    this._setDefaultValues();
 
     for(const key of Object.keys(ZLog.ANSI.color.fg)) {
       this[key] = function(msg) {
+        if(this.mode.trace) {
+          console.trace();
+        }
+
         if(ZLog.RTME.supports.nocolor) {
           return msg;
         }
         if(typeof(msg) !== 'string' || !msg ) {
-          this._ansiDefaultValues();
+          this._setDefaultValues();
           return msg;
         }
 
@@ -286,9 +293,18 @@ class ZLog {
           colorIndex = ZLog.ANSI.color.fg[key][variant][0];
         }
         colorMsg = ZLog.CODE.ansiColor(msg, colorIndex, this._attrsCodes());
-        this._ansiDefaultValues(); return colorMsg;
+        this._setDefaultValues(); return colorMsg;
       }
     }
+  }
+
+  trace(enable = true) {
+    if(enable) {
+      this.mode.trace = true;
+    } else {
+      this.mode.trace = false;
+    }
+    return this;
   }
 }
 
@@ -356,6 +372,8 @@ function zlogUsageExamples() {
     outmsg += '[' + msg + '] ';
   }; console.log(outmsg);
 
+  console.log(zlog.trace().blue('显示调用栈: 启用 console.trace() 模式'))
+
   return;
 
   console.log('实例属性')
@@ -369,4 +387,6 @@ function zlogUsageExamples() {
   });
 }
 
-zlogUsageExamples()
+zlogUsageExamples();
+// function(...args) 变长参数函数, args 是数组
+// console.log(...array) 数组元素展开作为函数参数
