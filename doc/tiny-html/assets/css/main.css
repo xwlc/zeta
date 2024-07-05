@@ -56,3 +56,10 @@ button {
   /* https://www.runoob.com/cssref/css3-pr-flex-direction.html */
   display: flex; align-items: center; justify-content: center;
 }
+
+.div.container1 { /* 方式壹: div 内元素<垂直><水平>居中 */
+  display: flex; justify-content: center; align-items: center;
+}
+.div.container2 { /* 方式贰: div 内元素<垂直><水平>居中 */
+  display: grid; place-items: center;
+}
