@@ -74,7 +74,7 @@ fi
 RepoURL="${RepoURL%.git}" # 确保 https 格式
 if [[ "${RepoURL}" =~ ^"git@github.com:".* ]]; then
   RepoURL="https://github.com/${RepoURL#git@github.com:}"
-elif [[ "${RepoURL}" =~ ^"git@gitlib.com:".* ]]; then
+elif [[ "${RepoURL}" =~ ^"git@gitlab.com:".* ]]; then
   RepoURL="https://gitlib.com/${RepoURL#git@gitlib.com:}"
 fi
 
