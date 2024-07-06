@@ -1,1 +1,0 @@
-echo "[nim] Hi there!"
