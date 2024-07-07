@@ -20,13 +20,13 @@ function delete-meta-trash() {
   fi
 }
 
-no-cmd git && exit 1
+no-cmd git && exit 101
 
 # 同时重定向标准输出和标准错误
 # &> /dev/null         Bash/ZSH shortcut
 #  > /dev/null 2>&1    POSIX-compatible shell
 isInsideGitWorkTree="$(git rev-parse --is-inside-work-tree 2> /dev/null)"
-(( $? != 0 )) && { exit 1; } # 非 work-tree 或 bare 仓库
+(( $? != 0 )) && { exit 102; } # 非 work-tree 或 bare 仓库
 
 DOT_GIT_DIR="${PWD}" # bare 库
 if ${isInsideGitWorkTree}; then

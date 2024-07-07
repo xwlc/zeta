@@ -9,13 +9,12 @@ source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
 
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
-
-no-cmd apt && exit 1
+no-cmd apt && exit 101
 
 if [[ $# -eq 0 ]]; then
   echo "正向依赖 $(@D9 ${0##*/}) $(@R3 PKG)"
   echo "逆向依赖 $(@D9 ${0##*/}) $(@R3 PKG) $(@G3 X)"
-  exit 1
+  exit 102
 fi
 
 if [[ $# -eq 2 ]]; then

@@ -32,7 +32,9 @@ done
 
 # 默认生产的 ZSH 启动日志文件(当前会话父级 Shell 的 PID)
 [[ -z "${XLOG}" ]] && XLOG="${HOME}/zsh-launch-${PPID}.log"
-[[ ! -f "${XLOG}" ]] && { echo "No Zsh startup log file -> ${XLOG}"; exit 1; }
+[[ ! -f "${XLOG}" ]] && {
+  echo "No Zsh startup log file -> ${XLOG}"; exit 101
+}
 echo
 printf "\e[0;90m${XLOG}\e[0m\n"
 echo
@@ -102,8 +104,7 @@ while read line; do
 done < ${XLOG:-/dev/stdin}
 
 (( IsAllColored )) && {
-  print -l ${(@On)XLINES}
-  exit
+  print -l ${(@On)XLINES}; exit 0
 }
 
 for line in ${(@On)XLINES}; do

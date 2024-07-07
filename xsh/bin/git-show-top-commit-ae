@@ -14,7 +14,7 @@ function is-inside-git-work-tree() {
   git rev-parse --is-inside-work-tree &> /dev/null
 }
 
-! is-inside-git-work-tree && exit 1
+! is-inside-git-work-tree && exit 101
 
 # 显示 commit-author 邮箱后缀排序(从少到多)
 git log --format='%ae' | sed 's/.*@//' | sort | uniq -c | sort -k1n | head

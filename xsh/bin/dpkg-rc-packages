@@ -10,7 +10,7 @@ source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
 
-no-cmd dpkg && return 1
+no-cmd dpkg && exit 101
 
 if [[ $1 == "delete" ]]; then
   dpkg -l | grep "^rc" | awk "{print \$2}" | sudo xargs dpkg --purge

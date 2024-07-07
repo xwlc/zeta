@@ -6,7 +6,7 @@
 
 set -eu
 function no-cmd() { ! command -v "$1" > /dev/null; }
-no-cmd snap && exit 1
+no-cmd snap && exit 101
 
 # CLOSE ALL SNAPS BEFORE RUNNING THIS
 # NOTE Removes old revisions of snaps

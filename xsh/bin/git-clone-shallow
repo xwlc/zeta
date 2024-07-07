@@ -18,7 +18,7 @@ function zhelp() {
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
 
-[[ $# -eq 0 || -z "$1" ]] && { zhelp URL "[Branch]"; exit; }
+[[ $# -eq 0 || -z "$1" ]] && { zhelp URL "[Branch]"; exit 101; }
 case $# in # 仓库地址 $1  分支名 $2
   1) git clone --no-tags --depth 1 $1 ;;
   2) git clone --no-tags --depth 1 --branch "$2" $1 ;;

@@ -10,28 +10,28 @@ source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
 
-no-cmd md5sum && exit 1
+no-cmd md5sum && exit 101
 
 [[ $# != 2 || ! -f "$1" || ! -f "$2" ]] && {
   echo "Usage: $(@G3 is-file-md5-eq) path/to/$(@B3 file1) path/to/$(@Y3 file2)"
-  exit 1
+  exit 102
 }
 
 hashA=$(md5sum "$1" | cut -d' ' -f1)
 [[ $? != 0 || -z "${hashA}" ]] && {
   echo >&2 "Calculate $(@D9 md5) error for file $(@Y9 $1)"
-  exit 1
+  exit 103
 }
 
 hashB=$(md5sum "$2" | cut -d' ' -f1)
 [[ $? != 0 || -z "${hashB}" ]] && {
   echo >&2 "Calculate $(@D9 md5) error for file $(@Y9 $2)"
-  exit 1
+  exit 104
 }
 
 if [[ "${hashA}" != "${hashB}" ]]; then
   echo >&2 "The $(@D9 MD5)-hash $(@R3 not) equal for $(@G9 $1) and $(@Y9 $2)"
-  exit 1
+  exit 105
 fi
 
 echo >&2 "The $(@D9 MD5)-hash $(@G3 equal) for $(@G9 $1) and $(@Y9 $2)"

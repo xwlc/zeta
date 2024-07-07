@@ -22,7 +22,7 @@ source "${XCOLORS}" # 加载终端彩色消息输出显示的函数库
 function has-cmd() {  command -v "$1" > /dev/null; }
 function no-cmd() { ! command -v "$1" > /dev/null; }
 
-no-cmd apt && exit 1
+no-cmd apt && exit 101
 
 NEW_VER=""; OLD_VER=""; IS_HOLD=""; IS_PHASED=""
 CACHE_LOG_OLD="${THIS_DIR}/${THIS_FNO}-old.log"
