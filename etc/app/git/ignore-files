@@ -1,10 +1,6 @@
-dist/
-
-out/
-build/
-
 wip/
-todo/
+dist/
+build/
 
 *.log
 
