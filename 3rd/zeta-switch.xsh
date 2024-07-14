@@ -195,6 +195,7 @@ function @zeta:3rd:update-tools() {
     for prog in $(command ls "${tools}"); do
       local abspath="$(realpath -eq "${tools}/${prog}")"
       if [[ $? -ne 0 || -z "${abspath}" ]]; then
+        echo "Delete $(@D9 3rd/tools/)$(@G3 ${prog}) $(@D9 '->') $(@Y3 "${abspath}")"
         rm -f "${tools}/${prog}"
       else
         xskip["${abspath}"]=true
