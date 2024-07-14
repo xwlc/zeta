@@ -168,7 +168,7 @@ function showIpDomain() {
   if (( PingTest )); then
     echo "================排序后================"
     # 依据 Avg 排序(内含终端颜色转义代码)
-    cat "${xlog}" | sort -bn --key 5.8,6
+    cat "${xlog}" | sort -bn --key 5.8,6 | tee "${xlog}"
   fi
 }
 
