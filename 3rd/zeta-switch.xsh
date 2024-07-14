@@ -189,21 +189,35 @@ function @zeta:3rd:zeta-switch() {
 }
 
 function @zeta:3rd:update-tools() {
-  local dst="${ZETA_DIR}/3rd/tools"  mid  src  fn  abs
-  if [[ -n "$(command ls "${dst}")" ]]; then
-    for fn in $(command ls "${dst}"); do
-      abs="$(realpath -eq "${dst}/${fn}")"
-      [[ $? -ne 0 || -z "${abs}" ]] && rm -f "${dst}/${fn}"
+  local -A xskip
+  local tools="${ZETA_DIR}/3rd/tools"  prog  xpkg
+  if [[ -n "$(command ls "${tools}")" ]]; then
+    for prog in $(command ls "${tools}"); do
+      local abspath="$(realpath -eq "${tools}/${prog}")"
+      if [[ $? -ne 0 || -z "${abspath}" ]]; then
+        rm -f "${tools}/${prog}"
+      else
+        xskip["${abspath}"]=true
+      fi
     done
   fi
-  for mid in gems rust/cargo; do
-    src="${ZETA_DIR}/3rd/vendor/${mid}/bin"
-    [[ -z "$(command ls "${src}")" ]] && continue
-    for fn in $(command ls "${src}"); do
-      abs="$(realpath -eq "${src}/${fn}")"
-      [[ $? -ne 0 || -z "${abs}" ]] && continue
-      ln -sTf  "${abs}"  "${dst}/${fn}"
-      echo "Create $(@D9 3rd/tools/)$(@G3 ${fn}) $(@D9 '->') $(@Y3 "${abs}")"
+
+  local node="${NODE_PATH#${ZETA_DIR}/3rd/vendor/}"
+  node="${node%/lib/node_modules}" # 当前 NODE 版本
+
+  for xpkg in rust/cargo  ${node}  gems; do
+    local xbin="${ZETA_DIR}/3rd/vendor/${xpkg}/bin"
+    [[ -z "$(command ls "${xbin}")" ]] && continue
+    for prog in $(command ls "${xbin}"); do
+      [[ "${xpkg}" == "${node}" ]] && {
+        case ${prog} in
+          node|corepack|npm|npx) continue ;;
+        esac
+      }
+      local abspath="$(realpath -eq "${xbin}/${prog}")"
+      [[ $? -ne 0 || -z "${abspath}" || ${xskip["${abspath}"]} ]] && continue
+      ln -sTf  "${abspath}"  "${tools}/${prog}"; xskip["${abspath}"]=true
+      echo "Update $(@D9 3rd/tools/)$(@G3 ${prog}) $(@D9 '->') $(@Y3 "${abspath}")"
     done
   done
 }
